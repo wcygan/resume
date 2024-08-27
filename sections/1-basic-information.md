@@ -1,0 +1,7 @@
+Name: [Your Full Name]
+Email: [Your Email]
+Phone: [Your Phone Number]
+Location: [City, State/Province, Country]
+LinkedIn: [Your LinkedIn URL]
+GitHub: [Your GitHub URL]
+Personal Website: [Your Website URL]
