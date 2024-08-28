@@ -1,11 +1,12 @@
-\documentclass[11pt]{article}
+\documentclass[10pt]{article}
 \usepackage[a4paper, top=0.5in, bottom=0.5in, left=0.5in, right=0.5in]{geometry}
 \usepackage{XCharter}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{enumitem}
-\usepackage[hidelinks]{hyperref}
+\usepackage[hidelinks, colorlinks=true, allcolors=blue]{hyperref}
 \usepackage{titlesec}
+\usepackage{array}
 \raggedright
 \pagestyle{empty}
 
@@ -25,18 +26,22 @@
 
 \centerline{\href{mailto:wcygan.io@gmail.com}{wcygan.io@gmail.com} | \href{https://linkedin.com/in/wcygan}{linkedin.com/in/wcygan} | \href{https://github.com/wcygan}{github.com/wcygan} | \href{https://www.wcygan.io}{wcygan.io}}
 
-\vspace{-10pt}
+\vspace{5pt}
 
 \section*{Skills}
-\textbf{Languages:} Java, Rust, Go, Python \\
-\textbf{Technologies:} gRPC, Protocol Buffers, Docker, Kubernetes \\
-\textbf{Data Systems:} PostgreSQL, Redis, Kafka, Samza, Spark, Hadoop
+\vspace{4pt}
+\begin{tabular}{@{}ll@{}}
+\textbf{Languages:} & Java, Rust, Go, Python, Scala \\
+\textbf{Technologies:} & gRPC, Protocol Buffers, Docker, Kubernetes \\
+\textbf{Data Systems:} & PostgreSQL, Redis, Kafka, Samza, Spark, Hadoop
+\end{tabular}
 
-\vspace{-6.5pt}
+\vspace{5pt}
 
 \section*{Experience}
-\textbf{Senior Software Engineer,} \href{https://www.linkedin.com/}{LinkedIn} -- Chicago, IL \hfill March 2024 -- Present \\
-\vspace{-9pt}
+\vspace{4pt}
+\textbf{Senior Software Engineer,} \href{https://www.linkedin.com/}{LinkedIn} -- Chicago, IL \hfill March 2024 -- Present
+\vspace{-4pt}
 \begin{itemize}
   \item Architected a high-performance alerting system using \textbf{Kafka, Samza, and Venice}, enabling real-time invoice tracking and alerts at \textbf{50,000+ QPS} for LinkedIn's Global Alerts feature.
   \item Reclaimed \textbf{\$2M+ in annualized revenue} by preventing involuntary churn through the Global Alerts system, \textbf{contributing to LinkedIn's bottom-line growth} and customer retention efforts.
@@ -44,48 +49,47 @@
   \item Led JVM optimization efforts, using A/B testing to \textbf{improve JVM health from 30-80\% to 99.9\%} across 6 unhealthy production services.
 \end{itemize}
 
-\textbf{Software Engineer,} \href{https://www.linkedin.com/}{LinkedIn} -- Chicago, IL \hfill February 2022 -- March 2024 \\
-\vspace{-9pt}
+\textbf{Software Engineer,} \href{https://www.linkedin.com/}{LinkedIn} -- Chicago, IL \hfill February 2022 -- March 2024
+\vspace{-4pt}
 \begin{itemize}
-  \item Contributed to the backend implementation of VYMBII (\textbf{Videos You Might Be Interested In}) for LinkedIn Learning courses on \textbf{\href{https://linkedin.com/feed}{linkedin.com/feed}}. This \textit{online} feature served videos at around ~3,000 QPS scale.
+  \item Contributed to the backend implementation of VYMBII (\textbf{Videos You Might Be Interested In}) for LinkedIn Learning courses on \href{https://linkedin.com/feed}{linkedin.com/feed}. This \textit{online} feature served videos at around ~3,000 QPS scale.
   \item VYMBII leveraged ML models to \textbf{personalize video recommendations} for courses which were displayed in a carousel format \textbf{similar to TikTok}. Resulted in a \textbf{10\%+ increase in course engagement}.
   \item Developed the \textit{offline} flows (\textbf{Spark+HDFS}) for Learning Alerts, \textbf{a recommendation system} that classifies users based on job-seeking preferences and \textbf{delivers targeted course recommendations to 10M users weekly}. 
 \end{itemize}
 
-\vspace{-18.5pt}
+\vspace{5pt}
 
 \section*{Projects}
-\textbf{Twote Social Media Platform} [Rust, gRPC, Docker, ...] \hfill \href{https://github.com/wcygan/twote}{github.com/wcygan/twote} \\
-\vspace{-9pt}
+\vspace{4pt}
+\textbf{Twote Social Media Platform} \textit{[Rust, gRPC, Docker]} \hfill \href{https://github.com/wcygan/twote}{github.com/wcygan/twote}
+\vspace{-4pt}
 \begin{itemize}
   \item \textbf{Architected a social media platform with microservices} using Rust and gRPC.
-  \item Designed and integrated multiple databases {(Postgres, Redis, MongoDB) for \textbf{efficient data management}}
+  \item Designed and integrated multiple databases (Postgres, Redis, MongoDB) for \textbf{efficient data management}
   \item Implemented \textbf{authentication and session management} using Redis for token caching
 \end{itemize}
 
-\textbf{Concurrent Web Crawler} [Rust, Tokio] \hfill \href{https://github.com/wcygan/crawler}{github.com/wcygan/crawler} \\
-\vspace{-9pt}
+\textbf{Concurrent Web Crawler} \textit{[Rust, Tokio]} \hfill \href{https://github.com/wcygan/crawler}{github.com/wcygan/crawler}
+\vspace{-4pt}
 \begin{itemize}
-
   \item Developed an asynchronous web crawler using Rust and Tokio. The application crawls web pages to collect and \textbf{index data while respecting rate limits} for each domain.
   \item Implemented a \textbf{concurrent architecture} using connection and parser pools for optimal performance
   \item Designed a key-based rate limiter to \textbf{prevent overloading target servers} with traffic
   \item Implemented graceful shutdown \textbf{mechanism for clean termination} of the crawler
 \end{itemize}
 
-\textbf{Java Callgraph} [Java, JaCoCo] \hfill \href{https://github.com/bitslab/java-callgraph}{github.com/bitslab/java-callgraph} \\
-\vspace{-9pt}
+\textbf{Java Callgraph} \textit{[Java, JaCoCo]} \hfill \href{https://github.com/bitslab/java-callgraph}{github.com/bitslab/java-callgraph}
+\vspace{-4pt}
 \begin{itemize}
-
   \item Developed a research project which \textbf{generates static call graphs for Java projects} using Java Reflection and various libraries including JGraphT, BCEL, and Reflections
   \item Implemented graph algorithms to \textbf{analyze and optimize call graphs}, including reachability analysis, pruning, and ancestry computation
   \item Created functionality to parse JAR files, extract method calls, and \textbf{construct directed graphs representing the java program callgraph}
-
 \end{itemize}
 
-\vspace{-18.5pt}
+\vspace{5pt}
 
 \section*{Education}
-\textbf{\href{https://www.uic.edu/}{University of Illinois at Chicago}} -- BS in Computer Science \hfill Fall 2021
+\vspace{4pt}
+\textbf{\href{https://www.uic.edu/}{University of Illinois at Chicago}} -- BS in Computer Science \hfill Graduated: December 2021
 
 \end{document}
