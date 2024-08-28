@@ -1,22 +1,22 @@
 Programming Languages
 
-Language 1
-Language 2
-Language 3
+1. Java
+2. Rust
+3. Go
+4. Python
 
-Frameworks & Libraries
+Frameworks & Tools
 
-Framework 1
-Framework 2
-Library 1
+1. gRPC 
+2. Protocol Buffers
+3. Docker
+4. Kubernetes
 
-Databases
+Data Infrastructure
 
-Database 1
-Database 2
-
-Tools & Technologies
-
-Tool 1
-Tool 2
-Technology 1
+1. PostgreSQL
+2. Redis
+3. Kafka
+4. Samza
+5. Spark
+6. Hadoop
