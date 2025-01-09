@@ -2,11 +2,14 @@
 
 This repository contains the guts of my resume.
 
-# Usage
+## Usage
 
-TBD: compose all of the files into latex and pdf
+```bash
+brew install --cask mactex
+pdflatex -jobname=will_cygan_resume resume.tex
+```
 
-# Useful References
+## References
 
 - [Claude Projects](https://www.anthropic.com/news/projects) with context added
 - https://www.reddit.com/r/EngineeringResumes/
