@@ -2,16 +2,30 @@
 
 This repository contains the guts of my resume.
 
-## Usage
+## Typst
+
+Install Typst and dependencies:
 
 ```bash
-brew install --cask mactex
-pdflatex -jobname=will_cygan_resume resume.tex
+brew install typst
+brew install --cask font-fontawesome
 ```
 
-## References
+## Development Workflow
 
-- [Claude Projects](https://www.anthropic.com/news/projects) with context added
-- https://www.reddit.com/r/EngineeringResumes/
-  - https://www.reddit.com/r/EngineeringResumes/wiki/index/
-- https://www.open-resume.com/
+For live compilation with auto-reload during development:
+```bash
+typst watch resume.typ
+```
+
+## Generate Final Resume
+
+To generate the final resume as `will_cygan_resume.pdf`:
+```bash
+typst compile resume.typ will_cygan_resume.pdf
+```
+
+Or to generate with the default name `resume.pdf`:
+```bash
+typst compile resume.typ
+```

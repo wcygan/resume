@@ -1,0 +1,138 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Typst Resume Development Guide
+
+This project uses Typst with the modern-cv package to create professional resumes. Typst is a modern markup-based typesetting system that's faster and more intuitive than LaTeX.
+
+## Project Structure
+
+- [resume.typ](mdc:resume.typ) - Main resume source file using modern-cv package
+- [README.md](mdc:README.md) - Setup and build instructions
+- Generated PDFs: `resume.pdf`, `will_cygan_resume.pdf`
+
+## Setup and Dependencies
+
+### Installation (macOS)
+```bash
+brew install typst
+brew install --cask font-fontawesome
+```
+
+### Development Workflow
+```bash
+typst watch resume.typ  # Live compilation with auto-reload during development
+```
+
+### Generate Final Resume
+```bash
+typst compile resume.typ will_cygan_resume.pdf  # Generate final resume with custom name
+typst compile resume.typ                         # Generate with default name (resume.pdf)
+```
+
+## Typst Modern-CV Package Usage
+
+### Package Import
+```typst
+#import "@preview/modern-cv:0.8.0": *
+```
+
+### Document Configuration
+The resume template is configured using `#show: resume.with()` with these key parameters:
+
+**Author Information:**
+- `firstname`, `lastname` - Personal name
+- `email`, `phone`, `address` - Contact details
+- `homepage`, `github`, `linkedin`, `twitter` - Social/professional links
+- `positions` - Array of job titles/roles
+
+**Layout Options:**
+- `profile-picture: none` - No profile photo
+- `colored-headers: true` - Colored section headers
+- `show-footer: false` - Hide footer
+- `show-address-icon: true` - Show address icon
+- `paper-size: "us-letter"` - US letter format
+- `language: "en"` - English language
+
+### Content Structure Functions
+
+**Section Headers:**
+```typst
+= Experience  # Creates major section
+```
+
+**Job/Experience Entries:**
+```typst
+#resume-entry(
+  title: "Job Title",
+  location: "City, State", 
+  date: "Start - End",
+  description: "Company Name",
+  title-link: "https://optional-link.com"
+)
+```
+
+**Content Items:**
+```typst
+#resume-item[
+  - Bullet point content
+  - Another achievement
+  - #lorem(20)  # Placeholder text
+]
+```
+
+**Skills Section:**
+```typst
+#resume-skill-item(
+  "Category Name",
+  (
+    strong("Emphasized Skill"),
+    "Regular Skill",
+    "Another Skill"
+  )
+)
+```
+
+**GitHub Links:**
+```typst
+#github-link("username/repository")
+```
+
+## Key Features
+
+1. **Fast Compilation** - Millisecond compile times vs LaTeX seconds
+2. **Live Preview** - Real-time updates during development  
+3. **Clean Syntax** - Markdown-like markup with function calls
+4. **Type Safety** - Compile-time error checking
+5. **Professional Styling** - Based on popular Awesome-CV LaTeX template
+6. **Social Integration** - Built-in GitHub, LinkedIn, Twitter support
+
+## Content Organization
+
+The resume follows this typical structure:
+1. **Header** - Auto-generated from author configuration
+2. **Experience** - Work history with `#resume-entry` and `#resume-item`
+3. **Projects** - Personal/open source projects
+4. **Skills** - Categorized technical and soft skills
+5. **Education** - Academic background
+
+## Best Practices
+
+- Use `strong()` to emphasize important skills/technologies
+- Leverage `#lorem()` for placeholder content during development
+- Keep consistent date formatting (e.g., "May 2021 - Present")
+- Use descriptive section headers with `=` syntax
+- Link to relevant projects/profiles using built-in link functions
+- Test compilation frequently with `typst watch`
+
+## Advantages Over LaTeX
+
+- **Simpler Syntax** - More intuitive than LaTeX commands
+- **Faster Compilation** - Near-instant vs multi-second builds
+- **Better Error Messages** - Clear, helpful compilation errors
+- **Consistent Functions** - Uniform interface across all functions
+- **Modern Tooling** - Built-in package manager and web app
+
+This setup provides a professional, maintainable resume system with modern development experience.
