@@ -2,7 +2,7 @@
 
 #show: resume.with(
   author: (
-    firstname: "Foozie",
+    firstname: "Will",
     lastname: "Bar Baz",
     email: "js@example.com",
     homepage: "https://example.com",

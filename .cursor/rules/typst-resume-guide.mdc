@@ -9,9 +9,10 @@ This project uses Typst with the modern-cv package to create professional resume
 
 ## Project Structure
 
-- [resume.typ](mdc:resume.typ) - Main resume source file using modern-cv package
+- [will_cygan_resume.typ](mdc:will_cygan_resume.typ) - Main resume source file using modern-cv package
 - [README.md](mdc:README.md) - Setup and build instructions
-- Generated PDFs: `resume.pdf`, `will_cygan_resume.pdf`
+- [.github/workflows/compile-resume.yml](mdc:.github/workflows/compile-resume.yml) - GitHub Actions workflow for automated compilation
+- Generated PDFs: `will_cygan_resume.pdf`
 
 ## Setup and Dependencies
 
@@ -23,13 +24,13 @@ brew install --cask font-fontawesome
 
 ### Development Workflow
 ```bash
-typst watch resume.typ  # Live compilation with auto-reload during development
+typst watch will_cygan_resume.typ  # Live compilation with auto-reload during development
 ```
 
 ### Generate Final Resume
 ```bash
-typst compile resume.typ will_cygan_resume.pdf  # Generate final resume with custom name
-typst compile resume.typ                         # Generate with default name (resume.pdf)
+typst compile will_cygan_resume.typ will_cygan_resume.pdf  # Generate final resume with custom name
+typst compile will_cygan_resume.typ                        # Generate with default name (will_cygan_resume.pdf)
 ```
 
 ## Typst Modern-CV Package Usage
@@ -125,7 +126,7 @@ The resume follows this typical structure:
 - Keep consistent date formatting (e.g., "May 2021 - Present")
 - Use descriptive section headers with `=` syntax
 - Link to relevant projects/profiles using built-in link functions
-- Test compilation frequently with `typst watch`
+- Test compilation frequently with `typst watch will_cygan_resume.typ`
 
 ## Advantages Over LaTeX
 
@@ -135,4 +136,22 @@ The resume follows this typical structure:
 - **Consistent Functions** - Uniform interface across all functions
 - **Modern Tooling** - Built-in package manager and web app
 
-This setup provides a professional, maintainable resume system with modern development experience.
+## GitHub Actions Integration
+
+The repository includes automated compilation via GitHub Actions using the [setup-typst action](https://github.com/marketplace/actions/setup-typst):
+
+```yaml
+- uses: typst-community/setup-typst@v4
+  with:
+    typst-version: ^0.13.0
+- run: typst compile will_cygan_resume.typ will_cygan_resume.pdf
+```
+
+**Workflow Features:**
+- Triggers on push/PR to main/master branches
+- Compiles resume automatically
+- Uploads PDF as workflow artifact
+- Verifies compilation success
+- 30-day artifact retention
+
+This setup provides a professional, maintainable resume system with modern development experience and automated CI/CD.
