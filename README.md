@@ -40,3 +40,40 @@ This repository includes a GitHub Actions workflow that automatically compiles t
 4. Verifies the compilation was successful
 
 The workflow runs on Ubuntu and uses Typst version ^0.13.0. You can download the compiled resume from the Actions tab after each successful run.
+
+## Local CI with Act
+
+This repository includes a Deno script to run GitHub Actions locally using [Act](https://github.com/nektos/act). This provides fast feedback for testing workflow changes without pushing to GitHub.
+
+### Prerequisites
+
+- [Deno](https://deno.land/) - JavaScript/TypeScript runtime
+- [Act](https://github.com/nektos/act) - Run GitHub Actions locally
+- [Docker](https://www.docker.com/) - Required by Act
+
+### Usage
+
+```bash
+# Run the workflow locally
+./scripts/run-local-ci.ts
+
+# Run with verbose output
+./scripts/run-local-ci.ts --verbose
+
+# Dry run to see what would execute
+./scripts/run-local-ci.ts --dry-run
+
+# Show help
+./scripts/run-local-ci.ts --help
+
+# List available workflows
+./scripts/run-local-ci.ts --list
+```
+
+### Features
+
+- **Fast Feedback**: Test workflow changes locally without pushing
+- **Real-time Output**: Stream compilation output in real-time
+- **Artifact Simulation**: Simulates GitHub Actions artifact upload
+- **Error Handling**: Clear error messages and exit codes
+- **Prerequisites Check**: Validates that Act and Docker are available

@@ -1,0 +1,17 @@
+# Act configuration file
+# This file configures default options for running GitHub Actions locally
+
+# Use a smaller, faster image for ubuntu-latest
+--platform ubuntu-latest=catthehacker/ubuntu:act-latest
+
+# Enable artifact server for uploading artifacts
+--artifact-server-path /tmp/artifacts
+
+# Set default container architecture
+--container-architecture linux/amd64
+
+# Reuse containers for faster subsequent runs
+--reuse
+
+# Use host networking for better performance
+--use-gitignore 
