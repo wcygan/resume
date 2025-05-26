@@ -1,0 +1,41 @@
+name: Compile Resume
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  compile-resume:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Typst
+        uses: typst-community/setup-typst@v4
+        with:
+          typst-version: ^0.13.0
+      
+      - name: Compile resume
+        run: typst compile will_cygan_resume.typ will_cygan_resume.pdf
+      
+      - name: Upload resume artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: will-cygan-resume
+          path: will_cygan_resume.pdf
+          retention-days: 30
+      
+      - name: Verify compilation
+        run: |
+          if [ -f "will_cygan_resume.pdf" ]; then
+            echo "✅ Resume compiled successfully!"
+            ls -la will_cygan_resume.pdf
+          else
+            echo "❌ Resume compilation failed!"
+            exit 1
+          fi 
