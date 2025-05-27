@@ -2,6 +2,12 @@
 
 This repository contains the guts of my resume.
 
+Make sure to use these tools to generate the best resume:
+
+1. https://github.com/xitanggg/open-resume
+2. https://github.com/srbhr/Resume-Matcher
+
+
 ## Typst
 
 Install Typst and dependencies:
