@@ -9,7 +9,7 @@
     github: "wcygan",
     linkedin: "wcygan",
     positions: (
-      "Senior Software Engineer, LinkedIn",
+      "Software Engineer working on Purchase and Payments systems at LinkedIn",
     ),
   ),
   profile-picture: none,
@@ -20,7 +20,7 @@
   paper-size: "us-letter",
 )
 
-= Experience
+= Work Experience
 
 #resume-entry(
   title: "Senior Software Engineer",
@@ -31,9 +31,10 @@
 )
 
 #resume-item[
-  - foo bar baz
-  - foo bar baz
-  - foo bar baz
+  - Architected a high-performance alerting system using Kafka, Samza, and Venice, enabling real-time invoice tracking and alerts at 50,000+ QPS for the LinkedIn Global Alerts feature.
+  - Reclaimed \$2M+ in annualized revenue by preventing involuntary churn through the Global Alerts system, contributing to bottom-line growth at LinkedIn and customer retention efforts.
+  - Engineered a Kusto-based exception summary dashboard, integrating access and application logs, reducing incident triage time from tens of minutes to seconds and enhancing overall efficiency.
+  - Led JVM optimization efforts using A/B testing to improve JVM health from 30-80% to 99.9% across unhealthy production services.
 ]
 
 #resume-entry(
@@ -45,9 +46,9 @@
 )
 
 #resume-item[
-  - foo bar baz
-  - foo bar baz
-  - foo bar baz
+  - Contributed to the backend implementation of VYMBII (Videos You Might Be Interested In) for LinkedIn Learning courses on linkedin.com/feed, serving videos at around 3,000 QPS.
+  - Leveraged ML models to personalize video recommendations for courses displayed in a carousel format similar to TikTok, resulting in a 10%+ increase in course engagement.
+  - Developed the offline flows (Spark+HDFS) for Learning Alerts, a recommendation system that classifies users based on job-seeking preferences and delivers targeted course recommendations to 10M users weekly.
 ]
 
 #resume-entry(
@@ -59,9 +60,10 @@
 )
 
 #resume-item[
-  - foo bar baz
-  - foo bar baz
-  - foo bar baz
+  - Introduced new learning recommendations into the homepage feed for LinkedIn Learning.
+  - Built a course ranker to attract job seekers to LinkedIn Learning.
+  - Created a discovery experience on LinkedIn Learning.
+  - Leveraged the economic graph to discover relevant skills for job titles.
 ]
 
 = Projects
