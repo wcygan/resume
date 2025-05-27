@@ -31,10 +31,13 @@
 )
 
 #resume-item[
-  - Architected a high-performance alerting system using Kafka, Samza, and Venice, enabling real-time invoice tracking and alerts at 50,000+ QPS for the LinkedIn Global Alerts feature.
-  - Reclaimed \$2M+ in annualized revenue by preventing involuntary churn through the Global Alerts system, contributing to bottom-line growth at LinkedIn and customer retention efforts.
-  - Engineered a Kusto-based exception summary dashboard, integrating access and application logs, reducing incident triage time from tens of minutes to seconds and enhancing overall efficiency.
-  - Led JVM optimization efforts using A/B testing to improve JVM health from 30-80% to 99.9% across unhealthy production services.
+  - Architected a high-performance alerting system using Kafka, Samza, and Venice, processing 50,000+ QPS to provide real-time invoice tracking and critical financial alerts for LinkedIn's Global Alerts platform.
+  - Reclaimed \$2M+ in annualized revenue by preventing involuntary churn through the Global Alerts system, directly impacting LinkedIn's bottom-line and enhancing customer retention.
+  - Pioneered a scalable Oracle-to-MySQL delegation framework, empowering over a dozen engineering domains to seamlessly and securely onboard to MySQL, significantly accelerating organizational database modernization efforts.
+  - Orchestrated the design and execution of a zero-downtime migration for 2 key services from Oracle to MySQL; ensured strong data consistency throughout the transition by leveraging a Couchbase-backed pinning strategy for entity routing.
+  - Spearheaded the migration of 4 critical services from Rest.li to gRPC, enhancing system interoperability and boosting developer productivity through standardized tooling and comprehensive documentation.
+  - Optimized the Global Alerts system by implementing an Airflow-based offline workflow to proactively identify and purge stale cache records, successfully cutting downstream service traffic by 50%.
+  - Led JVM optimization initiatives, employing A/B testing methodologies to elevate JVM health from a baseline of 30-80% to a consistent 99.9%+ across critical, underperforming production services.
 ]
 
 #resume-entry(
@@ -46,24 +49,9 @@
 )
 
 #resume-item[
-  - Contributed to the backend implementation of VYMBII (Videos You Might Be Interested In) for LinkedIn Learning courses on linkedin.com/feed, serving videos at around 3,000 QPS.
-  - Leveraged ML models to personalize video recommendations for courses displayed in a carousel format similar to TikTok, resulting in a 10%+ increase in course engagement.
-  - Developed the offline flows (Spark+HDFS) for Learning Alerts, a recommendation system that classifies users based on job-seeking preferences and delivers targeted course recommendations to 10M users weekly.
-]
-
-#resume-entry(
-  title: "Software Engineer Intern", 
-  location: "San Francisco, CA",
-  date: "Winter 2020, Summer 2021",
-  description: "LinkedIn",
-  title-link: "https://www.linkedin.com/in/wcygan/",
-)
-
-#resume-item[
-  - Introduced new learning recommendations into the homepage feed for LinkedIn Learning.
-  - Built a course ranker to attract job seekers to LinkedIn Learning.
-  - Created a discovery experience on LinkedIn Learning.
-  - Leveraged the economic graph to discover relevant skills for job titles.
+  - Developed and scaled backend microservices for "Videos You Might Be Interested In" (VYMBII), a LinkedIn Learning discovery feature on the main feed, handling ~3,000 QPS.
+  - Implemented ML-driven personalization for video course recommendations within a TikTok-style carousel, achieving a 10%+ uplift in member engagement with learning content.
+  - Engineered robust offline data pipelines using Spark and HDFS for "Learning Alerts," a system classifying 10M+ users weekly to deliver targeted course recommendations based on job-seeking signals.
 ]
 
 = Projects
@@ -83,7 +71,7 @@
 
 #resume-entry(
   title: "tokio-utils Rust Library",
-  location: github-link("wcygan/tokio-utils"),
+  location: [#github-link("wcygan/tokio-utils")],
   date: "March 2023 - Present",
   description: "Maintainer",
 )
