@@ -9,7 +9,7 @@
     github: "wcygan",
     linkedin: "wcygan",
     positions: (
-      "Software Engineer working on Purchase and Payments systems at LinkedIn",
+      "Software Engineer working on the Purchasing Platform at LinkedIn",
     ),
   ),
   profile-picture: none,
@@ -33,7 +33,7 @@
 #resume-item[
   - Architected a high-performance alerting system using Kafka, Samza, and Venice, processing 50,000+ QPS to provide real-time invoice tracking and critical financial alerts for LinkedIn's Global Alerts platform.
   - Reclaimed \$2M+ in annualized revenue by preventing involuntary churn through the Global Alerts system, directly impacting LinkedIn's bottom-line and enhancing customer retention.
-  - Pioneered a scalable Oracle-to-MySQL delegation framework, empowering over a dozen engineering domains to seamlessly and securely onboard to MySQL, significantly accelerating organizational database modernization efforts.
+  - Pioneered a scalable Oracle-to-MySQL migration framework, empowering a dozen engineering teams to seamlessly onboard to MySQL, significantly accelerating organizational database modernization efforts.
   - Orchestrated the design and execution of a zero-downtime migration for 2 key services from Oracle to MySQL; ensured strong data consistency throughout the transition by leveraging a Couchbase-backed pinning strategy for entity routing.
   - Spearheaded the migration of 4 critical services from Rest.li to gRPC, enhancing system interoperability and boosting developer productivity through standardized tooling and comprehensive documentation.
   - Optimized the Global Alerts system by implementing an Airflow-based offline workflow to proactively identify and purge stale cache records, successfully cutting downstream service traffic by 50%.
@@ -50,7 +50,7 @@
 
 #resume-item[
   - Developed and scaled backend microservices for "Videos You Might Be Interested In" (VYMBII), a LinkedIn Learning discovery feature on the main feed, handling ~3,000 QPS.
-  - Implemented ML-driven personalization for video course recommendations within a TikTok-style carousel, achieving a 10%+ uplift in member engagement with learning content.
+  - Engineered the backend data infrastructure powering personalized video course recommendations within a TikTok-style carousel, achieving a 10%+ uplift in member engagement with learning content.
   - Engineered robust offline data pipelines using Spark and HDFS for "Learning Alerts," a system classifying 10M+ users weekly to deliver targeted course recommendations based on job-seeking signals.
 ]
 
@@ -99,7 +99,7 @@
 #resume-skill-item(
   "Technologies", 
   (
-    strong("Temporal"),
+    strong("Temporal Workflows"),
     strong("gRPC"),
     "Protocol Buffers",
     "Docker",
