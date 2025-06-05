@@ -1,0 +1,6 @@
+{
+  "tasks": {
+    "dev": "./scripts/dev.sh",
+    "compile": "typst compile will_cygan_resume.typ"
+  }
+}
