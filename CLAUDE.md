@@ -27,7 +27,7 @@ typst compile will_cygan_resume.typ
 
 ### Source Files
 - **`will_cygan_resume.typ`** - Main Typst source file using the modern-cv template (v0.8.0)
-- **`work-experience.md`** - Reference material with detailed work experience (not directly used in compilation)
+- **`archive/`** - Contains deprecated LaTeX files and reference materials for historical purposes
 
 ### Build System
 - **Typst** - Modern typesetting system for document generation

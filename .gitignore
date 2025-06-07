@@ -1,5 +1,10 @@
 **/.DS_Store
-will_cygan_resume.aux
-will_cygan_resume.log
-will_cygan_resume.out
-resume.pdf
+*.aux
+*.log
+*.out
+
+# Typst build artifacts
+*.pdf.tmp
+
+# Archive directory PDFs are tracked
+!/archive/*.pdf
