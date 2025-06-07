@@ -1,6 +1,10 @@
 {
   "tasks": {
-    "dev": "./scripts/dev.sh",
+    "dev": "deno run --allow-read --allow-run --allow-env scripts/dev.ts",
     "compile": "typst compile will_cygan_resume.typ"
+  },
+  "imports": {
+    "@david/dax": "jsr:@david/dax@0.42.0",
+    "@std/path": "jsr:@std/path@1.0.8"
   }
 }

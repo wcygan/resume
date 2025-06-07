@@ -32,7 +32,7 @@ typst compile will_cygan_resume.typ
 ### Build System
 - **Typst** - Modern typesetting system for document generation
 - **GitHub Actions** - Automated compilation on push/PR to main/master
-- **Deno tasks** - Build automation (though `dev.sh` is still bash-based)
+- **Deno tasks** - Build automation with TypeScript scripts
 
 ### Development Workflow
 1. Edit `will_cygan_resume.typ` 
@@ -45,4 +45,4 @@ typst compile will_cygan_resume.typ
 - The project uses the `modern-cv` Typst template for professional formatting
 - PDF output is named `will_cygan_resume.pdf`
 - CI artifacts are retained for 30 days
-- The dev script (`scripts/dev.sh`) handles cross-platform PDF opening
+- The dev script (`scripts/dev.ts`) handles cross-platform PDF opening
