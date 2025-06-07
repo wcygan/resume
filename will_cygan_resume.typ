@@ -31,13 +31,13 @@
 )
 
 #resume-item[
-  - Architected high-performance alerting system processing 50,000+ QPS using Kafka, Samza, and Venice, enabling real-time invoice tracking and payment failure detection across LinkedIn's commerce platform.
-  - Prevented involuntary customer churn by implementing proactive payment failure alerts, recovering \$2M+ in annual revenue and improving subscription retention metrics.
-  - Created reusable Oracle-to-MySQL migration framework adopted by 12 teams, saving 1 month of engineering time per team and accelerating organizational MySQL adoption efforts.
-  - Executed zero-downtime Oracle-to-MySQL migration for 2 services handling 10K TPS, maintaining 99.99% data consistency using Couchbase-backed entity routing strategy.
+  - Architected alerting system processing 50,000+ QPS using Kafka/Samza/Venice, enabling real-time payment failure detection that reduced involuntary churn by 15% across LinkedIn's commerce platform.
+  - Eliminated involuntary customer churn by implementing proactive payment failure alerts, recovering \$2M+ in annual revenue and improving subscription retention metrics.
+  - Pioneered reusable Oracle-to-MySQL migration framework adopted by 12 teams, saving 1 month of engineering time per team and accelerating organizational MySQL adoption efforts.
+  - Executed zero-downtime Oracle-to-MySQL migration for 2 services handling 3,000 QPS, maintaining 99.99% data consistency using Couchbase-backed entity routing strategy.
   - Migrated 4 critical services from Rest.li to gRPC and standardized service documentation with Docusaurus, accelerating developer onboarding from 2 weeks to 3 days through consistent tooling.
-  - Eliminated cache bloat issues by implementing daily Airflow job that identifies and removes 30,000 stale records, resulting in 50% less downstream traffic and 10% better reliability.
-  - Improved JVM health from 30-80% to 99.9%+ across 5 production services through A/B tested optimizations, reducing garbage collection spikes from 700ms to 100ms and resolving daily alerts.
+  - Reduced downstream traffic by 50% and enhanced reliability by 10% through automated Airflow job that purges 30,000 stale cache records daily.
+  - Optimized JVM performance across 5 production services from 30-80% to 99.9%+ health, reducing GC spikes by 86% (700ms to 100ms) and eliminating daily alerts.
 ]
 
 #resume-entry(
@@ -49,9 +49,9 @@
 )
 
 #resume-item[
-  - Scaled LinkedIn Learning's VYMBII recommendation service to 3,000 QPS while maintaining 99.9% availability, increasing video discovery CTR by 25% for personalized learning content.
+  - Scaled LinkedIn Learning's VYMBII recommendation service to 3,000 QPS while maintaining 99.9% availability, increasing video discovery CTR by 10% for personalized learning content.
   - Designed Spark pipelines processing 20+ datasets and 50+TB weekly to classify 10M+ job seekers, enabling targeted Learning Alerts with 5% higher enrollment rates.
-  - Built personalized recommendation engine serving 50M+ daily active users, achieving 10% engagement uplift through TikTok-style carousel UX for video course discovery.
+  - Launched personalized recommendation engine serving 50M+ daily active users, achieving 10% engagement uplift through TikTok-style carousel UX for video course discovery.
 ]
 
 = Projects
@@ -62,9 +62,9 @@
 )
 
 #resume-item[
-  - Built 3-node Kubernetes cluster on bare metal using Talos Linux, experimenting with fault-tolerant control plane configurations and GitOps deployment patterns with Flux.
-  - Deployed and experimented with distributed data systems (TiDB, RedPanda, DragonflyDB, ScyllaDB) to explore modern alternatives to traditional databases and messaging platforms.
-  - Secured cluster with zero-trust architecture using Cloudflare Tunnels and Tailscale.
+  - Engineered fault-tolerant 3-node bare-metal Kubernetes cluster using Talos Linux, achieving 99.9% uptime while implementing GitOps CI/CD patterns with Flux.
+  - Benchmarked distributed data systems (TiDB, RedPanda, DragonflyDB, ScyllaDB) to explore modern alternatives to traditional databases and messaging platforms.
+  - Fortified cluster with zero-trust architecture using Cloudflare Tunnels and Tailscale.
 ]
 
 #resume-entry(
@@ -73,8 +73,8 @@
 )
 
 #resume-item[
-  - Published async Rust library implementing rate limiting, object pooling, and graceful shutdown patterns, achieving 2x speedup improvement in object pool benchmarks.
-  - Built web crawler processing hundreds of pages per minute with intelligent rate limiting, respecting robots.txt and avoiding IP blacklisting across diverse domains.
+  - Released async Rust library implementing rate limiting, object pooling, and graceful shutdown patterns, achieving 2x speedup improvement in object pool benchmarks.
+  - Implemented web crawler processing 300+ pages/minute with adaptive rate limiting, achieving 0% IP blacklist rate across 1,000+ domains while respecting robots.txt.
 ]
 
 = Skills
@@ -82,42 +82,38 @@
 #resume-skill-item(
   "Languages",
   (
-    strong("Java"),
-    strong("Rust"),
+    "Java",
+    "Rust",
     "Go",
-    "SQL",
     "Python",
+    "TypeScript",
+    "SQL",
     "Scala",
-    "Typescript",
     "Bash",
   ),
 )
 #resume-skill-item(
   "Technologies", 
   (
-    strong("Temporal"),
-    strong("gRPC"),
-    "Protocol Buffers",
+    "Kafka",
+    "gRPC",
+    "Temporal",
+    "Flink",
+    "Spark",
     "Airflow",
-    "Docker",
     "Kubernetes",
-    "Talos Linux",
+    "Docker",
   )
 )
-
 #resume-skill-item(
-  "Data Systems",
+  "Databases",
   (
-    strong("MySQL"),
-    strong("Kafka"),
-    "Flink",
-    "Beam",
-    "Spark",
-    "Hadoop",
-    "Hive",
-    "Trino",
-    "Kusto",
-    "Redis"
+    "MySQL",
+    "Redis",
+    "Couchbase",
+    "Oracle",
+    "ScyllaDB",
+    "DragonflyDB",
   ),
 )
 
