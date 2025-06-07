@@ -9,7 +9,7 @@
     github: "wcygan",
     linkedin: "wcygan",
     positions: (
-      "Software Engineer working on the Purchasing Platform at LinkedIn",
+      "Software Engineer working on LinkedIn's E-Commerce Platform",
     ),
   ),
   profile-picture: none,
