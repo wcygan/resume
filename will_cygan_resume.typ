@@ -9,7 +9,7 @@
     github: "wcygan",
     linkedin: "wcygan",
     positions: (
-      "Senior Software Engineer",
+      "Senior Software Engineer, Linkedin Business Platform",
     ),
   ),
   profile-picture: none,
@@ -31,13 +31,13 @@
 )
 
 #resume-item[
-  - Architected alerting system processing 50,000+ QPS using Kafka/Samza/Venice, enabling real-time payment failure detection that reduced involuntary churn by 15% across LinkedIn's commerce platform.
-  - Eliminated involuntary customer churn by implementing proactive payment failure alerts, recovering \$2M+ in annual revenue and improving subscription retention metrics.
-  - Pioneered reusable Oracle-to-MySQL migration framework adopted by 12 teams, saving 1 month of engineering time per team and accelerating organizational MySQL adoption efforts.
-  - Executed zero-downtime Oracle-to-MySQL migration for 2 services handling 3,000 QPS, maintaining 99.99% data consistency using Couchbase-backed entity routing strategy.
-  - Migrated 4 critical services from Rest.li to gRPC and standardized service documentation with Docusaurus, accelerating developer onboarding from 2 weeks to 3 days through consistent tooling.
-  - Reduced downstream traffic by 50% and enhanced reliability by 10% through automated Airflow job that purges 30,000 stale cache records daily.
-  - Optimized JVM performance across 5 production services from 30-80% to 99.9%+ health, reducing GC spikes by 86% (700ms to 100ms) and eliminating daily alerts.
+  - Architected real-time alerting system processing 100,000+ QPS through linkedin.com using Kafka/Flink/Venice, enabling payment failure detection that claws back \$2M+ in involuntary churn from subscribers each year.
+  - Eliminated N+1 query problem in LinkedIn's Order Processing system, reducing average query latency by 40% (50ms→30ms) and p95 by 37% (200ms→125ms) in the core read paths for ordering workflows
+  - Pioneered reusable Oracle-to-MySQL migration framework adopted by 12 teams, accelerating adoption of MySQL by saving 1 month of engineering time per team and providing consistent migration logic throughout the organization
+  - Executed zero-downtime Oracle-to-MySQL migration for 2 databases handling 3,000 QPS, maintaining strong consistency using Couchbase-backed "sticky session" strategy with GoldenGate replication.
+  - Created a cache invalidation job in Airflow which purges 30,000 stale cache records daily, reducing pressure on neighboring team's gRPC services (additional RPCs occur if records exist in the cache, so it's better to clean them up)
+  - Identified an opportunity to reduce the Order database size by 33% (12TB→9TB) and implemented a traffic distribution pattern to delete records (Spark query to find all records, push them into Kafka, process them on the server in batches)
+  - Optimized JVM performance across 5 production services from 30-80% to 99.9%+ health score, reducing GC spikes by 86% (700ms to 100ms) and eliminating daily alerts.
 ]
 
 #resume-entry(
@@ -63,8 +63,9 @@
 
 #resume-item[
   - Engineered fault-tolerant 3-node bare-metal Kubernetes cluster using Talos Linux, achieving 99.9% uptime while implementing GitOps CI/CD patterns with Flux.
-  - Benchmarked distributed data systems (TiDB, RedPanda, DragonflyDB, ScyllaDB) to explore modern alternatives to traditional databases and messaging platforms.
-  - Fortified cluster with zero-trust architecture using Cloudflare Tunnels and Tailscale.
+  - Built https://kneadybynaturebakery.com/ for my sister & hosting it in the cluster in my basement (for fun & profit)  
+  - Deployed distributed data systems (TiDB, RedPanda, DragonflyDB, ScyllaDB, ClickHouse) to explore modern alternatives to traditional databases and messaging platforms. It's a good way to explore systems you wouldn't otherwise see at work.
+
 ]
 
 #resume-entry(
@@ -73,8 +74,8 @@
 )
 
 #resume-item[
-  - Released async Rust library implementing rate limiting, object pooling, and graceful shutdown patterns, achieving 2x speedup improvement in object pool benchmarks.
-  - Implemented web crawler processing 300+ pages/minute with adaptive rate limiting, achieving 0% IP blacklist rate across 1,000+ domains while respecting robots.txt.
+  - Published async Rust library implementing rate limiting, object pooling, and graceful shutdown patterns, achieving 2x speedup improvement in object pool benchmarks.
+  - Implemented web crawler processing 300+ pages/minute with adaptive rate limiting, achieving 0% IP blacklist rate across 1,000+ domains while building an index of internet graph data (similar to the inputs of PageRank).
 ]
 
 = Skills
@@ -84,12 +85,12 @@
   (
     "Java",
     "Rust",
-    "Go",
     "Python",
-    "TypeScript",
     "SQL",
-    "Scala",
     "Bash",
+    "Go",
+    "TypeScript",
+    "Scala",
   ),
 )
 #resume-skill-item(
@@ -101,6 +102,7 @@
     "Flink",
     "Spark",
     "Airflow",
+    "Trino",
     "Kubernetes",
     "Docker",
   )
@@ -112,8 +114,10 @@
     "Redis",
     "Couchbase",
     "Oracle",
-    "ScyllaDB",
     "DragonflyDB",
+    "Venice",
+    "HDFS",
+    "S3"
   ),
 )
 
