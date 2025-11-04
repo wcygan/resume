@@ -33,8 +33,8 @@
 #resume-item[
   - Architected real-time alerting system processing 100,000+ QPS through linkedin.com using Kafka/Flink/Venice, enabling payment failure detection that claws back \$2M+ in involuntary churn from subscribers each year.
   - Eliminated N+1 query problem in LinkedIn's Order Processing system, reducing average query latency by 40% (50ms→30ms) and p95 by 37% (200ms→125ms) in the core read paths for ordering workflows
-  - Pioneered reusable Oracle-to-MySQL migration framework adopted by 12 teams, accelerating adoption of MySQL by saving 1 month of engineering time per team and providing consistent migration logic throughout the organization
-  - Executed zero-downtime Oracle-to-MySQL migration for 2 databases handling 3,000 QPS, maintaining strong consistency using Couchbase-backed "sticky session" strategy with GoldenGate replication.
+  - Built reusable Oracle-to-MySQL migration framework adopted by 12 teams, accelerating adoption of MySQL by saving 1 month of engineering time per team and providing consistent migration logic throughout the organization
+  - Completed zero-downtime Oracle-to-MySQL migration for 2 databases handling 3,000 QPS, maintaining strong consistency using Couchbase-backed "sticky session" strategy with GoldenGate replication.
   - Created a cache invalidation job in Airflow which purges 30,000 stale cache records daily, reducing pressure on neighboring team's gRPC services (additional RPCs occur if records exist in the cache, so it's better to clean them up)
   - Identified an opportunity to reduce the Order database size by 33% (12TB→9TB) and implemented a traffic distribution pattern to delete records (Spark query to find all records, push them into Kafka, process them on the server in batches)
   - Optimized JVM performance across 5 production services from 30-80% to 99.9%+ health score, reducing GC spikes by 86% (700ms to 100ms) and eliminating daily alerts.
@@ -62,7 +62,7 @@
 )
 
 #resume-item[
-  - Engineered fault-tolerant 3-node bare-metal Kubernetes cluster using Talos Linux, achieving 99.9% uptime while implementing GitOps CI/CD patterns with Flux.
+  - Built fault-tolerant 3-node bare-metal Kubernetes cluster using Talos Linux, achieving 99.9% uptime while implementing GitOps CI/CD patterns with Flux.
   - Built https://kneadybynaturebakery.com/ for my sister & hosting it in the cluster in my basement (for fun & profit)  
   - Deployed distributed data systems (TiDB, RedPanda, DragonflyDB, ScyllaDB, ClickHouse) to explore modern alternatives to traditional databases and messaging platforms. It's a good way to explore systems you wouldn't otherwise see at work.
 
