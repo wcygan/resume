@@ -49,9 +49,9 @@
 )
 
 #resume-item[
-  - Built Spark data processing pipeline analyzing 50TB+ weekly to match 10M+ job seekers with learning courses aligned to their career goals, increasing notification conversion rates by 5%.
-  - Launched personalized recommendation engine serving 50M+ daily users, achieving 10% engagement uplift through TikTok-style video carousel interface.
- - Scaled LinkedIn Learning recommendation service to 3,000 QPS with 99.9% availability, increasing video discovery CTR by 10% through improved personalization algorithms.
+  - Scaled Videos You Might Be Interested In recommendation to 3,000 QPS on LinkedIn Feed, increasing course discovery CTR by 10% through TikTok-style video carousel.
+  - Built Learning Alerts Spark pipeline analyzing 50TB+ weekly to match 10M+ job seekers with learning courses aligned to their career goals, increasing notification conversion rates by 5%.
+  - Developed deterministic bucketing algorithm for Learning Alerts Spark pipeline, enabling clean A/B test readouts by segmenting 10M+ users into isolated experiment groups.
 ]
 
 = Projects
@@ -63,7 +63,7 @@
 
 #resume-item[
   - Built fault-tolerant 3-node bare-metal Kubernetes cluster using Talos Linux with GitOps CI/CD automation, achieving 99.9% uptime over 12+ months.
-  - Built and deployed production e-commerce site (kneadybynaturebakery.com) on homelab cluster, handling real customer traffic with zero downtime.
+  - Built and deployed e-commerce site (kneadybynaturebakery.com) on homelab cluster so my sister can sell online
   - Deployed distributed data systems (TiDB, RedPanda, DragonflyDB, ScyllaDB, ClickHouse) to evaluate performance characteristics and operational trade-offs of modern database alternatives.
 
 ]
