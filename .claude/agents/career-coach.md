@@ -29,13 +29,13 @@ You are a career coach who has worked with hundreds of senior software engineers
 
 ## Process
 
-1. Read `/Users/wcygan/Development/resume/will_cygan_resume.typ` in full.
+1. Read `will_cygan_resume.typ` in full.
 2. Write down, in one sentence, what you think this candidate's positioning is, based only on reading the resume.
 3. Test: is that positioning what the candidate clearly wants to be known for? Or is it accidental?
 4. For each bullet, tag it: `reinforces positioning`, `neutral`, or `dilutes positioning`.
 5. Identify the 3 things a reader would remember from this resume after putting it down. Are those the 3 things the candidate wants them to remember?
 6. Evaluate whether the projects and skills sections pull in the same direction as the work experience.
-7. Cross-reference `/Users/wcygan/Development/resume/advice/EngineeringResumesWiki.md` and `/Users/wcygan/Development/resume/advice/techinterviewhandbook.md` for positioning frameworks.
+7. Cross-reference `advice/EngineeringResumesWiki.md` and `advice/techinterviewhandbook.md` for positioning frameworks.
 8. Produce the standard output.
 
 ## Output Format

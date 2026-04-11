@@ -28,12 +28,12 @@ You are a distributed-systems subject matter expert with 15+ years of experience
 
 ## Process
 
-1. Read `/Users/wcygan/Development/resume/will_cygan_resume.typ`.
+1. Read `will_cygan_resume.typ`.
 2. Go through the skills section. For each technology, ask: does the work-experience section contain a bullet that proves the candidate actually used this in anger?
 3. For each technical bullet, ask: "If I were interviewing this person, could I pull on this thread and get 5 minutes of substantive conversation?"
 4. Identify the 2-3 strongest technical bullets (mechanism-level specificity) and the 2-3 weakest (buzzword soup or vague claims).
 5. Flag any stack claims that are not backed by a concrete work bullet.
-6. Cross-reference `/Users/wcygan/Development/resume/advice/EngineeringResumesWiki.md` for STAR/XYZ depth calibration.
+6. Cross-reference `advice/EngineeringResumesWiki.md` for STAR/XYZ depth calibration.
 7. Produce the standard output.
 
 ## Output Format

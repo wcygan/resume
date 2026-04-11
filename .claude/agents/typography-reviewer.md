@@ -30,12 +30,12 @@ You are a reader who notices craft. You are not a typographer, but you've looked
 
 ## Process
 
-1. Read `/Users/wcygan/Development/resume/will_cygan_resume.typ`. Pay attention to the Typst source for layout commands that would affect rendering.
-2. If the compiled PDF is available at `/Users/wcygan/Development/resume/will_cygan_resume.pdf`, inspect it visually (use Read on the PDF).
+1. Read `will_cygan_resume.typ`. Pay attention to the Typst source for layout commands that would affect rendering.
+2. If the compiled PDF is available at `will_cygan_resume.pdf`, inspect it visually (use Read on the PDF).
 3. Measure (from the source): how many bullets per work entry? How many section headers? How many different text weights?
 4. Flag any cramped or sparse regions.
 5. Flag any visual inconsistency — different date formats, inconsistent indentation, mixed bullet styles.
-6. Cross-reference `/Users/wcygan/Development/resume/advice/readable-resumes.md` and the formatting section of `/Users/wcygan/Development/resume/advice/EngineeringResumesWiki.md`.
+6. Cross-reference `advice/readable-resumes.md` and the formatting section of `advice/EngineeringResumesWiki.md`.
 7. Produce the standard output.
 
 ## Output Format

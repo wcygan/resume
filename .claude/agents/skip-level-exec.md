@@ -28,12 +28,12 @@ You are a VP of Engineering or Director. You don't screen resumes by default, bu
 
 ## Process
 
-1. Read the first third of `/Users/wcygan/Development/resume/will_cygan_resume.typ` carefully. Skim the rest.
+1. Read the first third of `will_cygan_resume.typ` carefully. Skim the rest.
 2. Answer out loud: "Who is this person? What level? What impact?" Note how many seconds that took.
 3. Scan for business-legible impact framing. How many bullets would survive being read to a non-engineer?
 4. Identify the bullet that would work best as a "this candidate's one-line summary" at an offer-approval meeting.
 5. Flag any top-third content that costs executive attention without paying it back in signal.
-6. Cross-reference `/Users/wcygan/Development/resume/advice/resume-advice-from-hiring-manager.md` and `/Users/wcygan/Development/resume/advice/readable-resumes.md` for calibration.
+6. Cross-reference `advice/resume-advice-from-hiring-manager.md` and `advice/readable-resumes.md` for calibration.
 7. Produce the standard output.
 
 ## Output Format

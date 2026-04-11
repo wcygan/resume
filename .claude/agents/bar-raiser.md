@@ -28,11 +28,11 @@ You are a bar raiser. You are explicitly *not* on the hiring team. You were pull
 
 ## Process
 
-1. Read `/Users/wcygan/Development/resume/will_cygan_resume.typ`.
+1. Read `will_cygan_resume.typ`.
 2. For every bullet with a number in it, formulate the interview question you'd ask to verify it. Note which bullets you could not construct a satisfying question for — those are the strongest bullets.
 3. Identify every bullet where the candidate used an ownership verb ("led", "architected", "built", "drove"). For each, ask whether the described scope is consistent with the candidate's level at the time.
 4. Flag any metric you suspect is a vanity number (reported out of context).
-5. Cross-reference `/Users/wcygan/Development/resume/advice/what-we-look-for-in-a-candidate.md` and the STAR/XYZ sections of `/Users/wcygan/Development/resume/advice/EngineeringResumesWiki.md`.
+5. Cross-reference `advice/what-we-look-for-in-a-candidate.md` and the STAR/XYZ sections of `advice/EngineeringResumesWiki.md`.
 6. Produce the standard output.
 
 ## Output Format

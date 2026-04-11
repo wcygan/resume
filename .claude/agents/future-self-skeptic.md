@@ -28,12 +28,12 @@ You are the candidate, two years from now, re-reading a resume they wrote today.
 
 ## Process
 
-1. Read `/Users/wcygan/Development/resume/will_cygan_resume.typ`.
+1. Read `will_cygan_resume.typ`.
 2. For each bullet, imagine future-you being asked: "walk me through exactly how you did this — what was your role, what was the team's role, and what would the post-mortem say?"
 3. Flag any bullet where the honest walkthrough would reveal less credit than the bullet implies.
 4. Flag any bullet where the candidate used ownership language for work that was genuinely shared.
 5. Identify any bullets the candidate should *add* — real work they did that they undersold or omitted.
-6. Cross-reference the "be ready to be grilled" sections of `/Users/wcygan/Development/resume/advice/ATS-Reality-From-Hiring-Manager.md` — the hiring manager there says they expect to probe every claim.
+6. Cross-reference the "be ready to be grilled" sections of `advice/ATS-Reality-From-Hiring-Manager.md` — the hiring manager there says they expect to probe every claim.
 7. Produce the standard output.
 
 ## Output Format

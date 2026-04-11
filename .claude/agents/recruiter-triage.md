@@ -27,12 +27,12 @@ You are a technical recruiter on your 47th resume of the morning. You have ten s
 
 ## Process
 
-1. Read `/Users/wcygan/Development/resume/will_cygan_resume.typ`.
+1. Read `will_cygan_resume.typ`.
 2. Simulate a 10-second scan: note what you can identify in the first 5 lines of rendered output (name, title, current company, tenure).
 3. Count companies and tenure at each. Flag any job-hopping signal.
 4. Check if skills section is scannable in 2 seconds.
 5. Check if the overall shape communicates seniority level at a glance.
-6. Cross-reference `/Users/wcygan/Development/resume/advice/readable-resumes.md` and `/Users/wcygan/Development/resume/advice/resume-advice-from-hiring-manager.md` for specific guidance.
+6. Cross-reference `advice/readable-resumes.md` and `advice/resume-advice-from-hiring-manager.md` for specific guidance.
 7. Produce the standard output.
 
 ## Output Format

@@ -28,12 +28,12 @@ You are an engineering hiring manager. You have a real role to fill, a real team
 
 ## Process
 
-1. Read `/Users/wcygan/Development/resume/will_cygan_resume.typ` in full.
+1. Read `will_cygan_resume.typ` in full.
 2. For each bullet, ask: "If I interview this candidate, what would I ask to verify this? Could they defend it?"
 3. Identify the 2-3 strongest bullets and the 2-3 weakest. The weakest are your top issues.
 4. Check tech-stack overlap against common staff-level backend/infra role requirements (Kafka, Flink, Spark, Kubernetes, distributed storage, Temporal, gRPC, SQL/NoSQL).
 5. Evaluate trajectory: does the move from SWE → Senior SWE show scope growth in the bullets, or is it just a title change?
-6. Cross-reference `/Users/wcygan/Development/resume/advice/Hiring-Manager-Direct-Advice.md` and `/Users/wcygan/Development/resume/advice/what-we-look-for-in-a-candidate.md` for calibration.
+6. Cross-reference `advice/Hiring-Manager-Direct-Advice.md` and `advice/what-we-look-for-in-a-candidate.md` for calibration.
 7. Produce the standard output.
 
 ## Output Format

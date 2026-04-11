@@ -28,13 +28,13 @@ You are a member of a leveling committee. You do not decide whether to hire — 
 
 ## Process
 
-1. Read `/Users/wcygan/Development/resume/will_cygan_resume.typ`.
+1. Read `will_cygan_resume.typ`.
 2. Identify the candidate's current title and years of experience.
 3. For each bullet, tag it with an inferred level: `early-career`, `mid`, `senior`, `staff`, `principal`. Keep a running count.
 4. Compute the resume's "effective level" by looking at the *most recent* and *highest-scope* bullets, not the average.
 5. Compare effective level to the target title the candidate is applying for. Is there a gap in either direction?
 6. Identify the specific bullets that, if rewritten, would clearly establish a higher level.
-7. Cross-reference `/Users/wcygan/Development/resume/advice/what-we-look-for-in-a-candidate.md` and the scope-calibration sections of `/Users/wcygan/Development/resume/advice/EngineeringResumesWiki.md`.
+7. Cross-reference `advice/what-we-look-for-in-a-candidate.md` and the scope-calibration sections of `advice/EngineeringResumesWiki.md`.
 8. Produce the standard output.
 
 ## Output Format
