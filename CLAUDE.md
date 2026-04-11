@@ -1,81 +1,45 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Professional resume built with Typst. GitHub Actions compiles to PDF on push/PR to `main`.
 
-## Project Overview
+## What
 
-This repository maintains a professional resume using Typst, a modern typesetting system. The resume is automatically compiled to PDF via GitHub Actions on push/PR.
+- **`will_cygan_resume.typ`** — single source of truth. Uses the `modern-cv` Typst template (v0.8.0). Renders to `will_cygan_resume.pdf`.
+- **`work-experience/`** — long-form LinkedIn-style role write-ups used as raw material when rewriting bullets. Not compiled.
+- **`advice/`** — curated hiring-manager, ATS, and interviewer guidance (STAR/XYZ, quantification, readability). Consumed by the resume skills.
+- **`scripts/`** — `dev.ts` (cross-platform watch + PDF open) and `run-local-ci.ts` (local CI check).
+- **`.claude/agents/`** — 12 reviewer personas (hiring-manager, bar-raiser, ats-parser, recruiter-triage, domain-sme-systems, typography-reviewer, etc.) used by the panel skills.
+- **`.claude/skills/`** — resume workflows: `resume-panel`, `resume-panel-focus`, `resume-tailor-panel`, `resume-debate`, `resume-diff`, `resume-interview-rehearsal`, `resume-optimizer`.
+- **`archive/`** — deprecated LaTeX source. Read-only reference; do not edit.
 
-## Common Development Commands
+## Why
 
-```bash
-# Live development with auto-reload
-deno task dev
-# OR
-typst watch will_cygan_resume.typ
+Maintain one authoritative resume that compiles deterministically and can be stress-tested through multiple hiring lenses (ATS, recruiter triage, hiring manager, bar raiser, SME) before every send. Correctness and review rigor beat velocity.
 
-# Compile to PDF
-deno task compile
-# OR
-typst compile will_cygan_resume.typ
-
-# Run local CI testing before pushing
-./scripts/run-local-ci.ts
-```
-
-## Architecture & Key Files
-
-### Source Files
-- **`will_cygan_resume.typ`** - Main Typst source file using the modern-cv template (v0.8.0)
-- **`archive/`** - Contains deprecated LaTeX files and reference materials for historical purposes
-
-### Build System
-- **Typst** - Modern typesetting system for document generation
-- **GitHub Actions** - Automated compilation on push/PR to main/master
-- **Deno tasks** - Build automation with TypeScript scripts
-
-### Development Workflow
-1. Edit `will_cygan_resume.typ` 
-2. Use `typst watch` for live preview (or VSCode Tinymist extension)
-3. Test locally with `./scripts/run-local-ci.ts` before pushing
-4. GitHub Actions will compile and store PDF artifact on push
-
-## Resume Optimization Workflow
-
-### Available Slash Commands
-This project includes a systematic resume optimization system using Claude Code slash commands:
+## How
 
 ```bash
-# Strategic Analysis (Run First)
-/project:resume:review              # Comprehensive analysis with action plan
-
-# Tactical Optimization (Run Based on Review)
-/project:resume:bullets             # Optimize bullet points with STAR/XYZ methods
-/project:resume:verbs               # Replace weak action verbs with stronger alternatives  
-/project:resume:skills              # Restructure and optimize the skills section
-/project:resume:tailor <job_desc>   # Tailor resume to specific job descriptions
+deno task dev       # live preview — watches and opens the PDF
+deno task compile   # one-shot typst compile
+deno task ci        # local CI, run before pushing
 ```
 
-### Recommended Optimization Process
-1. **Strategic Planning:** Start with `/project:resume:review` for comprehensive analysis
-2. **Tactical Execution:** Run suggested executor commands from the review
-3. **Apply Changes:** Edit `will_cygan_resume.typ` based on recommendations
-4. **Job-Specific Tailoring:** Use `/project:resume:tailor` with target job descriptions
-5. **Iterative Improvement:** Re-run `/project:resume:review` after changes
+Edit `will_cygan_resume.typ` directly. Tinymist (VSCode) is a drop-in alternative to `deno task dev`.
 
-### Knowledge Base
-The commands leverage expert advice from the `/advice` directory, including:
-- STAR/XYZ bullet point methodology
-- ATS optimization strategies
-- Industry-specific best practices
-- Quantification techniques
-- Action verb enhancement
+## Reviewing and editing the resume
 
-## Important Notes
+Prefer invoking a skill over hand-driving the review:
 
-- The project uses the `modern-cv` Typst template for professional formatting
-- PDF output is named `will_cygan_resume.pdf`
-- CI artifacts are retained for 30 days
-- The dev script (`scripts/dev.ts`) handles cross-platform PDF opening
-- Always run `/project:resume:review` before making systematic changes
-- Use the executor commands to maintain consistency with proven best practices
+- Broad multi-angle review → `resume-panel` (fans out all 12 reviewer sub-agents, consolidates findings).
+- Single-section review → `resume-panel-focus` (work-experience, skills, projects, formatting, narrative, or header).
+- Job-description tailoring → `resume-tailor-panel` with the JD as input.
+- Before/after diff review against a git ref → `resume-diff`.
+- Debate a single bullet → `resume-debate`.
+- Interview prep from current resume → `resume-interview-rehearsal`.
+
+When rewriting bullets, pull source material from `work-experience/` and methodology from `advice/` — the skills already know how to route there.
+
+## Notes
+
+- Output PDF: `will_cygan_resume.pdf`. CI artifacts retained 30 days.
+- Never commit changes under `archive/`.
