@@ -1,41 +1,59 @@
-# [Job Title] - [Company] ([Location])
-**[Start Date] - [End Date]**
+# [Job Title] — [Company] ([Location])
+**[Start Date] – [End Date]**
 
-## Guidelines
-- Use strong action verbs (Architected, Engineered, Pioneered, Spearheaded, Optimized, Led)
-- Follow STAR/XYZ methodology: "Accomplished [X] as measured by [Y] by doing [Z]"
-- Quantify impact wherever possible (QPS, revenue, percentages, time saved)
-- Lead with business impact, then technical implementation
-- Focus on outcomes over activities
-
-## Bullet Point Structure
-- [Action verb] [what you built/did] [using/with technical details], [quantified impact/outcome]
-- Prioritize bullets by business impact first, technical complexity second
-- Include mix of: system design, performance optimization, cross-team initiatives, migration/modernization
-
-## Example Bullets
-
-### High-Impact Architecture
-- Architected a high-performance [system] using [tech stack], processing [X QPS] to provide [business value] for [platform/product].
-
-### Business Impact
-- Reclaimed $[X]M+ in annualized revenue by [action] through [system], directly impacting [company]'s bottom-line and [business outcome].
-
-### Technical Leadership
-- Pioneered a scalable [migration/framework] for [source] to [target], empowering [X teams/users] to [achieve outcome], significantly [business benefit].
-
-### Performance Optimization
-- Optimized [system] by implementing [solution] to [action], successfully [quantified improvement by X%].
-
-### Migration/Modernization
-- Orchestrated the design and execution of a zero-downtime migration for [X services] from [old tech] to [new tech]; ensured [quality attribute] by leveraging [technical approach].
-
-### Cross-Team Impact
-- Spearheaded the migration of [X services] from [old tech] to [new tech], enhancing [benefit] and boosting [outcome] through [how].
+> This file logs **projects and initiatives** from a role — raw material for resume
+> rewrites and interview prep. Over-capture now, filter later. Update whenever
+> something ships; don't wait for review season.
 
 ---
 
-## Bullet Points
--
--
--
+## 1. Scope & Context
+Ten-second snapshot. Update whenever scope changes.
+
+- **Team / org:**
+- **Team size:**
+- **Systems owned:**
+- **Scale:** (QPS, data volume, user count, $ touched)
+- **Primary tech stack:**
+- **Business domain:**
+
+## 2. Goals
+What you were actually measured on — from perf reviews, OKRs, or manager 1:1s.
+Capture both to show trajectory.
+
+- **This period:**
+  -
+- **Next period:**
+  -
+
+## 3. Projects & Initiatives
+The core of this file. One sub-heading per meaningful project. Include killed and
+in-flight work — killed projects often hold the best interview stories.
+
+### [Project name]
+- **Context:** Why it existed. Who asked. What was broken before.
+- **Role:** Lead / contributor / reviewer. Which decisions were actually yours.
+- **Actions:** What you did. Key design decisions, trade-offs, things you argued for or against.
+- **Impact:** Quantified. Before/after. Revenue, latency, $, QPS, team-hours saved.
+  Note the **measurement method** so you can defend it under interview pressure.
+- **Tech:** Languages, frameworks, infra touched.
+- **Status:** Shipped / in-flight / killed / handed off.
+- **Artifacts:** Links to design doc, PR, dashboard, postmortem, launch email.
+
+### [Project name]
+- **Context:**
+- **Role:**
+- **Actions:**
+- **Impact:**
+- **Tech:**
+- **Status:**
+- **Artifacts:**
+
+## 4. Performance, Reliability & Cost
+On-call wins, incidents, SLO work, capacity and cost savings that aren't large
+enough to be their own project but are worth logging for interview stories.
+
+- **Incidents led / resolved:** severity, MTTR, root-cause ownership
+- **SLO / error-budget improvements:**
+- **Capacity & cost wins:**
+- **Toil eliminated:**
