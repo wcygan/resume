@@ -10,12 +10,12 @@
 ## 1. Scope & Context
 Ten-second snapshot. Update whenever scope changes.
 
-- **Team / org:**
+- **org:**
+- **Team:**
 - **Team size:**
 - **Systems owned:**
 - **Scale:** (QPS, data volume, user count, $ touched)
 - **Primary tech stack:**
-- **Business domain:**
 
 ## 2. Goals
 What you were actually measured on — from perf reviews, OKRs, or manager 1:1s.
