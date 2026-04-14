@@ -10,6 +10,8 @@
 - **Scale:** 12TB Order Database, $3M+ in orders daily, 100,000 QPS alerting system
 - **Primary tech stack:** Java, MySQL, gRPC, Kafka, Flink, Temporal, Airflow, Spark, HDFS
 
+Some of the most impactful work that I've done in this role (current date: April 2026) is the MySQL migration and Global Alerts. These projects gave me exposure to operating large-scale systems across the online, nearline, and offline stack.
+
 ## 2. Projects & Initiatives
 
 ### [Global Alerts for LBP]
@@ -39,13 +41,21 @@
 ### [Oracle to MySQL Delegation Framework]
 - **Context:** In FY26, the 12+ domain teams in LBP needed a path to migrate from Oracle to MySQL. Given we all had an urgent need to migrate, it was a good time to invest time investigating in migration infrastructure rather than trying to actively migrate our codebases. Given this was early in the development cycle of the MySQL migration, we set aside time to invest in shared infrastructure to accelerate all teams in our organization.
 - **Role:** Individual Contributor, primary designer of the delegation framework.
-- **Actions:** I proactively identified the ability to create a framework to perform the migration in a consistent manner. This existed as a Java library that each team could onboard to by providing their Oracle and MySQL implementations 
+- **Actions:** I proactively identified the ability to create a framework to perform the migration in a consistent manner. This existed as a Java library that each team could onboard to by providing their Oracle and MySQL implementations. To support each domain's ability to preserve strong consistency, we introduced a couchbase-backed entity-routing solution to allow each customer to migrate to the new database once GoldenGate replication was fully caught up for the user.
 - **Impact:** The framework mitigated risk & reduced scope for each team in the organization by eliminating duplicated work and providing a battle-tested way for them to migrate in a reasonable time frame
 - **Tech:** Java, Oracle, MySQL, Couchbase
 - **Status:** Delivered in May 2026, and directly led to multiple successful migrations in FY26
 
+### [Context Repos for Claude Code]
+- **Context:** The company was adopting agentic coding tools throughout FY25 and FY26; I was an early adopter and looking for ways to maximize productivity and to easily find the right documents and code references over a sea of literally thousands of repositories.
+- **Role:** Individual Contributor
+- **Actions:** I independently came up with the idea of "Context Repos", where you create a git repository which contains git submodules that are relevant to your project, domain, or organization and augment them with context so that a tool like Claude Code knows where to look and how these codebases are interconnected.
+- **Impact:** This immediately increased the velocity of myself, and other engineers in my org. For LBP specifically this idea was a boon because we operate a system of ~30+ microservices which were decomposed from our legacy OMS system. Because of the sprawl, it's often difficult for a developer to internalize what parts are connected, and what behavior they have. With context repos, developers can easily launch agents to search through projects, write PRs across codebases, and review designs against the real implementations. Ultimately this helps reduce toil and increase velocity by 
+- **Tech:** Claude Code, Git Repositories
+- **Status:** Piloted in May 2025, later adopted across the company in February 2026 through the Developer Producitivity organization
+
 ### [MySQL Legacy Data Cleanup (18 Billion Rows)]
-- **Context:** TBD
+- **Context:** We've run on the same database tables for over a decade, and they support both the modern system (LBP) and legacy system (OMS). It runs ~12+ TB over 20 Billion records across 6 tables. Worse, more than 95% of this data is unused! There are around 500,000,000 rows actively being used for LBP, while the rest of the rows are sitting dormant from the legacy system OMS. Having so much unused data in the database directly impacts performance and operations through index bloat, difficulty performing DDL changes, and overall query performance. 
 - **Role:** Individual Contributor
 - **Actions:** TBD
 - **Impact:** TBD
@@ -53,7 +63,7 @@
 - **Status:** TBD
 
 ### [LBP Global Alerts Cache Invalidation / Stale Data Cleanup]
-- **Context:** TBD
+- **Context:** We use Venice (a caching solution) to detect when a customer "potentially has an issue" with their invoices. This is a useful quick lookup that we can perform at high-scale (100,000 QPS) and avoid putting pressure on the downstream billing system. When this hint is present, we then look in a search index to confirm which invoice is problematic, then fetch it directly from the billing database. The issue is that we don't have a perfect cache invalidation solution, so a small amount of stale data ends up staying in the cache even after the customer has reconciled an issue. This ends up putting more pressure on the search index than needed because every time the customer views linkedin.com, the search index will incur another lookup. We'd like to be good citizens, so avoiding these redundant lookups is beneficial.
 - **Role:** Individual Contributor
 - **Actions:** TBD
 - **Impact:** TBD
@@ -61,7 +71,7 @@
 - **Status:** TBD
 
 ### [LBP Availability Investigator (Kusto)]
-- **Context:** TBD
+- **Context:** Engineers and Technical Support teams use application logs and access logs to debug customer issues. We typically apply the same pattern for each product/service we support, and run the same queries over and over. The problem is that every time we do this we need to memorize syntax and connect to the appropriate log databases, which becomes burdensome because we might want to reuse queries and share them with the team.
 - **Role:** Individual Contributor
 - **Actions:** TBD
 - **Impact:** TBD
@@ -69,12 +79,12 @@
 - **Status:** TBD
 
 ### [Oracle to MySQL Migration Dashboard]
-- **Context:** TBD
+- **Context:** During the Oracle to MySQL Migration, we wanted to have a realtime view of the system to understand progress, health, and business metrics so that we could have immediate insights into whether things were going according to plan. But we didn't have this!
 - **Role:** Individual Contributor
-- **Actions:** TBD
-- **Impact:** TBD
-- **Tech:** TBD
-- **Status:** TBD
+- **Actions:** I catalogued useful information like Database Metrics (Query speed, Query count, CPU utilization, total connections), Server Metrics (CPU, Memory, API Latency, API Call Count, API Error Rate, Connection Pool Size, Connection Pool Usage), and Business Metrics (total customers migrated, number of orders placed using MySQL) to tie the entire loop together in a single Grafana dashboard
+- **Impact:** This dashboard gave us the direct capability to measure success during the migration; we had a hunch that the database migration would improve performance, and the dashboard gave us the visibility we needed to ensure that our hypothesis matched reality.
+- **Tech:** Grafana, Kusto, OpenTelemetry
+- **Status:** Delivered in October 2025
 
 ### [LBP Data Quality jobs for Ordering & Global Alerts data]
 - **Context:** TBD
