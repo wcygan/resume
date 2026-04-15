@@ -17,6 +17,10 @@ ci *ARGS:
 extraction-check:
     uv run scripts/extraction_check.py
 
+# Fail if the compiled PDF exceeds one page.
+page-budget:
+    uv run scripts/page_budget.py
+
 # Negative-fixture regression suite for extraction-check.
 # Requires typst, poppler (pdftotext), and tika on PATH.
 test:

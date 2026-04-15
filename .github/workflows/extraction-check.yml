@@ -80,6 +80,9 @@ jobs:
       - name: Run extraction-check on compiled resume
         run: just extraction-check
 
+      - name: Enforce one-page budget
+        run: just page-budget
+
       - name: Run negative-fixture regression suite
         run: just test
 
