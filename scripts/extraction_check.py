@@ -57,6 +57,8 @@ class Assertion(StrEnum):
     DATE_FORMAT = "5-date-format"
     MOJIBAKE = "6-mojibake"
     CROSS_EXTRACTOR = "7-cross-extractor"
+    SOFT_HYPHEN = "8-soft-hyphen"
+    URL_DEDUP = "10-url-dedup"
 
 
 # -- Extractors ---------------------------------------------------------------
@@ -318,7 +320,48 @@ def assert_no_mojibake(
     return AssertionResult(ok=True, name=Assertion.MOJIBAKE, detail="clean")
 
 
-def assert_cross_extractor(results: list[ExtractorResult]) -> AssertionResult:
+def assert_no_soft_hyphen(text: str) -> AssertionResult:
+    # U+00AD (soft hyphen) leaks into extractor output when Typst auto-hyphenates
+    # across line breaks. Tika then splits the word across a paragraph boundary,
+    # turning e.g. "involuntary" into "invol\n\nuntary" — a real ATS failure.
+    n = text.count("\u00AD")
+    if n:
+        return AssertionResult(
+            ok=False,
+            name=Assertion.SOFT_HYPHEN,
+            detail=f"U+00AD x{n} — set `#set text(hyphenate: false)` in source",
+        )
+    return AssertionResult(ok=True, name=Assertion.SOFT_HYPHEN, detail="clean")
+
+
+# Matches http/https URLs. Trailing punctuation is trimmed so ".", ")", "," at
+# sentence boundaries don't produce spurious distinct URLs.
+_URL_RE = re.compile(r"https?://[^\s<>\"'()]+")
+
+
+def assert_url_dedup(text: str) -> AssertionResult:
+    seen: dict[str, int] = {}
+    for m in _URL_RE.finditer(text):
+        url = m.group(0).rstrip(".,;:)]>")
+        seen[url] = seen.get(url, 0) + 1
+    dupes = {u: n for u, n in seen.items() if n > 1}
+    if dupes:
+        listing = ", ".join(f"{u} x{n}" for u, n in sorted(dupes.items()))
+        return AssertionResult(
+            ok=False,
+            name=Assertion.URL_DEDUP,
+            detail=f"duplicate URL(s): {listing}",
+        )
+    return AssertionResult(
+        ok=True,
+        name=Assertion.URL_DEDUP,
+        detail=f"{len(seen)} unique URL(s), all appearing once",
+    )
+
+
+def assert_cross_extractor(
+    results: list[ExtractorResult], max_byte_ratio: float = 1.5
+) -> AssertionResult:
     if len(results) < 2:
         return AssertionResult(
             ok=True,
@@ -327,6 +370,7 @@ def assert_cross_extractor(results: list[ExtractorResult]) -> AssertionResult:
         )
     orders = {r.extractor: r.section_order for r in results}
     counts = {r.extractor: r.job_count for r in results}
+    sizes = {r.extractor: len(r.text.encode("utf-8")) for r in results}
     first_order = next(iter(orders.values()))
     first_count = next(iter(counts.values()))
 
@@ -335,6 +379,18 @@ def assert_cross_extractor(results: list[ExtractorResult]) -> AssertionResult:
         problems.append(f"section order diverges: {orders}")
     if any(n != first_count for n in counts.values()):
         problems.append(f"job count diverges: {counts}")
+    # Byte-count ratio: one extractor producing >1.5x the bytes of another
+    # signals a major extraction divergence (e.g. one extractor capturing
+    # a trailing URL block, or one missing a whole section).
+    min_size = min(sizes.values())
+    max_size = max(sizes.values())
+    if min_size > 0:
+        ratio = max_size / min_size
+        if ratio > max_byte_ratio:
+            problems.append(
+                f"byte-count ratio {ratio:.2f}x > {max_byte_ratio}x "
+                f"(sizes: {sizes})"
+            )
     if problems:
         return AssertionResult(
             ok=False, name=Assertion.CROSS_EXTRACTOR, detail="; ".join(problems)
@@ -342,7 +398,10 @@ def assert_cross_extractor(results: list[ExtractorResult]) -> AssertionResult:
     return AssertionResult(
         ok=True,
         name=Assertion.CROSS_EXTRACTOR,
-        detail=f"all {len(results)} extractors agree ({first_count} jobs)",
+        detail=(
+            f"all {len(results)} extractors agree ({first_count} jobs, "
+            f"sizes within {max_size / max(min_size, 1):.2f}x)"
+        ),
     )
 
 
@@ -389,6 +448,8 @@ def evaluate(extractor: Extractor, fx: dict) -> ExtractorResult:
             text, mj["forbidden_chars"], mj["flagged_chars"], mj["allowed_chars"]
         )
     )
+    er.results.append(assert_no_soft_hyphen(text))
+    er.results.append(assert_url_dedup(text))
     return er
 
 

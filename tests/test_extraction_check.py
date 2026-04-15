@@ -103,6 +103,39 @@ def test_mixed_dates_fails_date_format(
     )
 
 
+def test_soft_hyphen_fails_soft_hyphen(
+    broken_pdf: Callable[[str], Path],
+    run_check: Callable[[Path], ec.EvaluationResult],
+    require_pdftotext: None,
+    require_tika: None,
+) -> None:
+    ev = run_check(broken_pdf("soft-hyphen"))
+    assert ev.any_fails(ec.Assertion.SOFT_HYPHEN), (
+        "expected 8-soft-hyphen to fail"
+    )
+    details = [
+        r.detail for er in ev.results for r in er.results
+        if r.name == ec.Assertion.SOFT_HYPHEN and not r.ok
+    ]
+    assert any("U+00AD" in d for d in details), details
+
+
+def test_duplicated_url_fails_url_dedup(
+    broken_pdf: Callable[[str], Path],
+    run_check: Callable[[Path], ec.EvaluationResult],
+    require_pdftotext: None,
+    require_tika: None,
+) -> None:
+    # Only Tika emits the URL block where repeated link targets collapse to a
+    # single duplicated line. pdftotext extractors render each visible label
+    # at its in-flow position and don't re-echo the URL, so they pass. Accept
+    # as long as at least one extractor's 10-url-dedup fires.
+    ev = run_check(broken_pdf("duplicated-url"))
+    assert ev.any_fails(ec.Assertion.URL_DEDUP), (
+        "expected 10-url-dedup to fail on at least one extractor"
+    )
+
+
 def test_two_column_scrambles_reading_order(
     broken_pdf: Callable[[str], Path],
     run_check: Callable[[Path], ec.EvaluationResult],

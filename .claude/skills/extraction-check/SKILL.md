@@ -1,12 +1,12 @@
 ---
 name: extraction-check
-description: ATS text-extraction regression gate for the resume repo. Runs the compiled PDF through three open-source parsers (pdftotext, pdftotext -layout, Apache Tika) that real ATSs actually use, asserts clean extraction across seven structural checks, and surfaces disagreement between parsers as diagnostic signal. Use when the user asks about ATS parseability, text extraction, PDF parsing reliability, whether a resume variant breaks for ATSs, how the extraction gate works, running or debugging extraction-check, comparing extractor outputs, adding assertions, writing new broken fixtures, interpreting cross-extractor disagreement, or the text-extraction hypothesis at .claude/context/text-extraction-hypothesis.md. Keywords ATS, applicant tracking system, text extraction, PDF parsing, pdftotext, poppler, tika, Apache Tika, reading order, mojibake, cross-extractor, extraction check, regression gate, resume parser, parseability.
+description: ATS text-extraction regression gate for the resume repo. Runs the compiled PDF through three open-source parsers (pdftotext, pdftotext -layout, Apache Tika) that real ATSs actually use, asserts clean extraction across nine structural checks, and surfaces disagreement between parsers as diagnostic signal. Use when the user asks about ATS parseability, text extraction, PDF parsing reliability, whether a resume variant breaks for ATSs, how the extraction gate works, running or debugging extraction-check, comparing extractor outputs, adding assertions, writing new broken fixtures, interpreting cross-extractor disagreement, or the text-extraction hypothesis at .claude/context/text-extraction-hypothesis.md. Keywords ATS, applicant tracking system, text extraction, PDF parsing, pdftotext, poppler, tika, Apache Tika, reading order, mojibake, cross-extractor, extraction check, regression gate, resume parser, parseability, soft hyphen, url dedup.
 allowed-tools: Read, Write, Edit, Grep, Glob, Bash
 ---
 
 # Extraction Check
 
-Deterministic gate on `will_cygan_resume.pdf`. Shells to three open-source PDF-to-text parsers — `pdftotext`, `pdftotext -layout`, Apache Tika — that enterprise ATSs sit on, runs seven assertions on the output, and fails if any parser sees something structurally wrong.
+Deterministic gate on `will_cygan_resume.pdf`. Shells to three open-source PDF-to-text parsers — `pdftotext`, `pdftotext -layout`, Apache Tika — that enterprise ATSs sit on, runs nine assertions on the output, and fails if any parser sees something structurally wrong.
 
 The underlying hypothesis is in [`.claude/context/text-extraction-hypothesis.md`](../../context/text-extraction-hypothesis.md): text-extraction fidelity is the single highest-leverage ATS-side optimization, and real-world ATSs virtually all run on the same handful of open-source parsers. Beating those parsers is *equivalent* to passing ATS parsing at the file-format level.
 
@@ -30,7 +30,7 @@ just test               # run the negative-fixture regression suite (6 pytest ca
 
 Prereqs on macOS: `brew install poppler tika typst`. CI installs pinned Tika 3.3.0.
 
-## The seven assertions
+## The nine assertions
 
 | # | Name | What it checks |
 |---|------|----------------|
@@ -40,9 +40,11 @@ Prereqs on macOS: `brew install poppler tika typst`. CI installs pinned Tika 3.3
 | 4 | `4-job-contiguity` | Title / company / date-start / date-end co-occur within a 300-char window per job |
 | 5 | `5-date-format` | At least one date range matches a consistent "Mon YYYY – …" format |
 | 6 | `6-mojibake` | Zero replacement characters; no flagged smart-quote / em-dash characters |
-| 7 | `7-cross-extractor` | All available extractors agree on section order and job count |
+| 7 | `7-cross-extractor` | All available extractors agree on section order and job count, and no two extractor outputs differ by more than 1.5× in byte count |
+| 8 | `8-soft-hyphen` | No U+00AD soft hyphens in any extractor's output (breaks hyphenated words across paragraphs in Tika) |
+| 10 | `10-url-dedup` | Every URL that appears in extractor output appears exactly once (redundant title-links triple-emit in Tika's URL block) |
 
-Assertion 7 is the canonical reading-order-scramble signal. When `pdftotext` says 2 jobs but `pdftotext -layout` says 1, the layout has a bug real ATSs will hit.
+Assertion 7 is the canonical reading-order-scramble signal. When `pdftotext` says 2 jobs but `pdftotext -layout` says 1, the layout has a bug real ATSs will hit. The byte-ratio extension catches quieter divergence where extractors agree on structure but one is emitting dramatically more or less text than the others.
 
 ## Reading further
 

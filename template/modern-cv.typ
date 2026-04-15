@@ -221,7 +221,10 @@
           #if ("homepage" in author) [
             #separator
             #homepage-icon
-            #box[#link(author.homepage)[#author.homepage]]
+            // Strip scheme in display text so Tika's URL block (which echoes
+            // every http(s) target) doesn't look like a duplicate of the
+            // visible text — stays readable, keeps the hyperlink intact.
+            #box[#link(author.homepage)[#author.homepage.replace(regex("^https?://"), "")]]
           ]
           #if ("github" in author) [
             #separator
