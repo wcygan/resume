@@ -144,8 +144,8 @@ Key findings incorporated:
 This skill understands the Typst resume project structure:
 - Source file: `will_cygan_resume.typ`
 - Template: modern-cv (v0.8.0)
-- Build: `deno task compile` or `typst compile`
-- Preview: `deno task dev` or `typst watch`
+- Build: `just compile` or `typst compile`
+- Preview: `just dev` or `typst watch`
 
 Recommendations include Typst-specific syntax when suggesting changes.
 

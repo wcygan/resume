@@ -254,14 +254,14 @@ Typst automatically handles line wrapping, but you can add manual breaks for rea
 ```bash
 typst watch will_cygan_resume.typ
 # or
-deno task dev
+just dev
 ```
 
 **Compile to PDF:**
 ```bash
 typst compile will_cygan_resume.typ
 # or
-deno task compile
+just compile
 ```
 
 **Output:**
@@ -379,10 +379,10 @@ location: "wcygan/anton"                  // ❌ plain text
 resume/
 ├── will_cygan_resume.typ    # Source file
 ├── will_cygan_resume.pdf    # Compiled output
-├── deno.json                # Tasks: dev, compile
+├── justfile                # Tasks: dev, compile, ci
 └── scripts/
-    ├── dev.ts              # Development server
-    └── run-local-ci.ts     # Pre-push testing
+    ├── dev.py              # Development server (PEP 723 / uv)
+    └── run-local-ci.py     # Pre-push testing (PEP 723 / uv)
 ```
 
 ## Quick Checklist

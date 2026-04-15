@@ -265,9 +265,9 @@ For each recommendation:
 - Source file: `will_cygan_resume.typ` (Typst markup language)
 - Template: `@preview/modern-cv:0.8.0` (imported from Typst package registry)
 - PDF output: `will_cygan_resume.pdf`
-- Development: `deno task dev` or `typst watch will_cygan_resume.typ`
-- Compilation: `deno task compile` or `typst compile will_cygan_resume.typ`
-- Testing: `./scripts/run-local-ci.ts` before pushing
+- Development: `just dev` or `typst watch will_cygan_resume.typ`
+- Compilation: `just compile` or `typst compile will_cygan_resume.typ`
+- Testing: `just ci` (or `uv run scripts/run-local-ci.py`) before pushing
 
 **Typst Syntax Reference:**
 - Official docs: https://typst.app/docs/reference

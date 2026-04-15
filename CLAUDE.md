@@ -19,12 +19,12 @@ Maintain one authoritative resume that compiles deterministically and can be str
 ## How
 
 ```bash
-deno task dev       # live preview — watches and opens the PDF
-deno task compile   # one-shot typst compile
-deno task ci        # local CI, run before pushing
+just dev       # live preview — watches and opens the PDF
+just compile   # one-shot typst compile
+just ci        # local CI, run before pushing
 ```
 
-Edit `will_cygan_resume.typ` directly. Tinymist (VSCode) is a drop-in alternative to `deno task dev`.
+`dev` and `ci` run single-file Python scripts (`scripts/dev.py`, `scripts/run-local-ci.py`) via `uv run` — PEP 723 inline metadata, no venv or `pyproject.toml`. Edit `will_cygan_resume.typ` directly. Tinymist (VSCode) is a drop-in alternative to `just dev`.
 
 ## Reviewing and editing the resume
 
