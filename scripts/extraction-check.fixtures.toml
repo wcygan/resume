@@ -1,0 +1,51 @@
+# Expected strings for the ATS extraction-check against will_cygan_resume.typ.
+# Update when Typst source gains a job / renames a section / changes contact.
+
+[candidate]
+name = "Will Cygan"
+email = "wcygan.io@gmail.com"
+
+[sections]
+expected_order = [
+    "Work Experience",
+    "Projects",
+    "Skills",
+    "Education",
+]
+
+[[jobs]]
+title = "Senior Software Engineer"
+company = "LinkedIn"
+date_start = "March 2024"
+date_end = "Present"
+
+[[jobs]]
+title = "Software Engineer"
+company = "LinkedIn"
+date_start = "Feb 2022"
+date_end = "March 2024"
+
+[[projects]]
+title = "Anton (Kubernetes Homelab)"
+
+[[projects]]
+title = "tokio-utils Rust Library"
+
+[[education]]
+title = "University of Illinois at Chicago"
+date = "2021"
+
+[dates]
+allowed_range_regex = '(Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?)\s+\d{4}\s*[–\-]\s*(Present|(Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?)\s+\d{4})'
+
+[thresholds]
+min_bytes = 500
+job_block_window_chars = 300
+name_head_bytes = 400
+contact_glue_window = 200
+
+[mojibake]
+forbidden_chars = ["\uFFFD"]
+# en-dash is allowed (modern-cv emits it in date ranges); everything else flagged.
+flagged_chars = ["\u2018", "\u2019", "\u201C", "\u201D", "\u2014"]
+allowed_chars = ["\u2013"]

@@ -8,3 +8,10 @@
 
 # Archive directory PDFs are tracked
 !/archive/*.pdf
+
+# Extraction-check failure reports (ephemeral — regenerated on each run).
+.extraction/
+
+# Python test artifacts.
+__pycache__/
+.pytest_cache/
