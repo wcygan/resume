@@ -232,7 +232,10 @@
             #separator
             #linkedin-icon
             #box[
-              #link("https://www.linkedin.com/in/" + author.linkedin)[#author.firstname #author.lastname]
+              // Display the LinkedIn handle (matches github/twitter pattern)
+              // rather than the full name, to avoid duplicating the candidate's
+              // name in ATS-extracted text (Tika emits link display text).
+              #link("https://www.linkedin.com/in/" + author.linkedin)[#author.linkedin]
             ]
           ]
           #if ("twitter" in author) [

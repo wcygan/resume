@@ -16,14 +16,14 @@ expected_order = [
 [[jobs]]
 title = "Senior Software Engineer"
 company = "LinkedIn"
-date_start = "March 2024"
+date_start = "Mar 2024"
 date_end = "Present"
 
 [[jobs]]
 title = "Software Engineer"
 company = "LinkedIn"
 date_start = "Feb 2022"
-date_end = "March 2024"
+date_end = "Mar 2024"
 
 [[projects]]
 title = "Anton (Kubernetes Homelab)"
