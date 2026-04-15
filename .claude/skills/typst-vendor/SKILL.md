@@ -37,13 +37,9 @@ cd /tmp && rm -rf <pkg> && git clone https://github.com/<owner>/<pkg> && cd <pkg
 
 ### 3. Identify what to keep vs drop
 
-- **Keep**: every symbol referenced in `will_cygan_resume.typ`. Grep the resume: `grep -oE '[a-z][a-z-]+[(\[]' will_cygan_resume.typ | sort -u` → cross-reference against the package's public exports.
-- **Drop**: unused template functions (cover letters, letters, invoices, etc.), non-English language tables, helpers only those functions use.
-- **Drop deps** where possible:
-  - `@preview/linguify` — inline the English strings you need, delete the import and all `linguify(...)` / `lflib._linguify(...)` calls.
-  - `@preview/cetz`, `@preview/tidy`, etc. — usually keep if load-bearing.
-- **Keep deps** where the cost of forking exceeds the benefit:
-  - `@preview/fontawesome` — small, stable, load-bearing for icons. Keep the import, pin the version.
+- **Keep symbols** referenced in `will_cygan_resume.typ`. Grep the resume: `grep -oE '[a-z][a-z-]+[(\[]' will_cygan_resume.typ | sort -u` → cross-reference against the package's public exports.
+- **Drop symbols** for unused template modes (cover letters, letters, invoices), non-English language tables, and helpers only those functions use.
+- **Decide each transitive `@preview` dep** using [references/preview-dep-playbook.md](references/preview-dep-playbook.md) — canonical keep/inline/drop verdicts for common deps (`linguify`, `fontawesome`, `cetz`, `tidy`, etc.).
 
 ### 4. Fix typst version drift
 
@@ -73,13 +69,7 @@ Font-missing warnings are fine (typst falls back). Real errors aren't.
 
 ### 8. Record the provenance
 
-The top-of-file comment in `template/<pkg>.typ` is the source of truth. Format:
-
-```typ
-// Vendored from https://github.com/<owner>/<pkg> @ tag <tag>.
-// <LICENSE> — Copyright (c) <year> <author>.
-// Trimmed: <what was removed>. Fixed: <version-drift changes>.
-```
+The top-of-file comment in `template/<pkg>.typ` is the source of truth — upstream URL, tag, license, what you trimmed, what you fixed. License wording matters and varies: see [references/license-headers.md](references/license-headers.md) for copy-pasteable blocks for MIT / BSD / Apache-2.0 / MPL-2.0 / CC-BY-4.0 and the anti-patterns to avoid.
 
 ---
 
@@ -91,41 +81,9 @@ Use when the user wants to author a template from scratch (not forked from upstr
 
 `template/<name>.typ`. Public functions should be prefixed (e.g. `academic-cv-entry`, `cover-letter-block`) to avoid collisions when multiple templates are imported.
 
-### 2. Start from this skeleton
+### 2. Start from a skeleton
 
-```typ
-// In-house template authored <date> for <use case>.
-
-// Drop if the template doesn't use icons.
-#import "@preview/fontawesome:0.5.0": *
-
-#let color-accent = rgb("#262F99")
-#let color-body = rgb("#333333")
-
-#let <template-name>(
-  author: (:),
-  paper-size: "us-letter",
-  body,
-) = {
-  set document(
-    author: author.firstname + " " + author.lastname,
-    title: "<Title>",
-  )
-  set text(
-    font: ("Source Sans Pro", "Source Sans 3"),
-    size: 11pt,
-    fill: color-body,
-    fallback: true,
-  )
-  set page(paper: paper-size, margin: (x: 15mm, y: 10mm))
-  set par(spacing: 0.75em, justify: true)
-  set heading(numbering: none, outlined: false)
-
-  body
-}
-```
-
-Add helper functions (entry rows, bullet blocks, headers) only as the user asks for them — resist speculative surface.
+Pick the closest starter in [references/bootstrap-skeletons.md](references/bootstrap-skeletons.md): resume, cover letter, academic CV, or touying slides. Each one is minimal — just imports, color constants, and a single template function with `set document` / `set text` / `set page` / heading rules. Add helper functions (entry rows, bullet blocks, headers) only as the user asks — resist speculative surface.
 
 ### 3. Wire it in and verify
 
@@ -164,3 +122,12 @@ Cherry-pick only hunks that touch symbols you kept. Most upstream churn will be 
 - **Preserve attribution.** Never vendor without a top-of-file comment naming upstream + license.
 - **Verify by compile, not by eye.** `just compile` must exit 0 and produce a PDF before declaring the vendor done.
 - **Pin, don't float.** Upstream clones check out a specific tag; vendored files name that tag in the header.
+
+---
+
+## References
+
+- [version-drift-fixes.md](references/version-drift-fixes.md) — typst 0.13+ deprecation table + detection grep.
+- [preview-dep-playbook.md](references/preview-dep-playbook.md) — keep/inline/drop verdicts for common transitive `@preview` deps.
+- [bootstrap-skeletons.md](references/bootstrap-skeletons.md) — starter templates for resume / cover letter / academic CV / slides.
+- [license-headers.md](references/license-headers.md) — copy-pasteable attribution headers per license.
