@@ -16,7 +16,7 @@
 *Staff Engineer* at Acme Corp \
 Jan 2022 -- Present
 
-- Led platform reliability initiative; shipped the \u{2018}phoenix\u{2019} rewrite.
+- Led platform reliability across involuntary churn; shipped \u{2018}phoenix\u{2019} rewrite.
 
 *Senior Engineer* at Globex \
 Jun 2019 -- Dec 2021

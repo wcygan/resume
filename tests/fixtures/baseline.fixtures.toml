@@ -42,7 +42,7 @@ contact_glue_window = 200
 # Technical terms that must survive extraction as exact substrings in every
 # extractor. Guards against ligature collapse / font substitution dropping
 # ATS-searchable keywords. Derived from the baseline fixture's Skills line.
-required = ["Python", "Go", "Rust", "Java"]
+required = ["Python", "Go", "Rust", "Java", "involuntary"]
 
 [mojibake]
 forbidden_chars = ["\uFFFD"]

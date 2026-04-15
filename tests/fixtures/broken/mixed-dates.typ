@@ -15,7 +15,7 @@
 *Staff Engineer* at Acme Corp \
 01/2022 - Present
 
-- Led platform reliability initiative across three services.
+- Led platform reliability across involuntary churn workflows.
 
 *Senior Engineer* at Globex \
 06/2019 - 12/2021

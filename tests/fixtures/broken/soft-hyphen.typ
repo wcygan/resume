@@ -1,13 +1,13 @@
-// Defect: a literal U+00AD soft hyphen is embedded in the bullet text. Under
-// any reasonable line-wrap, or even without wrapping, pdftotext and Tika emit
-// the U+00AD byte verbatim in the extracted text. Injecting the character
-// directly (rather than relying on the Typst hyphenation engine) keeps the
-// fixture deterministic across platforms — macOS and Linux Typst disagree on
-// whether long invented words trigger auto-hyphenation, so a source-level
-// soft hyphen is the only reliable regression signal.
+// Defect: a literal U+00AD soft hyphen is embedded mid-word, and the word is
+// placed in a narrow block that forces it to actually wrap at the soft hyphen.
+// Real ATS pipelines (Tika/PDFBox) split the wrapped word into two paragraphs
+// with a blank line between — that's the production-level failure this
+// assertion guards against. Forcing the wrap (not just embedding the codepoint
+// in-line) is what makes the fixture reproduce on Linux CI too: Linux poppler
+// silently strips U+00AD from extracted text when no wrap occurs.
 
 #set page(paper: "us-letter", margin: 0.6in)
-#set text(font: "New Computer Modern", size: 10pt)
+#set text(font: "New Computer Modern", size: 10pt, lang: "en", hyphenate: true)
 
 #align(center)[
   #text(size: 16pt, weight: "bold")[Jane Doe] \
@@ -21,8 +21,12 @@
 *Staff Engineer* at Acme Corp \
 Jan 2022 -- Present
 
-- Led platform reliability across #"invol\u{AD}untary" churn workflows.
-- Cut deploy time from 45 minutes to 6 minutes.
+// Narrow column: the long word can't fit on one line and is forced to break
+// at the embedded U+00AD, which pdftotext and Tika then emit in the extracted
+// text stream.
+#block(width: 0.5in)[
+  #"invol\u{AD}untary"
+]
 
 *Senior Engineer* at Globex \
 Jun 2019 -- Dec 2021

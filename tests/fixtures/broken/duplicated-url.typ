@@ -17,7 +17,7 @@
 #link("https://example.com/profile/jane")[*Staff Engineer*] at Acme Corp \
 Jan 2022 -- Present
 
-- Led platform reliability initiative across three services.
+- Led platform reliability across involuntary churn workflows.
 
 #link("https://example.com/profile/jane")[*Senior Engineer*] at Globex \
 Jun 2019 -- Dec 2021
