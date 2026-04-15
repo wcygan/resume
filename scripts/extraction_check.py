@@ -408,8 +408,17 @@ def fmt_result(r: AssertionResult) -> str:
     return f"  {tag} {r.name.value}: {r.detail}"
 
 
-def write_report(ev: EvaluationResult, report_dir: Path) -> None:
+_SLUG_RE = re.compile(r"[^a-z0-9]+")
+
+
+def _slug(s: str) -> str:
+    return _SLUG_RE.sub("-", s.lower()).strip("-")
+
+
+def write_report(ev: EvaluationResult, report_dir: Path) -> list[Path]:
     report_dir.mkdir(parents=True, exist_ok=True)
+    written: list[Path] = []
+
     lines: list[str] = ["# Extraction check report", ""]
     if ev.skipped:
         lines.append("## Skipped extractors")
@@ -417,20 +426,24 @@ def write_report(ev: EvaluationResult, report_dir: Path) -> None:
             lines.append(f"- {s}")
         lines.append("")
     for er in ev.results:
+        slug = _slug(er.extractor)
+        raw_path = report_dir / f"{slug}.txt"
+        raw_path.write_text(er.text)
+        written.append(raw_path)
+
         lines.append(f"## {er.extractor}")
+        lines.append(f"- raw text: `{raw_path.name}`")
         for r in er.results:
             tag = "PASS" if r.ok else "FAIL"
             lines.append(f"- **{tag}** {r.name.value}: {r.detail}")
         lines.append("")
-        lines.append("### First 50 lines of extracted text")
-        lines.append("```")
-        lines.append("\n".join(er.text.splitlines()[:50]))
-        lines.append("```")
-        lines.append("")
     tag = "PASS" if ev.cross.ok else "FAIL"
     lines.append("## Cross-extractor")
     lines.append(f"- **{tag}** {ev.cross.name.value}: {ev.cross.detail}")
-    (report_dir / "report.md").write_text("\n".join(lines) + "\n")
+    report_path = report_dir / "report.md"
+    report_path.write_text("\n".join(lines) + "\n")
+    written.append(report_path)
+    return written
 
 
 def build_arg_parser() -> argparse.ArgumentParser:
@@ -444,6 +457,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
                    help=f"Path to fixtures TOML (default: {DEFAULT_FIXTURES}).")
     p.add_argument("--report-dir", type=Path, default=DEFAULT_REPORT_DIR,
                    help=f"Directory for report.md on failure (default: {DEFAULT_REPORT_DIR}).")
+    p.add_argument("--report", action="store_true",
+                   help="Always write report.md, even on PASS.")
     return p
 
 
@@ -481,6 +496,9 @@ def main(argv: list[str] | None = None) -> int:
     print(fmt_result(ev.cross))
 
     if ev.ok:
+        if args.report:
+            for p in write_report(ev, args.report_dir):
+                print(c(GRAY, f"  wrote {p}"))
         print(c(
             GREEN,
             f"extraction-check: PASS "
@@ -489,9 +507,9 @@ def main(argv: list[str] | None = None) -> int:
         ))
         return 0
 
-    write_report(ev, args.report_dir)
+    for p in write_report(ev, args.report_dir):
+        print(c(YELLOW, f"  wrote {p}"))
     print(c(RED, "extraction-check: FAIL"))
-    print(c(YELLOW, f"See {args.report_dir / 'report.md'}"))
     return 1
 
 
