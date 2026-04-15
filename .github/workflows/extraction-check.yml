@@ -1,0 +1,90 @@
+name: Extraction Check
+
+# Runs the ATS text-extraction regression gate on the compiled PDF plus
+# the negative-fixture regression suite that proves each assertion
+# actually fires. Intentionally a separate job from Compile Resume so
+# CI surfaces which gate failed at a glance.
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+env:
+  # Pin Tika for reproducibility. Upgrade deliberately; do not float.
+  # 3.3.0 matches the version Homebrew ships locally (Apr 2026).
+  TIKA_VERSION: "3.3.0"
+
+jobs:
+  extraction-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Setup Typst
+        uses: typst-community/setup-typst@v4
+        with:
+          typst-version: ^0.13.0
+
+      - name: Install poppler (pdftotext)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends poppler-utils
+          pdftotext -v 2>&1 | head -1
+
+      - name: Setup Java 17 (for Tika)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Cache Tika jar
+        id: tika-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/tika
+          key: tika-app-${{ env.TIKA_VERSION }}
+
+      - name: Download pinned Tika jar
+        if: steps.tika-cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/.cache/tika
+          curl -fsSL \
+            "https://archive.apache.org/dist/tika/${TIKA_VERSION}/tika-app-${TIKA_VERSION}.jar" \
+            -o ~/.cache/tika/tika-app.jar
+          ls -la ~/.cache/tika/tika-app.jar
+
+      - name: Export TIKA_JAR
+        run: |
+          echo "TIKA_JAR=$HOME/.cache/tika/tika-app.jar" >> "$GITHUB_ENV"
+
+      - name: Verify extractors
+        run: |
+          which pdftotext
+          pdftotext -v 2>&1 | head -1
+          java -jar "$TIKA_JAR" --version
+
+      - name: Compile resume
+        run: just compile
+
+      - name: Run extraction-check on compiled resume
+        run: just extraction-check
+
+      - name: Run negative-fixture regression suite
+        run: just test
+
+      - name: Upload extraction-check report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: extraction-check-report
+          path: .extraction/
+          if-no-files-found: ignore
+          retention-days: 14
