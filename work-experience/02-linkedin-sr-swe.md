@@ -87,7 +87,7 @@ Some of the most impactful work that I've done in this role (current date: April
 - **Status:** Delivered in October 2025
 
 ### [LBP Data Quality jobs for Ordering & Global Alerts data]
-- **Context:** TBD
+- **Context:** 
 - **Role:** Individual Contributor
 - **Actions:** TBD
 - **Impact:** TBD
