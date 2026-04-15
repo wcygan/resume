@@ -57,6 +57,10 @@ class Assertion(StrEnum):
     DATE_FORMAT = "5-date-format"
     MOJIBAKE = "6-mojibake"
     CROSS_EXTRACTOR = "7-cross-extractor"
+    SOFT_HYPHEN = "8-soft-hyphen"
+    KEYWORD_ROUNDTRIP = "9-keyword-roundtrip"
+    URL_DEDUP = "10-url-dedup"
+    SECTION_BOUNDARY = "11-section-boundary"
 
 
 # -- Extractors ---------------------------------------------------------------
@@ -299,6 +303,9 @@ def assert_date_format(text: str, regex: str) -> AssertionResult:
     )
 
 
+_PUA_RE = re.compile(r"[\uE000-\uF8FF]")
+
+
 def assert_no_mojibake(
     text: str, forbidden: list[str], flagged: list[str], allowed: list[str]
 ) -> AssertionResult:
@@ -313,12 +320,128 @@ def assert_no_mojibake(
         n = text.count(ch)
         if n:
             hits.append(f"U+{ord(ch):04X} x{n} (flagged)")
+    # Private Use Area (U+E000–U+F8FF) is where Font Awesome and other icon
+    # fonts live. A PUA codepoint surviving extraction means either an icon
+    # font was substituted mid-render or a stray fa-icon call leaked through
+    # — either way an ATS sees garbage tofu where real text should be.
+    pua_chars = _PUA_RE.findall(text)
+    if pua_chars:
+        unique = {ord(c) for c in pua_chars}
+        sample = ", ".join(f"U+{cp:04X}" for cp in sorted(unique)[:3])
+        hits.append(
+            f"{len(pua_chars)} PUA codepoint(s) ({sample}"
+            f"{'…' if len(unique) > 3 else ''}) — likely icon-font tofu"
+        )
     if hits:
         return AssertionResult(ok=False, name=Assertion.MOJIBAKE, detail="; ".join(hits))
     return AssertionResult(ok=True, name=Assertion.MOJIBAKE, detail="clean")
 
 
-def assert_cross_extractor(results: list[ExtractorResult]) -> AssertionResult:
+def assert_section_boundary(
+    text: str, section_headers: list[str]
+) -> AssertionResult:
+    # Between every pair of adjacent top-level section headers, there must be
+    # at least one blank line. Section-boundary parsers (common in resume ATS
+    # pipelines) rely on paragraph breaks to split sections; without them,
+    # the tail of one section merges into the header of the next.
+    lines = text.split("\n")
+    header_lines: list[tuple[str, int]] = []
+    for header in section_headers:
+        for i, line in enumerate(lines):
+            if header in line:
+                header_lines.append((header, i))
+                break
+    if len(header_lines) < 2:
+        return AssertionResult(
+            ok=True,
+            name=Assertion.SECTION_BOUNDARY,
+            detail=f"only {len(header_lines)} section header(s) located; nothing to check",
+        )
+    failures: list[str] = []
+    for (prev, prev_i), (nxt, nxt_i) in zip(header_lines, header_lines[1:]):
+        has_blank = any(lines[j].strip() == "" for j in range(prev_i + 1, nxt_i))
+        if not has_blank:
+            failures.append(f"{prev!r} -> {nxt!r}: no blank line between")
+    if failures:
+        return AssertionResult(
+            ok=False,
+            name=Assertion.SECTION_BOUNDARY,
+            detail="; ".join(failures),
+        )
+    return AssertionResult(
+        ok=True,
+        name=Assertion.SECTION_BOUNDARY,
+        detail=f"{len(header_lines) - 1} adjacent section pair(s) separated by blank line",
+    )
+
+
+def assert_keyword_roundtrip(text: str, required: list[str]) -> AssertionResult:
+    # Guards against ligature collapse (e.g. "Flink" becoming "Fl nk") and
+    # font-substitution regressions that silently drop technical terms. The
+    # token must survive extraction as a plain substring — case-sensitive and
+    # not split by whitespace — because that's what an ATS keyword search sees.
+    if not required:
+        return AssertionResult(
+            ok=True,
+            name=Assertion.KEYWORD_ROUNDTRIP,
+            detail="no required keywords declared",
+        )
+    missing = [kw for kw in required if kw not in text]
+    if missing:
+        return AssertionResult(
+            ok=False,
+            name=Assertion.KEYWORD_ROUNDTRIP,
+            detail=f"missing keyword(s): {missing}",
+        )
+    return AssertionResult(
+        ok=True,
+        name=Assertion.KEYWORD_ROUNDTRIP,
+        detail=f"all {len(required)} required keyword(s) present",
+    )
+
+
+def assert_no_soft_hyphen(text: str) -> AssertionResult:
+    # U+00AD (soft hyphen) leaks into extractor output when Typst auto-hyphenates
+    # across line breaks. Tika then splits the word across a paragraph boundary,
+    # turning e.g. "involuntary" into "invol\n\nuntary" — a real ATS failure.
+    n = text.count("\u00AD")
+    if n:
+        return AssertionResult(
+            ok=False,
+            name=Assertion.SOFT_HYPHEN,
+            detail=f"U+00AD x{n} — set `#set text(hyphenate: false)` in source",
+        )
+    return AssertionResult(ok=True, name=Assertion.SOFT_HYPHEN, detail="clean")
+
+
+# Matches http/https URLs. Trailing punctuation is trimmed so ".", ")", "," at
+# sentence boundaries don't produce spurious distinct URLs.
+_URL_RE = re.compile(r"https?://[^\s<>\"'()]+")
+
+
+def assert_url_dedup(text: str) -> AssertionResult:
+    seen: dict[str, int] = {}
+    for m in _URL_RE.finditer(text):
+        url = m.group(0).rstrip(".,;:)]>")
+        seen[url] = seen.get(url, 0) + 1
+    dupes = {u: n for u, n in seen.items() if n > 1}
+    if dupes:
+        listing = ", ".join(f"{u} x{n}" for u, n in sorted(dupes.items()))
+        return AssertionResult(
+            ok=False,
+            name=Assertion.URL_DEDUP,
+            detail=f"duplicate URL(s): {listing}",
+        )
+    return AssertionResult(
+        ok=True,
+        name=Assertion.URL_DEDUP,
+        detail=f"{len(seen)} unique URL(s), all appearing once",
+    )
+
+
+def assert_cross_extractor(
+    results: list[ExtractorResult], max_byte_ratio: float = 1.5
+) -> AssertionResult:
     if len(results) < 2:
         return AssertionResult(
             ok=True,
@@ -327,6 +450,7 @@ def assert_cross_extractor(results: list[ExtractorResult]) -> AssertionResult:
         )
     orders = {r.extractor: r.section_order for r in results}
     counts = {r.extractor: r.job_count for r in results}
+    sizes = {r.extractor: len(r.text.encode("utf-8")) for r in results}
     first_order = next(iter(orders.values()))
     first_count = next(iter(counts.values()))
 
@@ -335,6 +459,18 @@ def assert_cross_extractor(results: list[ExtractorResult]) -> AssertionResult:
         problems.append(f"section order diverges: {orders}")
     if any(n != first_count for n in counts.values()):
         problems.append(f"job count diverges: {counts}")
+    # Byte-count ratio: one extractor producing >1.5x the bytes of another
+    # signals a major extraction divergence (e.g. one extractor capturing
+    # a trailing URL block, or one missing a whole section).
+    min_size = min(sizes.values())
+    max_size = max(sizes.values())
+    if min_size > 0:
+        ratio = max_size / min_size
+        if ratio > max_byte_ratio:
+            problems.append(
+                f"byte-count ratio {ratio:.2f}x > {max_byte_ratio}x "
+                f"(sizes: {sizes})"
+            )
     if problems:
         return AssertionResult(
             ok=False, name=Assertion.CROSS_EXTRACTOR, detail="; ".join(problems)
@@ -342,7 +478,10 @@ def assert_cross_extractor(results: list[ExtractorResult]) -> AssertionResult:
     return AssertionResult(
         ok=True,
         name=Assertion.CROSS_EXTRACTOR,
-        detail=f"all {len(results)} extractors agree ({first_count} jobs)",
+        detail=(
+            f"all {len(results)} extractors agree ({first_count} jobs, "
+            f"sizes within {max_size / max(min_size, 1):.2f}x)"
+        ),
     )
 
 
@@ -389,6 +528,12 @@ def evaluate(extractor: Extractor, fx: dict) -> ExtractorResult:
             text, mj["forbidden_chars"], mj["flagged_chars"], mj["allowed_chars"]
         )
     )
+    er.results.append(assert_no_soft_hyphen(text))
+    er.results.append(
+        assert_keyword_roundtrip(text, fx.get("keywords", {}).get("required", []))
+    )
+    er.results.append(assert_url_dedup(text))
+    er.results.append(assert_section_boundary(text, sect))
     return er
 
 

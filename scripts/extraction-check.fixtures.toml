@@ -16,14 +16,14 @@ expected_order = [
 [[jobs]]
 title = "Senior Software Engineer"
 company = "LinkedIn"
-date_start = "March 2024"
+date_start = "Mar 2024"
 date_end = "Present"
 
 [[jobs]]
 title = "Software Engineer"
 company = "LinkedIn"
 date_start = "Feb 2022"
-date_end = "March 2024"
+date_end = "Mar 2024"
 
 [[projects]]
 title = "Anton (Kubernetes Homelab)"
@@ -43,6 +43,28 @@ min_bytes = 500
 job_block_window_chars = 300
 name_head_bytes = 400
 contact_glue_window = 200
+
+[keywords]
+# ATS-searchable technical terms that must survive extraction as exact
+# substrings in every extractor. Guards against ligature collapse / font
+# substitution regressions that silently drop keywords. Derived from the
+# Skills section of will_cygan_resume.typ; keep in sync when skills change.
+required = [
+    "Java",
+    "Rust",
+    "Python",
+    "TypeScript",
+    "Scala",
+    "Kafka",
+    "gRPC",
+    "Temporal",
+    "Flink",
+    "Spark",
+    "Kubernetes",
+    "MySQL",
+    "Redis",
+    "Couchbase",
+]
 
 [mojibake]
 forbidden_chars = ["\uFFFD"]

@@ -1,5 +1,9 @@
 #import "template/modern-cv.typ": *
 
+// Disable automatic hyphenation so soft hyphens (U+00AD) don't leak into
+// ATS extractor output (Tika breaks hyphenated words across paragraphs).
+#set text(hyphenate: false)
+
 #show: resume.with(
   author: (
     firstname: "Will",
@@ -25,9 +29,8 @@
 #resume-entry(
   title: "Senior Software Engineer",
   location: "Chicago, IL",
-  date: "March 2024 – Present",
+  date: "Mar 2024 – Present",
   description: "LinkedIn",
-  title-link: "https://www.linkedin.com/in/wcygan/",
 )
 
 #resume-item[
@@ -43,9 +46,8 @@
 #resume-entry(
   title: "Software Engineer",
   location: "San Francisco, CA",
-  date: "Feb 2022 – March 2024",
+  date: "Feb 2022 – Mar 2024",
   description: "LinkedIn",
-  title-link: "https://www.linkedin.com/in/wcygan/",
 )
 
 #resume-item[
@@ -121,6 +123,11 @@
   ),
 )
 
+// Force a paragraph break + vertical gap so ATS extractors (especially
+// pdftotext -layout) emit a blank line between Skills and Education.
+#parbreak()
+#v(12pt, weak: false)
+
 = Education
 
 #resume-entry(
@@ -128,5 +135,4 @@
   location: "Chicago, IL",
   date: "2021",
   description: "B.S. in Computer Science",
-  title-link: "https://www.linkedin.com/in/wcygan/",
 )

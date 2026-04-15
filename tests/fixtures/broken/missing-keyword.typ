@@ -1,4 +1,8 @@
-// Clean skeleton; each broken/*.typ mutates one line from this file.
+// Defect: the Skills line drops "Rust" even though the fixtures TOML declares
+// it as required. Simulates the real-world failure mode where a font or
+// ligature regression makes a technical keyword disappear from extracted text
+// (the on-source absence is a faithful proxy — an ATS keyword search for
+// "Rust" finds nothing either way, which is the regression we want to catch).
 
 #set page(paper: "us-letter", margin: 0.6in)
 #set text(font: "New Computer Modern", size: 10pt)
@@ -30,7 +34,7 @@ Jun 2019 -- Dec 2021
 
 = Skills
 
-Languages: Python, Go, Rust, Java
+Languages: Python, Go, Java
 
 = Education
 
