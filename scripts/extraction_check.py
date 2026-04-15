@@ -303,6 +303,9 @@ def assert_date_format(text: str, regex: str) -> AssertionResult:
     )
 
 
+_PUA_RE = re.compile(r"[\uE000-\uF8FF]")
+
+
 def assert_no_mojibake(
     text: str, forbidden: list[str], flagged: list[str], allowed: list[str]
 ) -> AssertionResult:
@@ -317,6 +320,18 @@ def assert_no_mojibake(
         n = text.count(ch)
         if n:
             hits.append(f"U+{ord(ch):04X} x{n} (flagged)")
+    # Private Use Area (U+E000–U+F8FF) is where Font Awesome and other icon
+    # fonts live. A PUA codepoint surviving extraction means either an icon
+    # font was substituted mid-render or a stray fa-icon call leaked through
+    # — either way an ATS sees garbage tofu where real text should be.
+    pua_chars = _PUA_RE.findall(text)
+    if pua_chars:
+        unique = {ord(c) for c in pua_chars}
+        sample = ", ".join(f"U+{cp:04X}" for cp in sorted(unique)[:3])
+        hits.append(
+            f"{len(pua_chars)} PUA codepoint(s) ({sample}"
+            f"{'…' if len(unique) > 3 else ''}) — likely icon-font tofu"
+        )
     if hits:
         return AssertionResult(ok=False, name=Assertion.MOJIBAKE, detail="; ".join(hits))
     return AssertionResult(ok=True, name=Assertion.MOJIBAKE, detail="clean")

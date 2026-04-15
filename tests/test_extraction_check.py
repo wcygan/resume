@@ -151,6 +151,34 @@ def test_missing_keyword_fails_keyword_roundtrip(
     assert any("Rust" in d for d in details), details
 
 
+def test_mojibake_flags_pua_glyphs() -> None:
+    # Pure unit test — PUA codepoints (where Font Awesome lives) are painful to
+    # force through a real Typst compile without the font installed, so we test
+    # assert_no_mojibake directly. An fa-icon("github") call on a host with a
+    # broken FA font would extract as a U+F09B codepoint.
+    text = "Contact: \uF09B github.com/wcygan"
+    r = ec.assert_no_mojibake(
+        text=text,
+        forbidden=["\uFFFD"],
+        flagged=["\u2018", "\u2019"],
+        allowed=["\u2013"],
+    )
+    assert not r.ok, "expected PUA codepoint to trip mojibake assertion"
+    assert "PUA" in r.detail, r.detail
+    assert "U+F09B" in r.detail, r.detail
+
+
+def test_mojibake_clean_with_no_pua() -> None:
+    # Ensure PUA extension doesn't false-positive on ordinary ASCII text.
+    r = ec.assert_no_mojibake(
+        text="Will Cygan – Senior Software Engineer",
+        forbidden=["\uFFFD"],
+        flagged=["\u2018", "\u2019", "\u201C", "\u201D", "\u2014"],
+        allowed=["\u2013"],
+    )
+    assert r.ok, r.detail
+
+
 def test_glued_sections_fails_section_boundary(
     broken_pdf: Callable[[str], Path],
     run_check: Callable[[Path], ec.EvaluationResult],

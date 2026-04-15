@@ -39,7 +39,7 @@ Prereqs on macOS: `brew install poppler tika typst`. CI installs pinned Tika 3.3
 | 3 | `3-name-contact` | Name and email are present, not glued together (ATS field-map footgun) |
 | 4 | `4-job-contiguity` | Title / company / date-start / date-end co-occur within a 300-char window per job |
 | 5 | `5-date-format` | At least one date range matches a consistent "Mon YYYY – …" format |
-| 6 | `6-mojibake` | Zero replacement characters; no flagged smart-quote / em-dash characters |
+| 6 | `6-mojibake` | Zero replacement chars, no flagged smart-quote/em-dash, and no Private Use Area codepoints U+E000–U+F8FF (icon-font tofu from stray `fa-icon(...)` calls) |
 | 7 | `7-cross-extractor` | All available extractors agree on section order and job count, and no two extractor outputs differ by more than 1.5× in byte count |
 | 8 | `8-soft-hyphen` | No U+00AD soft hyphens in any extractor's output (breaks hyphenated words across paragraphs in Tika) |
 | 9 | `9-keyword-roundtrip` | Every ATS-searchable keyword declared in `[keywords].required` survives extraction as an exact substring (guards against ligature collapse and font-substitution regressions) |
