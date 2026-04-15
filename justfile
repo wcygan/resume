@@ -12,3 +12,7 @@ compile:
 # Run GitHub Actions workflows locally via act.
 ci *ARGS:
     uv run scripts/run-local-ci.py {{ARGS}}
+
+# ATS text-extraction regression check (pdftotext + Tika).
+extraction-check:
+    uv run scripts/extraction-check.py
