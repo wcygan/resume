@@ -22,6 +22,8 @@ This is a gate, not telemetry. No persistent runs.
 
 from __future__ import annotations
 
+import argparse
+import os
 import re
 import shutil
 import subprocess
@@ -31,10 +33,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 RESUME_DIR = Path(__file__).resolve().parent.parent
-PDF = RESUME_DIR / "will_cygan_resume.pdf"
-FIXTURES = Path(__file__).resolve().parent / "extraction-check.fixtures.toml"
-REPORT_DIR = RESUME_DIR / ".extraction"
-REPORT_FILE = REPORT_DIR / "report.md"
+DEFAULT_PDF = RESUME_DIR / "will_cygan_resume.pdf"
+DEFAULT_FIXTURES = Path(__file__).resolve().parent / "extraction-check.fixtures.toml"
+DEFAULT_REPORT_DIR = RESUME_DIR / ".extraction"
 
 # ANSI colors.
 BLUE = "\033[34m"
@@ -57,15 +58,23 @@ class Extractor:
     argv: list[str]  # command to run; {PDF} placeholder is substituted
 
 
-def detect_tika() -> Extractor | None:
+def detect_tika(pdf: Path) -> Extractor | None:
     """Return an Extractor for Tika if installed, else None.
 
     Homebrew's `tika` formula ships a `tika` wrapper script that accepts
-    `--text`. Some installs expose only `tika-app.jar`; we check both.
+    `--text`. CI pins `tika-app.jar` and exports `TIKA_JAR` env var.
+    Some installs expose only `tika-app.jar`; we check both.
     """
+    # Env override first (CI uses this to point at a cached jar).
+    tika_jar_env = os.environ.get("TIKA_JAR")
+    if tika_jar_env and Path(tika_jar_env).exists() and shutil.which("java"):
+        return Extractor(
+            name="tika",
+            argv=["java", "-jar", tika_jar_env, "--text", str(pdf)],
+        )
     if shutil.which("tika"):
-        return Extractor(name="tika", argv=["tika", "--text", str(PDF)])
-    # Pinned-jar fallback (useful if a future dev drops one in template/).
+        return Extractor(name="tika", argv=["tika", "--text", str(pdf)])
+    # Pinned-jar fallback.
     jar_candidates = [
         RESUME_DIR / "template" / "tika-app.jar",
         Path("/opt/homebrew/opt/tika/libexec/tika-app.jar"),
@@ -74,27 +83,27 @@ def detect_tika() -> Extractor | None:
         if jar.exists() and shutil.which("java"):
             return Extractor(
                 name="tika",
-                argv=["java", "-jar", str(jar), "--text", str(PDF)],
+                argv=["java", "-jar", str(jar), "--text", str(pdf)],
             )
     return None
 
 
-def build_extractors() -> tuple[list[Extractor], list[str]]:
+def build_extractors(pdf: Path) -> tuple[list[Extractor], list[str]]:
     """Return (available, skipped_reasons)."""
     avail: list[Extractor] = []
     skipped: list[str] = []
 
     if shutil.which("pdftotext"):
-        avail.append(Extractor("pdftotext", ["pdftotext", str(PDF), "-"]))
+        avail.append(Extractor("pdftotext", ["pdftotext", str(pdf), "-"]))
         avail.append(Extractor(
-            "pdftotext -layout", ["pdftotext", "-layout", str(PDF), "-"]
+            "pdftotext -layout", ["pdftotext", "-layout", str(pdf), "-"]
         ))
     else:
         skipped.append(
             "pdftotext: missing. Install with `brew install poppler`."
         )
 
-    tika = detect_tika()
+    tika = detect_tika(pdf)
     if tika is not None:
         avail.append(tika)
     else:
@@ -360,11 +369,11 @@ def assert_cross_extractor(
 # -- Orchestration ------------------------------------------------------------
 
 
-def load_fixtures() -> dict:
-    if not FIXTURES.exists():
-        print(c(RED, f"Fixtures file missing: {FIXTURES}"))
+def load_fixtures(fixtures_path: Path) -> dict:
+    if not fixtures_path.exists():
+        print(c(RED, f"Fixtures file missing: {fixtures_path}"))
         sys.exit(2)
-    return tomllib.loads(FIXTURES.read_text())
+    return tomllib.loads(fixtures_path.read_text())
 
 
 def evaluate(extractor: Extractor, fx: dict) -> ExtractorResult:
@@ -417,8 +426,10 @@ def write_report(
     results: list[ExtractorResult],
     cross: AssertionResult,
     skipped: list[str],
+    report_dir: Path,
 ) -> None:
-    REPORT_DIR.mkdir(parents=True, exist_ok=True)
+    report_dir.mkdir(parents=True, exist_ok=True)
+    report_file = report_dir / "report.md"
     lines: list[str] = []
     lines.append("# Extraction check report")
     lines.append("")
@@ -442,23 +453,54 @@ def write_report(
     tag = "PASS" if cross.ok else "FAIL"
     lines.append("## Cross-extractor")
     lines.append(f"- **{tag}** {cross.name}: {cross.detail}")
-    REPORT_FILE.write_text("\n".join(lines) + "\n")
+    report_file.write_text("\n".join(lines) + "\n")
 
 
-def main() -> int:
+def build_arg_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(
+        prog="extraction-check.py",
+        description="ATS text-extraction regression check.",
+    )
+    p.add_argument(
+        "--pdf",
+        type=Path,
+        default=DEFAULT_PDF,
+        help=f"Path to PDF to check (default: {DEFAULT_PDF}).",
+    )
+    p.add_argument(
+        "--fixtures",
+        type=Path,
+        default=DEFAULT_FIXTURES,
+        help=f"Path to fixtures TOML (default: {DEFAULT_FIXTURES}).",
+    )
+    p.add_argument(
+        "--report-dir",
+        type=Path,
+        default=DEFAULT_REPORT_DIR,
+        help=f"Directory for report.md output (default: {DEFAULT_REPORT_DIR}).",
+    )
+    return p
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = build_arg_parser().parse_args(argv)
+    pdf: Path = args.pdf
+    fixtures_path: Path = args.fixtures
+    report_dir: Path = args.report_dir
+
     print(c(BLUE, "extraction-check: preflight..."))
-    if not PDF.exists():
-        print(c(RED, f"PDF not found: {PDF}"))
+    if not pdf.exists():
+        print(c(RED, f"PDF not found: {pdf}"))
         print(c(YELLOW, "Run `just compile` first."))
         return 2
-    fx = load_fixtures()
-    extractors, skipped = build_extractors()
+    fx = load_fixtures(fixtures_path)
+    extractors, skipped = build_extractors(pdf)
     for s in skipped:
         print(c(YELLOW, f"  skip: {s}"))
     if not extractors:
         print(c(RED, "No extractors available. Install poppler and/or tika."))
         return 2
-    print(c(BLUE, f"Running {len(extractors)} extractor(s)..."))
+    print(c(BLUE, f"Running {len(extractors)} extractor(s) on {pdf}..."))
 
     results: list[ExtractorResult] = []
     for e in extractors:
@@ -476,7 +518,7 @@ def main() -> int:
     print(fmt_result(cross))
 
     all_ok = all(r.ok for r in results) and cross.ok
-    write_report(results, cross, skipped)
+    write_report(results, cross, skipped, report_dir)
 
     if all_ok:
         print(c(
@@ -487,7 +529,7 @@ def main() -> int:
         ))
         return 0
     print(c(RED, "extraction-check: FAIL"))
-    print(c(YELLOW, f"See {REPORT_FILE}"))
+    print(c(YELLOW, f"See {report_dir / 'report.md'}"))
     return 1
 
 

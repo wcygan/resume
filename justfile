@@ -16,3 +16,8 @@ ci *ARGS:
 # ATS text-extraction regression check (pdftotext + Tika).
 extraction-check:
     uv run scripts/extraction-check.py
+
+# Negative-fixture regression suite for extraction-check.
+# Requires typst, poppler (pdftotext), and tika on PATH.
+test:
+    uv run --with pytest pytest tests/ -v
