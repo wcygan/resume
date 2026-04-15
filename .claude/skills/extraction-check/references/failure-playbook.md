@@ -103,6 +103,66 @@ FAIL 6-mojibake: U+2014 x2 (flagged)
 - Smart quotes: replace with straight quotes in Typst source. Typst's `set text(smartquote: false)` kills the auto-conversion globally.
 - U+2014: replace with `--` (en-dash) or with a comma/colon.
 
+## 8-soft-hyphen
+
+```
+FAIL 8-soft-hyphen: U+00AD x3 — set `#set text(hyphenate: false)` in source
+```
+
+**What it means.** A soft hyphen (U+00AD) survived into extracted text. Typst's auto-hyphenation engine emits soft hyphens at syllable boundaries; when a word wraps at one, Tika/PDFBox splits the word across a paragraph boundary (`invol\n\nuntary`) and ATS keyword search can no longer match the whole word.
+
+**Fix.** Add `#set text(hyphenate: false)` at the top of `will_cygan_resume.typ`. Also check any `#block(...)`, `#set par(...)`, or language-scoped text blocks that might re-enable hyphenation downstream.
+
+### Platform dependency — do not delete this assertion if it passes silently
+
+This assertion's detectability varies across platforms:
+
+- **macOS poppler** (Homebrew) surfaces U+00AD in `pdftotext` output. The assertion fires visibly.
+- **Linux poppler** (Ubuntu/Debian) silently strips U+00AD from extracted text, whether or not a word wraps. The assertion cannot fire on Linux even when the underlying soft-hyphen hazard is present in the PDF.
+- The compiled PDF itself usually does **not** contain the UTF-8 bytes for U+00AD (`0xC2 0xAD`) — Typst emits soft hyphens as font-level break markers resolved via the font's ToUnicode CMap, not as text-stream codepoints. Checking the raw PDF bytes is therefore also unreliable.
+
+The assertion stays in the code as macOS defense-in-depth. **The cross-platform detection for the same hazard is assertion 9 (keyword-roundtrip):** a wrapped word like `involuntary` becomes `involun\ntary` in extracted text, so the substring search fails on every platform. If you suspect soft-hyphen breakage and the assertion is passing on Linux CI, add the suspect word to `[keywords].required` and re-run — keyword-roundtrip will catch it.
+
+When writing a new broken fixture for this assertion, test it on Linux via `act` (see [extending.md](extending.md)) before pushing — macOS-local `just test` alone is not sufficient validation.
+
+## 9-keyword-roundtrip
+
+```
+FAIL 9-keyword-roundtrip: missing keyword(s): ['Flink']
+```
+
+**What it means.** A technical term declared in `[keywords].required` is not present as an exact substring in the extractor's output. Usually one of:
+
+- Ligature collapse (`Fl` ligature eats the `i`, producing `F lnk` or similar).
+- Font substitution mid-render mangling the glyph.
+- Word wrap at a soft hyphen splitting the keyword across lines (see assertion 8 platform note above).
+- Typo in the source that the spellchecker missed.
+
+**Fix.** Compile and inspect `.extraction/<extractor>.txt` — find the actual string where the keyword should be. If it's a ligature problem, try `#set text(ligatures: false)` or swap the font. If it's a wrap, restructure the layout so the keyword doesn't break.
+
+## 10-url-dedup
+
+```
+FAIL 10-url-dedup: duplicate URL(s): https://www.linkedin.com/in/wcygan x3
+```
+
+**What it means.** The same URL appears in extractor output more than once. Usually caused by:
+
+- `title-link` passed to multiple `resume-entry` blocks with the same target (each call emits a link annotation; Tika echoes every annotation in a trailing URL block).
+- Displayed text AND link annotation both containing the same full URL with scheme.
+
+**Fix.** Drop redundant `title-link` arguments or point them at distinct URLs. For the header, set displayed text to the canonical path without scheme (`github.com/wcygan`) while keeping the link `href` fully qualified (`https://github.com/wcygan`) — the mismatch prevents double-counting.
+
+## 11-section-boundary
+
+```
+FAIL 11-section-boundary: 'Skills' -> 'Education': no blank line between
+```
+
+**What it means.** Two adjacent top-level section headers are not separated by a blank line in extracted text (most often seen in `-layout` output). Section-boundary ATS parsers rely on paragraph breaks to split sections; without them, the last line of one section merges into the next section's header.
+
+**Fix.** Add vertical spacing between the affected sections. `#parbreak()` followed by `#v(12pt)` between the sections reliably produces the blank line in all three extractors.
+
 ## 7-cross-extractor
 
 ```
