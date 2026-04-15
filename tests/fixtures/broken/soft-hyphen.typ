@@ -1,10 +1,13 @@
-// Defect: leaves automatic hyphenation on (Typst default for many langs). The
-// long technical word in the bullet wraps across the narrow left column with a
-// soft hyphen (U+00AD), which pdftotext / Tika emit verbatim and then split
-// the word across a paragraph boundary.
+// Defect: a literal U+00AD soft hyphen is embedded in the bullet text. Under
+// any reasonable line-wrap, or even without wrapping, pdftotext and Tika emit
+// the U+00AD byte verbatim in the extracted text. Injecting the character
+// directly (rather than relying on the Typst hyphenation engine) keeps the
+// fixture deterministic across platforms — macOS and Linux Typst disagree on
+// whether long invented words trigger auto-hyphenation, so a source-level
+// soft hyphen is the only reliable regression signal.
 
 #set page(paper: "us-letter", margin: 0.6in)
-#set text(font: "New Computer Modern", size: 10pt, lang: "en", hyphenate: true)
+#set text(font: "New Computer Modern", size: 10pt)
 
 #align(center)[
   #text(size: 16pt, weight: "bold")[Jane Doe] \
@@ -18,11 +21,8 @@
 *Staff Engineer* at Acme Corp \
 Jan 2022 -- Present
 
-// Narrow block forces wrap inside the long word. Soft hyphen will fire.
-#block(width: 2in)[
-  - Maintained the electroencephalographically-sampled
-    pseudopseudohypoparathyroidism telemetry platform end-to-end.
-]
+- Led platform reliability across #"invol\u{AD}untary" churn workflows.
+- Cut deploy time from 45 minutes to 6 minutes.
 
 *Senior Engineer* at Globex \
 Jun 2019 -- Dec 2021
