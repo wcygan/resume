@@ -11,16 +11,19 @@
 #let default-accent-color = rgb("#262F99")
 #let default-location-color = rgb("#333333")
 
-#let linkedin-icon = box(fa-icon("linkedin", fill: color-darknight))
-#let github-icon = box(fa-icon("github", fill: color-darknight))
-#let twitter-icon = box(fa-icon("twitter", fill: color-darknight))
-#let google-scholar-icon = box(fa-icon("google-scholar", fill: color-darknight))
-#let orcid-icon = box(fa-icon("orcid", fill: color-darknight))
-#let phone-icon = box(fa-icon("square-phone", fill: color-darknight))
-#let email-icon = box(fa-icon("envelope", fill: color-darknight))
-#let birth-icon = box(fa-icon("cake", fill: color-darknight))
-#let homepage-icon = box(fa-icon("home", fill: color-darknight))
-#let website-icon = box(fa-icon("globe", fill: color-darknight))
+// Icons disabled: Font Awesome isn't available on the compile host, so fa-icon
+// renders as tofu. Empty bindings keep the template's header/link code paths
+// working without leaking broken glyphs into the visual or extracted output.
+#let linkedin-icon = []
+#let github-icon = []
+#let twitter-icon = []
+#let google-scholar-icon = []
+#let orcid-icon = []
+#let phone-icon = []
+#let email-icon = []
+#let birth-icon = []
+#let homepage-icon = []
+#let website-icon = []
 
 #let __justify_align(left_body, right_body) = {
   block[
@@ -63,10 +66,10 @@
 #let github-link(github-path) = {
   set box(height: 11pt)
   align(right + horizon)[
-    #fa-icon("github", fill: color-darkgray) #link(
-      "https://github.com/" + github-path,
-      github-path,
-    )
+    // Display the full canonical path (github.com/<path>) instead of the
+    // icon + bare handle, so extracted text is keyword-searchable for
+    // "github.com" and no Font Awesome tofu leaks through.
+    #link("https://github.com/" + github-path, "github.com/" + github-path)
   ]
 }
 
