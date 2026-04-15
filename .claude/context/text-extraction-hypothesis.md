@@ -41,7 +41,7 @@ Those are measuring the wrong thing. They optimize for a proxy that doesn't comp
 
 ## Methodology
 
-A single `uv`-run Python script, `scripts/extraction-check.py` (PEP 723 inline metadata, no venv or `pyproject.toml` — matches `scripts/dev.py` and `scripts/run-local-ci.py`), exposed as `just extraction-check` and invoked from `just ci`.
+A single `uv`-run Python script, `scripts/extraction_check.py` (PEP 723 inline metadata, no venv or `pyproject.toml` — matches `scripts/dev.py` and `scripts/run-local-ci.py`), exposed as `just extraction-check` and invoked from `just ci`.
 
 ### Extractors under test
 
@@ -109,8 +109,8 @@ On failure: per-extractor breakdown to stdout, non-zero exit, and a `.extraction
 
 ### Integration points
 
-1. **`just extraction-check`** — new recipe in `justfile` that runs `uv run scripts/extraction-check.py`.
-2. **`just ci`** — `scripts/run-local-ci.py` invokes `extraction-check.py` after `typst compile`. CI fails if extraction fails. (Either chain inside `run-local-ci.py` directly, or make the `ci` recipe a composite: `just compile && just extraction-check && uv run scripts/run-local-ci.py`. Pick one during implementation — see open questions.)
+1. **`just extraction-check`** — new recipe in `justfile` that runs `uv run scripts/extraction_check.py`.
+2. **`just ci`** — `scripts/run-local-ci.py` invokes `extraction_check.py` after `typst compile`. CI fails if extraction fails. (Either chain inside `run-local-ci.py` directly, or make the `ci` recipe a composite: `just compile && just extraction-check && uv run scripts/run-local-ci.py`. Pick one during implementation — see open questions.)
 3. **GitHub Actions** — add Tika + Poppler to the workflow (both are small and cacheable). Gate PDF artifact upload on a passing extraction check. Python + `uv` is already available via `astral-sh/setup-uv@v3` if not already installed.
 4. **No changes to `.claude/agents/ats-parser.md`** for now. The persona continues to review the `.typ` source qualitatively; this script handles the one thing the persona structurally cannot do.
 
@@ -140,7 +140,7 @@ Listed only to document why they were considered and rejected at this spec's sco
 
 1. **Tika packaging**: ship a pinned `tika-app.jar` in-repo (hermetic, ~70MB) or require `brew install tika` as a dev dependency (not hermetic, small setup friction)? Hermetic is better for CI reproducibility.
 2. **macOS vs Linux CI parity**: confirm `pdftotext` and Tika produce byte-identical output on both. If not, pin the CI runner to one OS and document.
-3. **Expected-content fixtures**: the assertions above reference specific strings (name, email, section headers). Where does the "expected" list live? Options: hard-coded in `extraction-check.py`, separate `extraction-check.fixtures.toml` alongside the script, or derived from parsing the `.typ` source. Derivation is brittle; a fixtures file is explicit and diff-reviewable.
+3. **Expected-content fixtures**: the assertions above reference specific strings (name, email, section headers). Where does the "expected" list live? Options: hard-coded in `extraction_check.py`, separate `extraction-check.fixtures.toml` alongside the script, or derived from parsing the `.typ` source. Derivation is brittle; a fixtures file is explicit and diff-reviewable.
 4. **Failure verbosity**: on CI, how much of the extracted text do we dump on failure? A 50-line head seems reasonable; full dumps pollute PR comment threads.
 5. **`just ci` composition**: wire `extraction-check` inside `scripts/run-local-ci.py` as an additional step, or chain it as a separate `just` dependency? Chaining in `justfile` keeps each Python script single-purpose; embedding in `run-local-ci.py` keeps one CI entry point. Minor, but pick one.
 6. **Python deps via PEP 723**: `pypdf` or `pdfplumber` would avoid shelling to `pdftotext`, but the point is to exercise the *same* extractor real ATSs use — `pdftotext` via `subprocess` is deliberate. Confirm we stay on subprocess and only use Python-native libraries for orchestration + Tika/Poppler output diffing.

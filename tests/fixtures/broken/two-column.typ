@@ -1,20 +1,5 @@
-// BROKEN: two-column layout places job titles in the left column and
-// companies+dates in the right column. The naive pdftotext pass may
-// read top-to-bottom column by column; pdftotext -layout preserves
-// spatial order. This is the canonical reading-order scramble the
-// spec's supporting evidence calls out ("Java XYZ Engineering
-// College" — left-column skills merging with right-column education).
-//
-// Target assertion: either
-//   - 4-job-contiguity (title/company/date no longer within 300 chars
-//     in naive extraction because the left column is dumped first,
-//     then the right), or
-//   - 7-cross-extractor (job count / section order differs between
-//     pdftotext and pdftotext -layout / tika).
-//
-// Expected collateral on assertion 2 is possible if the section
-// headers themselves get reordered across columns. That is acceptable
-// — it's the same underlying bug.
+// BROKEN: two-column layout — titles on the left, companies/dates on the
+// right — the canonical reading-order scramble.
 
 #set page(paper: "us-letter", margin: 0.6in)
 #set text(font: "New Computer Modern", size: 10pt)

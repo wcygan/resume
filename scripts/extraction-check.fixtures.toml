@@ -1,22 +1,11 @@
-# Expected strings for ATS text-extraction regression check.
-#
-# Derived from will_cygan_resume.typ in this repo. When the Typst source
-# changes (new job, section rename, contact change), update this file.
-# Keep each entry minimal and uniquely grep-able — the assertions do
-# substring matches in extracted text, not regex matches.
+# Expected strings for the ATS extraction-check against will_cygan_resume.typ.
+# Update when Typst source gains a job / renames a section / changes contact.
 
 [candidate]
 name = "Will Cygan"
 email = "wcygan.io@gmail.com"
-# Homepage + github + linkedin appear in the modern-cv header. We do not
-# assert on them today — contact-line glue check is limited to name+email
-# (that is the ATS field-mapping footgun the spec calls out).
 
 [sections]
-# Visual order as declared in will_cygan_resume.typ.
-# modern-cv renders these as level-1 headings. Each string must appear in
-# extracted text; the sequence of first-occurrence indices must match the
-# order of this array.
 expected_order = [
     "Work Experience",
     "Projects",
@@ -27,9 +16,6 @@ expected_order = [
 [[jobs]]
 title = "Senior Software Engineer"
 company = "LinkedIn"
-# Use an em-dash-free substring — the raw Typst source uses an en-dash
-# ("–" U+2013) but pdftotext may normalize it. We match the year tokens
-# instead, which are stable across extractors.
 date_start = "March 2024"
 date_end = "Present"
 
@@ -50,31 +36,16 @@ title = "University of Illinois at Chicago"
 date = "2021"
 
 [dates]
-# Assertion 5: every date range in the Work Experience section should
-# match one of these normalized shapes. Extractors may render the
-# en-dash as "-", " - ", "–", or " to ". We accept any of them.
-#
-# The regex is applied case-sensitively against extracted text after
-# whitespace collapsing. `MONTH` is Jan|Feb|...|Dec or full month name.
 allowed_range_regex = '(Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?)\s+\d{4}\s*[–\-]\s*(Present|(Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?)\s+\d{4})'
 
 [thresholds]
-# Minimum extracted-text byte length (assertion 1).
 min_bytes = 500
-# Window for title/company/dates contiguity (assertion 4).
-# Spec says 300 chars; we keep it at 300 unless the real resume forces
-# us to widen. Document the reason in the commit message if changed.
 job_block_window_chars = 300
-# Name must appear within the first N bytes (assertion 3).
 name_head_bytes = 400
-# Email must appear within M bytes of name occurrence (assertion 3).
 contact_glue_window = 200
 
 [mojibake]
-# Assertion 6: zero replacement chars.
 forbidden_chars = ["\uFFFD"]
-# Smart quotes / fancy dashes the spec flags. We allow en-dash in dates
-# since modern-cv emits one; everything else is flagged.
-# The script treats this list as "fail if present AND not in allow list".
+# en-dash is allowed (modern-cv emits it in date ranges); everything else flagged.
 flagged_chars = ["\u2018", "\u2019", "\u201C", "\u201D", "\u2014"]
-allowed_chars = ["\u2013"]  # en-dash: date ranges
+allowed_chars = ["\u2013"]

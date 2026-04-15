@@ -1,5 +1,4 @@
-// BROKEN: name and email touch (no whitespace/newline between them).
-// Should fail assertion 3-name-contact (glue detected).
+// BROKEN: name and email touch with no whitespace between them.
 
 #set page(paper: "us-letter", margin: 0.6in)
 #set text(font: "New Computer Modern", size: 10pt)

@@ -1,6 +1,4 @@
-// Clean skeleton — should pass every assertion against baseline.fixtures.toml.
-// The broken/*.typ fixtures in this directory mutate exactly one line
-// (or add one) from this file to exercise a specific failure mode.
+// Clean skeleton; each broken/*.typ mutates one line from this file.
 
 #set page(paper: "us-letter", margin: 0.6in)
 #set text(font: "New Computer Modern", size: 10pt)

@@ -1,10 +1,5 @@
-// BROKEN: body text contains U+2018/U+2019 smart quotes.
-// Should fail assertion 6-mojibake (flagged chars present).
-//
-// Typst by default converts straight quotes to smart quotes in text
-// mode. To keep the baseline clean we use the `smartquote: false`
-// setting there; here we leave it enabled AND use explicit Unicode
-// smart quotes so the defect is guaranteed regardless of Typst version.
+// BROKEN: body text contains U+2018/U+2019 smart quotes (explicit Unicode
+// to guarantee the defect regardless of Typst's smartquote setting).
 
 #set page(paper: "us-letter", margin: 0.6in)
 #set text(font: "New Computer Modern", size: 10pt)

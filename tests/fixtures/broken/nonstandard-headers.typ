@@ -1,5 +1,4 @@
 // BROKEN: "Work Experience" renamed to "My Journey".
-// Should fail assertion 2-section-order (header missing).
 
 #set page(paper: "us-letter", margin: 0.6in)
 #set text(font: "New Computer Modern", size: 10pt)

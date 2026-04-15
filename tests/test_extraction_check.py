@@ -1,152 +1,120 @@
-"""Negative-fixture regression suite for scripts/extraction-check.py.
+"""Negative-fixture regression suite for scripts/extraction_check.py.
 
-For each broken tests/fixtures/broken/<name>.typ:
-  1. Compile to PDF.
-  2. Run extraction-check.py against it with the shared
-     tests/fixtures/baseline.fixtures.toml.
-  3. Assert exit code != 0.
-  4. Assert the specific FAIL assertion-name substring is present in
-     stdout, so a regression where a *different* assertion trips is
-     caught.
-
-Tests requiring Tika are marked with the `tika` marker and auto-skip
-when Tika is missing.
+Each test compiles a deliberately-broken Typst source, runs evaluate_pdf in
+process, and asserts the right assertion fires without unexpected collateral.
 """
 
 from __future__ import annotations
 
-import re
+import sys
+from collections.abc import Callable
 from pathlib import Path
 
-import pytest
+REPO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO_ROOT / "scripts"))
+import extraction_check as ec  # noqa: E402
 
-_ANSI = re.compile(r"\x1b\[[0-9;]*m")
-
-
-def _stdout(r) -> str:
-    return _ANSI.sub("", r.stdout + r.stderr)
+_ALL_ASSERTIONS = tuple(ec.Assertion)
 
 
-# -- Sanity: the clean baseline must pass --------------------------------------
+def assert_only_fails(
+    ev: ec.EvaluationResult,
+    expected: ec.Assertion,
+    allow_collateral: frozenset[ec.Assertion] = frozenset(),
+) -> None:
+    assert ev.any_fails(expected), f"expected {expected.value} to fail"
+    for other in _ALL_ASSERTIONS:
+        if other == expected or other in allow_collateral:
+            continue
+        assert not ev.any_fails(other), (
+            f"unexpected collateral on {other.value}"
+        )
 
 
 def test_baseline_passes(
-    broken_pdf, run_check, require_pdftotext, require_tika
-):
-    """Sanity check: the clean skeleton passes every assertion.
+    broken_pdf: Callable[[str], Path],
+    run_check: Callable[[Path], ec.EvaluationResult],
+    require_pdftotext: None,
+    require_tika: None,
+) -> None:
+    ev = run_check(broken_pdf("baseline"))
+    assert ev.ok, [
+        (er.extractor, r.name.value, r.detail)
+        for er in ev.results
+        for r in er.results
+        if not r.ok
+    ]
 
-    If this ever starts failing, the broken fixtures are all suspect —
-    their defects may be collateral from an upstream baseline bug.
-    """
-    pdf = broken_pdf("baseline")
-    r = run_check(pdf)
-    assert r.returncode == 0, (
-        f"baseline should pass; got rc={r.returncode}\n{_stdout(r)}"
+
+def test_nonstandard_headers_fails_section_order(
+    broken_pdf: Callable[[str], Path],
+    run_check: Callable[[Path], ec.EvaluationResult],
+    require_pdftotext: None,
+    require_tika: None,
+) -> None:
+    ev = run_check(broken_pdf("nonstandard-headers"))
+    assert_only_fails(ev, ec.Assertion.SECTION_ORDER)
+
+
+def test_glued_contact_fails_name_contact(
+    broken_pdf: Callable[[str], Path],
+    run_check: Callable[[Path], ec.EvaluationResult],
+    require_pdftotext: None,
+    require_tika: None,
+) -> None:
+    ev = run_check(broken_pdf("glued-contact"))
+    assert_only_fails(ev, ec.Assertion.NAME_CONTACT)
+    details = [
+        r.detail for er in ev.results for r in er.results
+        if r.name == ec.Assertion.NAME_CONTACT and not r.ok
+    ]
+    assert any("glued" in d for d in details), details
+
+
+def test_smart_quotes_fails_mojibake(
+    broken_pdf: Callable[[str], Path],
+    run_check: Callable[[Path], ec.EvaluationResult],
+    require_pdftotext: None,
+    require_tika: None,
+) -> None:
+    ev = run_check(broken_pdf("smart-quotes"))
+    assert_only_fails(ev, ec.Assertion.MOJIBAKE)
+    details = [
+        r.detail for er in ev.results for r in er.results
+        if r.name == ec.Assertion.MOJIBAKE and not r.ok
+    ]
+    assert any("U+2018" in d or "U+2019" in d for d in details), details
+
+
+def test_mixed_dates_fails_date_format(
+    broken_pdf: Callable[[str], Path],
+    run_check: Callable[[Path], ec.EvaluationResult],
+    require_pdftotext: None,
+    require_tika: None,
+) -> None:
+    # Numeric-only dates necessarily also break assertion 4 (baseline fixture's
+    # date_start tokens no longer appear). Primary signal is the date-format
+    # regex mismatch; job-contiguity collateral is documented and allowed.
+    ev = run_check(broken_pdf("mixed-dates"))
+    assert_only_fails(
+        ev,
+        ec.Assertion.DATE_FORMAT,
+        allow_collateral=frozenset({ec.Assertion.JOB_CONTIGUITY}),
     )
-    assert "extraction-check: PASS" in _stdout(r)
 
 
-# -- Per-defect tests ----------------------------------------------------------
-
-
-def test_nonstandard_headers_fails_assertion_2(
-    broken_pdf, run_check, require_pdftotext, require_tika
-):
-    """Renaming 'Work Experience' to 'My Journey' must trip section-order."""
-    r = run_check(broken_pdf("nonstandard-headers"))
-    out = _stdout(r)
-    assert r.returncode != 0, (
-        f"expected non-zero exit; got rc={r.returncode}\n{out}"
-    )
-    assert "FAIL 2-section-order" in out, (
-        "expected assertion 2 to fail with 'missing: Work Experience'"
-    )
-    # Cleanliness: no other assertion should trip.
-    for other in (
-        "1-non-empty",
-        "3-name-contact",
-        "4-job-contiguity",
-        "5-date-format",
-        "6-mojibake",
-    ):
-        assert f"FAIL {other}" not in out, (
-            f"unexpected collateral failure on {other}:\n{out}"
-        )
-
-
-def test_glued_contact_fails_assertion_3(
-    broken_pdf, run_check, require_pdftotext, require_tika
-):
-    """Name + email with no whitespace must trip the contact-glue check."""
-    r = run_check(broken_pdf("glued-contact"))
-    out = _stdout(r)
-    assert r.returncode != 0
-    assert "FAIL 3-name-contact" in out
-    assert "glued" in out, "expected 'glued' marker in failure detail"
-    for other in ("1-non-empty", "2-section-order", "4-job-contiguity",
-                  "5-date-format", "6-mojibake"):
-        assert f"FAIL {other}" not in out, (
-            f"unexpected collateral on {other}:\n{out}"
-        )
-
-
-def test_smart_quotes_fails_assertion_6(
-    broken_pdf, run_check, require_pdftotext, require_tika
-):
-    """U+2018/2019 in body must trip mojibake."""
-    r = run_check(broken_pdf("smart-quotes"))
-    out = _stdout(r)
-    assert r.returncode != 0
-    assert "FAIL 6-mojibake" in out
-    assert "U+2018" in out or "U+2019" in out
-    for other in ("1-non-empty", "2-section-order", "3-name-contact",
-                  "4-job-contiguity", "5-date-format"):
-        assert f"FAIL {other}" not in out, (
-            f"unexpected collateral on {other}:\n{out}"
-        )
-
-
-def test_mixed_dates_fails_assertion_5(
-    broken_pdf, run_check, require_pdftotext, require_tika
-):
-    """Numeric-only date format must trip the date-format regex.
-
-    Collateral on assertion 4 is expected: changing dates from
-    'Jun 2019' to '06/2019' means baseline.fixtures.toml's date_start
-    tokens no longer appear in the extracted text, so job contiguity
-    also fails. We document the collateral and assert on assertion 5
-    specifically (which is the primary signal this fixture exercises).
-    """
-    r = run_check(broken_pdf("mixed-dates"))
-    out = _stdout(r)
-    assert r.returncode != 0
-    assert "FAIL 5-date-format" in out
-    # Not asserting absence of 4-job-contiguity — it's expected collateral.
-    # Do assert the other four stay clean.
-    for other in ("1-non-empty", "2-section-order", "3-name-contact",
-                  "6-mojibake"):
-        assert f"FAIL {other}" not in out, (
-            f"unexpected collateral on {other}:\n{out}"
-        )
-
-
-def test_two_column_fails_cross_extractor(
-    broken_pdf, run_check, require_pdftotext, require_tika
-):
-    """Two-column layout must scramble reading order enough that either
-    per-extractor assertion 4 fails OR cross-extractor assertion 7
-    diverges. With all three extractors present, the cleanest signal is
-    assertion 7 (job-count disagreement between pdftotext, -layout, tika)."""
-    r = run_check(broken_pdf("two-column"))
-    out = _stdout(r)
-    assert r.returncode != 0, (
-        f"expected non-zero exit for two-column:\n{out}"
-    )
-    # Either 4 trips on at least one extractor OR 7 trips. Both are
-    # legitimate signals of reading-order scramble.
-    assert ("FAIL 4-job-contiguity" in out) or (
-        "FAIL 7-cross-extractor" in out
-    ), (
-        "expected two-column to trip either assertion 4 or 7:\n"
-        f"{out}"
+def test_two_column_scrambles_reading_order(
+    broken_pdf: Callable[[str], Path],
+    run_check: Callable[[Path], ec.EvaluationResult],
+    require_pdftotext: None,
+    require_tika: None,
+) -> None:
+    # Two-column layouts scramble reading order. On small docs this commonly
+    # surfaces as cross-extractor disagreement (assertion 7) rather than
+    # per-extractor job-contiguity — accept either as a legitimate signal.
+    ev = run_check(broken_pdf("two-column"))
+    assert not ev.ok
+    assert (
+        ev.any_fails(ec.Assertion.JOB_CONTIGUITY)
+        or ev.any_fails(ec.Assertion.CROSS_EXTRACTOR)
     )

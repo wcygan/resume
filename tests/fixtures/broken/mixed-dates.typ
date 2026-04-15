@@ -1,13 +1,4 @@
-// BROKEN: both jobs use numeric dates (MM/YYYY) instead of "Mon YYYY".
-// Should fail BOTH:
-//   - assertion 4-job-contiguity (date_start tokens from baseline.fixtures.toml
-//     — "Jan 2022", "Jun 2019" — no longer appear in the extracted text).
-//   - assertion 5-date-format (no date range matches the month-name regex).
-//
-// Collateral on assertion 4 is expected here: a numeric date format
-// necessarily changes the date tokens we search for. The test checks
-// for assertion 5 specifically because that's the cleaner signal, and
-// documents assertion 4 as acceptable collateral.
+// BROKEN: jobs use numeric dates (MM/YYYY) instead of "Mon YYYY".
 
 #set page(paper: "us-letter", margin: 0.6in)
 #set text(font: "New Computer Modern", size: 10pt)
