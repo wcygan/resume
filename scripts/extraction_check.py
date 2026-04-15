@@ -60,6 +60,7 @@ class Assertion(StrEnum):
     SOFT_HYPHEN = "8-soft-hyphen"
     KEYWORD_ROUNDTRIP = "9-keyword-roundtrip"
     URL_DEDUP = "10-url-dedup"
+    SECTION_BOUNDARY = "11-section-boundary"
 
 
 # -- Extractors ---------------------------------------------------------------
@@ -321,6 +322,44 @@ def assert_no_mojibake(
     return AssertionResult(ok=True, name=Assertion.MOJIBAKE, detail="clean")
 
 
+def assert_section_boundary(
+    text: str, section_headers: list[str]
+) -> AssertionResult:
+    # Between every pair of adjacent top-level section headers, there must be
+    # at least one blank line. Section-boundary parsers (common in resume ATS
+    # pipelines) rely on paragraph breaks to split sections; without them,
+    # the tail of one section merges into the header of the next.
+    lines = text.split("\n")
+    header_lines: list[tuple[str, int]] = []
+    for header in section_headers:
+        for i, line in enumerate(lines):
+            if header in line:
+                header_lines.append((header, i))
+                break
+    if len(header_lines) < 2:
+        return AssertionResult(
+            ok=True,
+            name=Assertion.SECTION_BOUNDARY,
+            detail=f"only {len(header_lines)} section header(s) located; nothing to check",
+        )
+    failures: list[str] = []
+    for (prev, prev_i), (nxt, nxt_i) in zip(header_lines, header_lines[1:]):
+        has_blank = any(lines[j].strip() == "" for j in range(prev_i + 1, nxt_i))
+        if not has_blank:
+            failures.append(f"{prev!r} -> {nxt!r}: no blank line between")
+    if failures:
+        return AssertionResult(
+            ok=False,
+            name=Assertion.SECTION_BOUNDARY,
+            detail="; ".join(failures),
+        )
+    return AssertionResult(
+        ok=True,
+        name=Assertion.SECTION_BOUNDARY,
+        detail=f"{len(header_lines) - 1} adjacent section pair(s) separated by blank line",
+    )
+
+
 def assert_keyword_roundtrip(text: str, required: list[str]) -> AssertionResult:
     # Guards against ligature collapse (e.g. "Flink" becoming "Fl nk") and
     # font-substitution regressions that silently drop technical terms. The
@@ -479,6 +518,7 @@ def evaluate(extractor: Extractor, fx: dict) -> ExtractorResult:
         assert_keyword_roundtrip(text, fx.get("keywords", {}).get("required", []))
     )
     er.results.append(assert_url_dedup(text))
+    er.results.append(assert_section_boundary(text, sect))
     return er
 
 

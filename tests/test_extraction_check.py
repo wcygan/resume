@@ -151,6 +151,18 @@ def test_missing_keyword_fails_keyword_roundtrip(
     assert any("Rust" in d for d in details), details
 
 
+def test_glued_sections_fails_section_boundary(
+    broken_pdf: Callable[[str], Path],
+    run_check: Callable[[Path], ec.EvaluationResult],
+    require_pdftotext: None,
+    require_tika: None,
+) -> None:
+    ev = run_check(broken_pdf("glued-sections"))
+    assert ev.any_fails(ec.Assertion.SECTION_BOUNDARY), (
+        "expected 11-section-boundary to fail"
+    )
+
+
 def test_two_column_scrambles_reading_order(
     broken_pdf: Callable[[str], Path],
     run_check: Callable[[Path], ec.EvaluationResult],
