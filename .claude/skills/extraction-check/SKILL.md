@@ -42,6 +42,7 @@ Prereqs on macOS: `brew install poppler tika typst`. CI installs pinned Tika 3.3
 | 6 | `6-mojibake` | Zero replacement characters; no flagged smart-quote / em-dash characters |
 | 7 | `7-cross-extractor` | All available extractors agree on section order and job count, and no two extractor outputs differ by more than 1.5× in byte count |
 | 8 | `8-soft-hyphen` | No U+00AD soft hyphens in any extractor's output (breaks hyphenated words across paragraphs in Tika) |
+| 9 | `9-keyword-roundtrip` | Every ATS-searchable keyword declared in `[keywords].required` survives extraction as an exact substring (guards against ligature collapse and font-substitution regressions) |
 | 10 | `10-url-dedup` | Every URL that appears in extractor output appears exactly once (redundant title-links triple-emit in Tika's URL block) |
 
 Assertion 7 is the canonical reading-order-scramble signal. When `pdftotext` says 2 jobs but `pdftotext -layout` says 1, the layout has a bug real ATSs will hit. The byte-ratio extension catches quieter divergence where extractors agree on structure but one is emitting dramatically more or less text than the others.

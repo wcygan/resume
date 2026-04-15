@@ -136,6 +136,21 @@ def test_duplicated_url_fails_url_dedup(
     )
 
 
+def test_missing_keyword_fails_keyword_roundtrip(
+    broken_pdf: Callable[[str], Path],
+    run_check: Callable[[Path], ec.EvaluationResult],
+    require_pdftotext: None,
+    require_tika: None,
+) -> None:
+    ev = run_check(broken_pdf("missing-keyword"))
+    assert_only_fails(ev, ec.Assertion.KEYWORD_ROUNDTRIP)
+    details = [
+        r.detail for er in ev.results for r in er.results
+        if r.name == ec.Assertion.KEYWORD_ROUNDTRIP and not r.ok
+    ]
+    assert any("Rust" in d for d in details), details
+
+
 def test_two_column_scrambles_reading_order(
     broken_pdf: Callable[[str], Path],
     run_check: Callable[[Path], ec.EvaluationResult],

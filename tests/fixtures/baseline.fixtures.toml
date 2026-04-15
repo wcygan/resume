@@ -38,6 +38,12 @@ job_block_window_chars = 300
 name_head_bytes = 400
 contact_glue_window = 200
 
+[keywords]
+# Technical terms that must survive extraction as exact substrings in every
+# extractor. Guards against ligature collapse / font substitution dropping
+# ATS-searchable keywords. Derived from the baseline fixture's Skills line.
+required = ["Python", "Go", "Rust", "Java"]
+
 [mojibake]
 forbidden_chars = ["\uFFFD"]
 flagged_chars = ["\u2018", "\u2019", "\u201C", "\u201D", "\u2014"]

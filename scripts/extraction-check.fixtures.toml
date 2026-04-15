@@ -44,6 +44,28 @@ job_block_window_chars = 300
 name_head_bytes = 400
 contact_glue_window = 200
 
+[keywords]
+# ATS-searchable technical terms that must survive extraction as exact
+# substrings in every extractor. Guards against ligature collapse / font
+# substitution regressions that silently drop keywords. Derived from the
+# Skills section of will_cygan_resume.typ; keep in sync when skills change.
+required = [
+    "Java",
+    "Rust",
+    "Python",
+    "TypeScript",
+    "Scala",
+    "Kafka",
+    "gRPC",
+    "Temporal",
+    "Flink",
+    "Spark",
+    "Kubernetes",
+    "MySQL",
+    "Redis",
+    "Couchbase",
+]
+
 [mojibake]
 forbidden_chars = ["\uFFFD"]
 # en-dash is allowed (modern-cv emits it in date ranges); everything else flagged.

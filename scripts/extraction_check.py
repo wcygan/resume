@@ -58,6 +58,7 @@ class Assertion(StrEnum):
     MOJIBAKE = "6-mojibake"
     CROSS_EXTRACTOR = "7-cross-extractor"
     SOFT_HYPHEN = "8-soft-hyphen"
+    KEYWORD_ROUNDTRIP = "9-keyword-roundtrip"
     URL_DEDUP = "10-url-dedup"
 
 
@@ -320,6 +321,31 @@ def assert_no_mojibake(
     return AssertionResult(ok=True, name=Assertion.MOJIBAKE, detail="clean")
 
 
+def assert_keyword_roundtrip(text: str, required: list[str]) -> AssertionResult:
+    # Guards against ligature collapse (e.g. "Flink" becoming "Fl nk") and
+    # font-substitution regressions that silently drop technical terms. The
+    # token must survive extraction as a plain substring — case-sensitive and
+    # not split by whitespace — because that's what an ATS keyword search sees.
+    if not required:
+        return AssertionResult(
+            ok=True,
+            name=Assertion.KEYWORD_ROUNDTRIP,
+            detail="no required keywords declared",
+        )
+    missing = [kw for kw in required if kw not in text]
+    if missing:
+        return AssertionResult(
+            ok=False,
+            name=Assertion.KEYWORD_ROUNDTRIP,
+            detail=f"missing keyword(s): {missing}",
+        )
+    return AssertionResult(
+        ok=True,
+        name=Assertion.KEYWORD_ROUNDTRIP,
+        detail=f"all {len(required)} required keyword(s) present",
+    )
+
+
 def assert_no_soft_hyphen(text: str) -> AssertionResult:
     # U+00AD (soft hyphen) leaks into extractor output when Typst auto-hyphenates
     # across line breaks. Tika then splits the word across a paragraph boundary,
@@ -449,6 +475,9 @@ def evaluate(extractor: Extractor, fx: dict) -> ExtractorResult:
         )
     )
     er.results.append(assert_no_soft_hyphen(text))
+    er.results.append(
+        assert_keyword_roundtrip(text, fx.get("keywords", {}).get("required", []))
+    )
     er.results.append(assert_url_dedup(text))
     return er
 
