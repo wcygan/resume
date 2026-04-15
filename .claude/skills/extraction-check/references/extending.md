@@ -112,4 +112,30 @@ Run `just extraction-check` after every TOML edit. If it passes, the fixtures ar
 
 ## Updating the baseline skeleton for tests
 
-If the **test** baseline (`tests/fixtures/broken/baseline.typ` + `tests/fixtures/baseline.fixtures.toml`) drifts from assumptions in the assertion logic, update the TOML similarly. Baseline skeleton stays minimal — don't mirror the real resume's content. Its job is to compile cleanly and satisfy all 7 assertions with a 3-section, 2-job shape.
+If the **test** baseline (`tests/fixtures/broken/baseline.typ` + `tests/fixtures/baseline.fixtures.toml`) drifts from assumptions in the assertion logic, update the TOML similarly. Baseline skeleton stays minimal — don't mirror the real resume's content. Its job is to compile cleanly and satisfy all assertions with a 3-section, 2-job shape.
+
+## Platform-dependent extractor behavior — test new fixtures on Linux
+
+**Extractor output differs across operating systems.** The CI runner is Linux; local development is usually macOS. Fixtures that fail the expected assertion on macOS may pass silently on Linux (or vice versa), and `just test` alone will not catch the divergence.
+
+Known differences:
+
+- **`pdftotext` (poppler)** — macOS Homebrew poppler preserves U+00AD (soft hyphen) in extracted text via the font's ToUnicode CMap. Linux poppler (Ubuntu/Debian packaging) silently strips U+00AD regardless of context. See the soft-hyphen entry in [failure-playbook.md](failure-playbook.md) for how this manifests.
+- **Typst hyphenation** — the `lang` + `hyphenate: true` combo produces different break points for uncommon words on different Typst builds. `electroencephalographically` hyphenates on macOS but hard-wraps on Linux.
+- **Font substitution** — a fixture relying on a specific font being present can render with a fallback on the other platform, shifting metrics and wrap points.
+
+### Workflow: verify cross-platform before pushing
+
+```bash
+just test                         # macOS sanity — fast, catches obvious bugs
+act -j extraction-check \
+  --container-architecture linux/amd64 \
+  -W .github/workflows/extraction-check.yml
+```
+
+`act` runs the full GitHub Actions workflow locally in Docker against the same `ubuntu-latest` image CI uses. First run pulls the image (~400MB) and caches Tika; subsequent runs take ~30s. Run it before every fixture-related push. If the fixture's expected assertion doesn't fire on Linux, either:
+
+1. The fixture's failure mode is genuinely platform-specific — weaken the test to accept an equivalent signal (see `test_soft_hyphen_fails_soft_hyphen_or_keyword_roundtrip` for the pattern), or
+2. Rework the fixture so the hazard is reproduced on both platforms (force word wraps with narrow blocks, use characters in the baseline Unicode plane, avoid relying on the hyphenation engine).
+
+Prerequisites for `act`: Docker (or OrbStack) running, `act` installed (`brew install act`). The Extraction Check workflow runs in ~2 minutes end-to-end locally.
