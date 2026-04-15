@@ -229,16 +229,20 @@
           #if ("github" in author) [
             #separator
             #github-icon
-            #box[#link("https://github.com/" + author.github)[#author.github]]
+            // Display the full path (github.com/<handle>) so an ATS keyword
+            // search for "github.com" matches the extracted text. The link
+            // target keeps the scheme; the display text deliberately omits
+            // it to stay deduplicatable against Tika's URL annotation block.
+            #box[#link("https://github.com/" + author.github)[github.com/#author.github]]
           ]
           #if ("linkedin" in author) [
             #separator
             #linkedin-icon
+            // Display the full canonical LinkedIn path (linkedin.com/in/<handle>)
+            // for ATS keyword matchability, not just the bare handle and not
+            // the candidate's full name (which would duplicate in extracted text).
             #box[
-              // Display the LinkedIn handle (matches github/twitter pattern)
-              // rather than the full name, to avoid duplicating the candidate's
-              // name in ATS-extracted text (Tika emits link display text).
-              #link("https://www.linkedin.com/in/" + author.linkedin)[#author.linkedin]
+              #link("https://www.linkedin.com/in/" + author.linkedin)[linkedin.com/in/#author.linkedin]
             ]
           ]
           #if ("twitter" in author) [
