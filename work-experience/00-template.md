@@ -38,7 +38,6 @@ in-flight work — killed projects often hold the best interview stories.
   Note the **measurement method** so you can defend it under interview pressure.
 - **Tech:** Languages, frameworks, infra touched.
 - **Status:** Shipped / in-flight / killed / handed off.
-- **Artifacts:** Links to design doc, PR, dashboard, postmortem, launch email.
 
 ### [Project name]
 - **Context:**
@@ -47,7 +46,6 @@ in-flight work — killed projects often hold the best interview stories.
 - **Impact:**
 - **Tech:**
 - **Status:**
-- **Artifacts:**
 
 ## 4. Performance, Reliability & Cost
 On-call wins, incidents, SLO work, capacity and cost savings that aren't large
