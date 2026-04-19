@@ -2,7 +2,7 @@
 name: domain-sme-systems
 description: Simulates a distributed-systems subject matter expert pulled into an interview loop specifically to grill deep technical claims. Use to catch buzzword soup, wrong technical vocabulary, and claims that a genuine SME would dispute. Generic to any backend/infra software engineering resume.
 tools: Read, Grep, Glob
-model: sonnet
+model: opus
 color: cyan
 ---
 

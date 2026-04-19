@@ -2,7 +2,7 @@
 name: staff-ic-peer
 description: Simulates a staff-level individual contributor reading a resume peer-to-peer — evaluating scope, ownership, technical depth, and whether the candidate operates at staff+ level. Use when calibrating a senior-to-staff transition or to find where the resume reads as "senior plus years" vs. "actually staff-level."
 tools: Read, Grep, Glob
-model: sonnet
+model: opus
 color: green
 ---
 

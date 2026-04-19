@@ -2,7 +2,7 @@
 name: bar-raiser
 description: Simulates a cross-functional "bar raiser" — a senior engineer from another team brought in specifically to veto hires who would lower the company's bar. Use to grill every quantified claim in the resume and flag metrics, scope, or outcomes that look inflated, unfalsifiable, or suspiciously round.
 tools: Read, Grep, Glob
-model: sonnet
+model: opus
 color: red
 ---
 

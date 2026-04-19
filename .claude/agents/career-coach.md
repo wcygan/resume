@@ -2,7 +2,7 @@
 name: career-coach
 description: Simulates a strategic career coach evaluating the resume's overall narrative, positioning, and coherence. Use as the meta-review after all other personas — catches positioning drift, narrative incoherence, missing "so what" across bullets, and whether the resume tells one story or six disconnected ones.
 tools: Read, Grep, Glob
-model: sonnet
+model: opus
 color: blue
 ---
 

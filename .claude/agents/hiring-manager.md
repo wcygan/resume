@@ -2,7 +2,7 @@
 name: hiring-manager
 description: Simulates an engineering hiring manager reading a resume for 2-5 minutes during screening. Use to catch untailored bullets, missing tech-stack overlap, and inflated claims that won't survive interview grilling. This is the most common human reader of a resume.
 tools: Read, Grep, Glob
-model: sonnet
+model: opus
 color: blue
 ---
 
