@@ -3,6 +3,12 @@
 // Disable automatic hyphenation so soft hyphens (U+00AD) don't leak into
 // ATS extractor output (Tika breaks hyphenated words across paragraphs).
 #set text(hyphenate: false)
+// Disable smart-quote substitution so straight ' and " survive extraction —
+// U+2019 (curly apostrophe) is flagged as mojibake by the extraction gate.
+#set smartquote(enabled: false)
+// Disable paragraph justification so body text wraps left-aligned —
+// justified text causes river-spacing in the dense bullets below.
+#set par(justify: false)
 
 #show: resume.with(
   author: (
@@ -13,7 +19,7 @@
     github: "wcygan",
     linkedin: "wcygan",
     positions: (
-      "Senior Software Engineer, Linkedin Business Platform",
+      "Senior Software Engineer, LinkedIn Business Platform",
     ),
   ),
   profile-picture: none,
@@ -34,13 +40,14 @@
 )
 
 #resume-item[
-  - Architected real-time alerting system processing 100,000+ QPS using Kafka/Flink/Venice, recovering \$2M+ annually in involuntary churn by notifying subscribers of failed payments before subscription cancellations.
+  - Led design and implementation of real-time alerting system processing 100,000+ QPS using Kafka/Flink/Venice, recovering \$2M+ annually in involuntary churn by notifying subscribers of failed payments before subscription cancellations; platform extended by 3 partner teams (Ordering, Payments, Mobile) for Winback, Usage Billing, and Mobile Billing alerts.
+  - Automated Venice TTL purging of 35+ day records on the 100K QPS Global Alerts cache, cutting cache size 40% and downstream Invoice Search API QPS 50%.
+  - Designed Oracle-to-MySQL Delegation Framework adopted by all 10 LBP domain teams as the org-wide migration pattern, with novel Couchbase-TTL entity-routing cutover for strong consistency and GoldenGate-caught-up safety guarantees.
+  - Led full zero-downtime Oracle-to-MySQL migration of LinkedIn's Ordering Backend (12TB / 20B rows / 6 tables), rewriting 30,000+ lines of SQL across \~75 PRs with JooQ/Flyway; zero data loss through 6-week ramp validated at 10,000+ orders.
   - Eliminated N+1 query problem in Order Processing system, reducing average query latency by 40% (50ms→30ms) and p95 by 37% (200ms→125ms) across all ordering workflow read paths.
-  - Built reusable Oracle-to-MySQL migration framework adopted by 12 teams, saving 12+ months of cumulative engineering time and standardizing migration patterns across the organization.
-  - Executed zero-downtime Oracle-to-MySQL migration for 2 databases handling 3,000 QPS, maintaining strong consistency through Couchbase-backed sticky sessions and GoldenGate replication.
-  - Created Airflow cache invalidation job purging 30,000 stale records daily, preventing unnecessary gRPC calls to downstream services and reducing cross-team service load.
-  - Reduced Order database size by 33% (12TB→9TB) by implementing distributed deletion pipeline using Spark, Kafka, and batch processing to safely remove 3TB of obsolete records.
-  - Optimized JVM performance across 5 production services, improving health scores from 30-80% to 99.9%+ by reducing GC pause times by 86% (700ms→100ms) and eliminating daily alerts.
+  - Built rate-limited distributed deletion pipeline (Airflow, Trino, Kafka, gRPC) that purged 300,000 corrupted order records in production; same pipeline now ramping toward an identified 33% reduction across billions of dormant legacy OMS rows in the 10+ year-old Ordering database.
+  - Designed Unified Optimistic Locking mechanism for the MySQL Ordering Backend, eliminating a class of silent conflicting-write failures under Temporal activity retries via version-based concurrency control across every update-based write path.
+  - Designed Context Repos pattern (git submodules + curated context files) for agentic code navigation across LBP's 30+ decomposed microservices; variant adopted by LinkedIn's Developer Productivity org in Feb 2026.
 ]
 
 #resume-entry(
@@ -51,9 +58,9 @@
 )
 
 #resume-item[
-  - Scaled Videos You Might Be Interested In recommendation to 3,000 QPS on LinkedIn Feed, increasing course discovery CTR by 10% through TikTok-style video carousel.
-  - Built Learning Alerts Spark pipeline analyzing 50TB+ weekly to match 10M+ job seekers with learning courses aligned to their career goals, increasing notification conversion rates by 5%.
-  - Developed deterministic bucketing algorithm for Learning Alerts Spark pipeline, enabling clean A/B test readouts by segmenting 10M+ users into isolated experiment groups.
+  - Scaled Videos You Might Be Interested In recommendation to 3,000 QPS on LinkedIn's 50M+ DAU Flagship Feed, driving +2.5% Weekly Skilled Learners (LinkedIn Learning's north-star metric) and +0.57% SWI on Skill Credits across 3 experiments.
+  - Built Learning Alerts V2 member/stage targeting framework from scratch, driving +1.09% WSL (Learning's north-star) via Spark pipelines over 20+ datasets (\~50TB/run) classifying 10M+ job seekers into career-change-funnel cohorts with deterministic bucketing for clean A/B readouts; ramped safely to 22M members.
+  - Improved LinkedIn Flagship Feed engagement +0.2% by filtering audio-only content from video course recommendations, a statistically significant lift at hundreds of millions of daily impressions.
 ]
 
 = Projects
@@ -65,19 +72,7 @@
 
 #resume-item[
   - Built fault-tolerant 3-node bare-metal Kubernetes cluster using Talos Linux with GitOps CI/CD automation, achieving 99.9% uptime over 12+ months.
-  - Built and deployed e-commerce site (kneadybynaturebakery.com) on homelab cluster so my sister can sell online
   - Deployed distributed data systems (TiDB, RedPanda, DragonflyDB, ScyllaDB, ClickHouse) to evaluate performance characteristics and operational trade-offs of modern database alternatives.
-
-]
-
-#resume-entry(
-  title: "tokio-utils Rust Library",
-  location: [#github-link("wcygan/tokio-utils")],
-)
-
-#resume-item[
-  - Published async Rust library implementing rate limiting, object pooling, and graceful shutdown patterns, achieving 2x performance improvement in object pool benchmarks.
-  - Implemented web crawler processing 300+ pages/minute with adaptive rate limiting, achieving 0% IP blacklist rate across 1,000+ domains while building internet graph index for PageRank analysis.
 ]
 
 = Skills
@@ -90,9 +85,7 @@
     "Python",
     "SQL",
     "Bash",
-    "Go",
     "TypeScript",
-    "Scala",
   ),
 )
 #resume-skill-item(

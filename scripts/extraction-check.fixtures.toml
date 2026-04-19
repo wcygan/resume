@@ -54,7 +54,6 @@ required = [
     "Rust",
     "Python",
     "TypeScript",
-    "Scala",
     "Kafka",
     "gRPC",
     "Temporal",

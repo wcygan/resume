@@ -13,12 +13,12 @@ Run a parallel fan-out of all 12 reviewer sub-agents defined in `.claude/agents/
 Every reviewer must treat these three inputs with distinct roles. Brief them explicitly in the spawn prompt — do not assume the persona definition covers it.
 
 1. **`will_cygan_resume.typ`** — the artifact under review. This is what recruiters, ATSs, and hiring managers actually see. All verdicts and line references land here.
-2. **`work-experience/01-linkedin-swe.md`** and **`work-experience/02-linkedin-sr-swe.md`** — the source of truth for every LinkedIn role. Contains full Context / Role / Actions / Impact / Tech / Status logs, the "Bullet Points" section (resume-ready condensed lines), and raw evidence for every claim. `work-experience/99-personal-projects.md` covers the Projects section. `work-experience/ACRONYMS.md` glosses LinkedIn-internal terms.
+2. **`work-experience/01-linkedin-swe.md`** and **`work-experience/02-linkedin-sr-swe.md`** — the source of truth for every LinkedIn role. Contains full Context / Role / Actions / Impact / Tech / Status logs and raw evidence for every claim. `work-experience/99-personal-projects.md` covers the Projects section. `work-experience/ACRONYMS.md` glosses LinkedIn-internal terms.
 3. **`advice/*.md`** — methodology (STAR/XYZ, quantification, readability). Agents already know to cite these; you do not need to re-brief.
 
 Reviewers must use (2) in three directions:
 - **Inflation / under-support check.** Any resume claim whose scope, number, or scale is not corroborated by `work-experience/` is a flag. Example: a QPS, revenue, or row-count figure on the resume should match the work-experience entry; unverifiable numbers are a `bar-raiser` / `future-self-skeptic` issue.
-- **Buried-lead check.** Strong, well-quantified material in `work-experience/` (especially the `## Bullet Points` sections and high-impact projects) that is **missing from, weakly represented on, or out-ranked by weaker material on** `will_cygan_resume.typ` is a flag. This is usually a `hiring-manager`, `skip-level-exec`, `staff-ic-peer`, or `career-coach` issue.
+- **Buried-lead check.** Strong, well-quantified material in `work-experience/` (especially high-RS projects) that is **missing from, weakly represented on, or out-ranked by weaker material on** `will_cygan_resume.typ` is a flag. This is usually a `hiring-manager`, `skip-level-exec`, `staff-ic-peer`, or `career-coach` issue.
 - **Relevance Score calibration.** Each project in `work-experience/*.md` carries a `**Relevance:** N/5 — …` field documented in `work-experience/RELEVANCE.md`. Use the score as a prior: RS 5/4 projects missing from the resume are high-priority buried leads; RS 2/1 projects on the resume are wasted real estate. If a reviewer disagrees with a score (inflated or under-rated), it must say so — the score is human judgment being calibrated against, not gospel.
 
 ## Process

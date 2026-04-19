@@ -36,7 +36,7 @@ Examples (drawn from the LinkedIn logs):
 - **When in doubt, go lower.** A resume is scarcity-driven; over-rating inflates noise and defeats the whole point of the prior.
 - **Quantify the rationale.** "It was important" is not a rationale — `$2M + 10 teams + 100K QPS` is.
 - **Re-score after milestones.** A project's RS can rise (scope expanded, another team adopted) or fall (a replacement shipped, impact didn't stick). Annotate when it changes.
-- **Score the project, not the bullet.** One project may yield several bullet variants in `## Bullet Points`; the score attaches to the underlying work. If an RS-5 project is phrased weakly on the resume, the fix is rewrite, not re-score.
+- **Score the project, not the bullet.** One project may yield several bullet variants on the resume; the score attaches to the underlying work. If an RS-5 project is phrased weakly on the resume, the fix is rewrite, not re-score.
 - **Section 4 (Performance, Reliability & Cost) items are unscored by default.** They're typically interview-story material; score only when one rises to project-level impact (e.g., the JVM / GC tuning work in `01-linkedin-swe.md` arguably warrants a score).
 - **In-flight work is scorable.** Score against *expected* impact and tag the uncertainty: `**Relevance:** 4/5 (in-flight — will rise to 5 if the 33% reduction lands as scoped).`
 

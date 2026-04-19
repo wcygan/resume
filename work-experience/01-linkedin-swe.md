@@ -102,15 +102,3 @@ On-call, incident response, cross-team operational contributions that don't rise
   - **Monitoring & Alerting Champion (Learner Growth)** — created alerting runbooks and dashboards for critical services.
   - Mentored peers through oncall rotations on availability dips, metric dashboards, deployments, and tuning.
 
-## Bullet Points
-
-Resume-ready condensed lines. Pick-and-choose for external resumes.
-
-- Drove **+2.5% Weekly Skilled Learners** (LinkedIn Learning's north-star) across 3 experiments and **+0.57% SWI** for Skill Credits by building VYMBII Slideshows' feed integration — Urn Resolver, feed-mixer stitching, and batch-finder migration — scaling from nano courses to the full VYMBII catalog across LinkedIn's 50M+ DAU Flagship Feed.
-- Built Learning Alerts V2's member/stage targeting framework from scratch, generating **+1.09% WSL** via Spark pipelines over 20+ datasets processing **~50 TB of historical data per run** to classify 10M+ job seekers into career-change-funnel cohorts; ramped safely to 22M members.
-- Launched Professional Certificates email on Learning Alerts V2 (**+0.1% WSL**).
-- Improved LinkedIn Flagship Feed engagement **+0.2%** by filtering audio-only content from VYMBII — statistically significant at hundreds of millions of daily impressions.
-- Tuned JVM garbage collection on two core Java services, improving GC Health Scores from **78% → 99%** (Feed Backend) and **5% → 99%** (Ads Ranking Backend); authored the JVM tuning runbook adopted by LinkedIn's JVM Performance working group.
-- Led Token Creation Unification implementation across LBP with 2 other engineers — migrated checkout off the legacy OMS-hosted token system onto a fully LBP-native flow (**13+ PRs**, LiX-gated rollout, bug bash), removing a cross-platform dependency from the purchase flow.
-- Resolved a 6-month-old broken affiliate offline reporting flow in **10 PRs**, unblocking marketing's ability to pay third-party affiliate program members.
-- Contributed backend integration for **Jobs in Learning** (PRD feedback, RFC, tracking spec, runbook, 8 PRs) and represented Learner Growth in the learning GraphQL migration.
