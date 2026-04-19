@@ -32,6 +32,7 @@ Joined LBP's Checkout and Ordering team after the LLS Learner Growth reorg; this
 - **Impact:** **+2.5% WSL** (LinkedIn Learning's north-star Weekly Skilled Learners metric) across 3 experiments and **+0.57% SWI** for Skill Credits. Delivered cross-pillar QPS reduction to Learning Backend via the batch finder migration. Reached LinkedIn's 50M+ DAU feed surface.
 - **Tech:** Java, feed-mixer, Pegasus, LiX experimentation, Learning Backend.
 - **Status:** Shipped.
+- **Relevance:** 4/5 — +2.5% WSL across 3 experiments + 0.57% SWI + 3K QPS shipped to LinkedIn's 50M+ DAU Flagship Feed; moved Learning's north-star metric.
 
 ### [Learning Alerts V2 — Member Targeting Framework]
 - **Context:** Learning Alerts needed a targeting layer that could segment members by their position in the career-change funnel and deliver a relevant notification. Cohorts were behavioral — members who clicked Save on a job, members who applied for a job, members who recently changed their title, members marked Open to Work. Members landing in multiple cohorts were routed to the one furthest along the funnel of changing jobs, so each member received the single most relevant nudge. Segmentation ran in Spark at massive scale. No offline-targeting precedent existed on Learner Growth.
@@ -40,6 +41,7 @@ Joined LBP's Checkout and Ordering team after the LLS Learner Growth reorg; this
 - **Impact:** **+1.09% WSL** from the targeting framework overall, **+0.1% WSL** from Professional Certificates emails, targeted delivery across **22M members**. 5% higher enrollment rates on Spark-pipeline-classified cohorts.
 - **Tech:** Java, Spark, Kafka, LiX, Learning GraphQL Frontend.
 - **Status:** Shipped.
+- **Relevance:** 4/5 — +1.09% WSL + 22M members ramped + built-from-scratch targeting framework on 50 TB/week Spark across 20+ datasets classifying 10M+ job seekers.
 
 ### [Audio-Only Content Filter — Flagship Feed]
 - **Context:** VYMBII Slideshows was surfacing audio-only course content inside LinkedIn's Flagship Feed, where it performed poorly relative to visual content. Quality was a drag on feed engagement at scale.
@@ -48,6 +50,7 @@ Joined LBP's Checkout and Ordering team after the LLS Learner Growth reorg; this
 - **Impact:** **+0.2% feed engagement lift** — statistically significant at the scale of hundreds of millions of daily feed impressions. Most feed experiments at this scale target 0.1–0.5% lifts; this was a strong win.
 - **Tech:** Java, feed-mixer, LiX.
 - **Status:** Shipped.
+- **Relevance:** 3/5 — +0.2% Flagship Feed engagement lift at hundreds-of-millions-of-impressions scale; single-experiment scope but statistically significant on a tier-1 surface.
 
 ### [JVM / GC Tuning — Core Java Services]
 - **Context:** Feed Backend (a mobile/web API pillar serving LinkedIn's clients) and Ads Ranking Backend were flagged by the JVM Performance working group with poor GC Health Scores — regular GC pauses were degrading user-facing latency.
@@ -56,6 +59,7 @@ Joined LBP's Checkout and Ordering team after the LLS Learner Growth reorg; this
 - **Impact:** Feed Backend **GC Health Score 78% → 99%**. Ads Ranking Backend **GC Health Score 5% → 99%**. Runbook adopted by the JVM Performance working group and reused across the org.
 - **Tech:** Java, JVM, G1GC, LinkedIn JVM performance tooling.
 - **Status:** Shipped.
+- **Relevance:** 2/5 — 78%→99% and 5%→99% GC Health Scores on two core services + runbook adopted by the JVM Performance working group; internal-infra impact without a top-line metric.
 
 ### [Token Creation Unification — LBP]
 - **Context:** The legacy token system was built on OMS but was still serving LBP's checkout flow — a cross-platform dependency that tied LBP's correctness and oncall to a system LBP did not own. LBP had multiple divergent paths for token creation across products. An FY24 unification effort was launched to migrate checkout onto a fully LBP-native token flow and converge products on a single canonical path.
@@ -64,6 +68,7 @@ Joined LBP's Checkout and Ordering team after the LLS Learner Growth reorg; this
 - **Impact:** Checkout became fully LBP-native — removed the residual OMS dependency from the purchase flow and converged LBP products on a single canonical token-creation path. Rolled out behind a LiX.
 - **Tech:** Java, LiX, LBP platform.
 - **Status:** Shipped.
+- **Relevance:** 2/5 — Led implementation with 2 ICs across 13+ PRs + removed cross-platform OMS dependency; inherited the RFC and narrower in scope than the later LBP migration framework.
 
 ### [LBP Internal Tooling — Card Override & Alternative Payment Methods]
 - **Context:** Engineers and technical support teams needed ways to test purchase flows across alternative payment methods without depending on real customer data. The existing LBP Internal Tooling didn't cover card override or alternative payment methods.
@@ -72,6 +77,7 @@ Joined LBP's Checkout and Ordering team after the LLS Learner Growth reorg; this
 - **Impact:** Ease-of-testing for LBP engineers and TS; unlocked reliable purchase-flow debugging against a broader range of payment methods.
 - **Tech:** Java, LBP platform.
 - **Status:** Shipped.
+- **Relevance:** 2/5 — Shipped card-override and extensible payment-method support across 5+ PRs; impact is internal-tooling convenience, hard to quantify compellingly.
 
 ### [Jobs in Learning (Jobs on LiL)]
 - **Context:** Cross-team initiative to surface LinkedIn Jobs inside LinkedIn Learning — required backend integration across the Jobs and Learning stacks.
@@ -80,6 +86,7 @@ Joined LBP's Checkout and Ordering team after the LLS Learner Growth reorg; this
 - **Impact:** Launched Jobs-on-LiL backend integration; extended Learning Right Rail recommendations onto the Jobs page
 - **Tech:** Java, GraphQL, Jobs Feed Backend, Pegasus.
 - **Status:** Shipped.
+- **Relevance:** 2/5 — 8 PRs + PRD + RFC + runbook for the Jobs-on-LiL backend integration; cross-team delivery but impact reads as "launched integration" — interview material more than resume material.
 
 ## 4. Performance, Reliability & Cost
 

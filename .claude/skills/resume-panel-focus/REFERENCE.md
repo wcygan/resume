@@ -21,9 +21,21 @@ If `$ARGUMENTS` is empty, `null`, or matches no alias, call AskUserQuestion with
 
 Send to each matched persona in a single parallel Agent tool message:
 
-> Review only the `[section]` section of `will_cygan_resume.typ`. Ignore unrelated sections. Produce your standard output: VERDICT, CONFIDENCE, TOP ISSUES (with line refs), WHAT'S WORKING. Cap at 5 issues.
+> Review only the `[section]` section of `will_cygan_resume.typ`. Ignore unrelated sections.
+>
+> **Source-of-truth evidence base.** `work-experience/01-linkedin-swe.md` and `work-experience/02-linkedin-sr-swe.md` contain the full project logs backing LinkedIn claims; `work-experience/99-personal-projects.md` backs the Projects section; `work-experience/ACRONYMS.md` glosses internal terms. Each project also carries a `**Relevance:** N/5 — <rationale>` field (rubric: `work-experience/RELEVANCE.md`) — use it as a calibration prior.
+>
+> **Cross-reference responsibilities** when the section touches substantive content (`work-experience`, `bullets`, `projects`, `narrative`):
+> - Flag inflation: resume claims not corroborated by `work-experience/*.md`.
+> - Flag buried leads: RS 5/4 material missing from or weakly represented on the resume.
+> - Flag real-estate waste: RS 2/1 material that made it onto the resume.
+> - Flag score disagreements: if a project's RS looks inflated or under-rated, say so.
+>
+> Produce your standard output: VERDICT, CONFIDENCE, TOP ISSUES (with line refs to both `will_cygan_resume.typ` and `work-experience/*.md` when relevant), WHAT'S WORKING. Cap at 5 issues.
 
 Substitute `[section]` with the normalized section name (e.g., `work-experience`, not the alias the user typed).
+
+For sections where `work-experience/` is not the evidence base (`formatting`, `header`, `skills`), the cross-reference responsibilities are non-binding — personas may ignore them if the section doesn't benefit from that context.
 
 ## Output Format
 

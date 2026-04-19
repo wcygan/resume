@@ -24,6 +24,7 @@ The most impactful work in this role has been the LBP Global Alerts system (reco
 - **Impact:** Full migration off Oracle (primary OKR), zero data loss, zero downtime. 30,000+ lines migrated across ~75 PRs. 10,000+ validated orders at the 1% tollgate. Developer experience vastly improved: type-safe queries via JooQ, schema-versioned via Flyway, fully documented.
 - **Tech:** Java, MySQL, Oracle, JooQ, Flyway, Couchbase, Kafka, Brooklin (CDC), GoldenGate (replication), OpenHouse, HDFS.
 - **Status:** Delivered in production since December 2025.
+- **Relevance:** 5/5 — 12 TB / 20B rows / ~75 PRs / zero downtime; full migration of LinkedIn's Ordering Backend off Oracle, OKR-level headline deliverable.
 
 ### [MySQL Query Pattern Optimization — N+1 Elimination]
 - **Context:** The the Ordering Backend database implementation was ported from Oracle and some code dated back 10+ years to the startup era. An N+1 query pattern was inflating tail latency of database queries, degrading user experience (the dreaded purchase-flow spinner).
@@ -32,6 +33,7 @@ The most impactful work in this role has been the LBP Global Alerts system (reco
 - **Impact:** **p95 latency 200 ms → 125 ms** (37% reduction); **average latency 50 ms → 30 ms** (40% reduction) across all ordering workflow read paths. Unlocked headroom to scale against higher traffic despite a dataset at 20-billion-row / 12 TB scale.
 - **Tech:** Java, MySQL, JooQ.
 - **Status:** Delivered in production since December 2025.
+- **Relevance:** 4/5 — 37% p95 + 40% avg latency reduction on the 20B-row MySQL Ordering Backend; strong supporting, narrower than the migration itself.
 
 ### [Oracle → MySQL Delegation Framework]
 - **Context:** In FY26 all 10 LBP domain teams needed to migrate from Oracle to MySQL. Rather than every team re-solving the same consistency and rollback problems, there was a window early in the program to invest in shared migration infrastructure.
@@ -40,6 +42,7 @@ The most impactful work in this role has been the LBP Global Alerts system (reco
 - **Impact:** Standardized migration pattern onboarded by **10 LBP domain teams** — eliminated per-team reinvention of consistency and rollback infrastructure. Directly led to multiple successful FY26 migrations beyond the Ordering Backend.
 - **Tech:** Java, Oracle, MySQL, Couchbase, GoldenGate.
 - **Status:** Delivered in May 2025; battle-tested through multiple subsequent migrations.
+- **Relevance:** 5/5 — 10 LBP domain teams adopted + novel Couchbase-TTL entity-routing cutover design; org-wide migration multiplier.
 
 ### [Oracle → MySQL Migration Dashboard]
 - **Context:** During the Ordering Backend migration we needed a single real-time view of progress, system health, and business metrics to confirm the migration was landing per-plan. No such dashboard existed.
@@ -48,6 +51,16 @@ The most impactful work in this role has been the LBP Global Alerts system (reco
 - **Impact:** Gave the team a direct measurement surface for the migration. Our hypothesis that the migration would improve performance was confirmed against the dashboard — it's the artifact that backs the 30–40% latency reduction claim.
 - **Tech:** Grafana, Kusto, OpenTelemetry.
 - **Status:** Delivered in October 2025.
+- **Relevance:** 2/5 — Unified DB + server + business metrics in a single Grafana board; instrument that proved the 30–40% latency claim, not standalone differentiating work.
+
+### [Unified Optimistic Locking — MySQL Ordering Backend]
+- **Context:** Writes to the Ordering Backend run inside Temporal workflows whose activity-level retries can re-fire in-flight updates against the same row, risking silent conflicting-write loss. Before this work, each update path handled concurrency ad-hoc.
+- **Role:** Individual Contributor; designer and implementer.
+- **Actions:** Designed and shipped a single optimistic-locking mechanism applied to every update-based write path, giving the backend uniform concurrency control. The version-based check surfaces conflicts cleanly so Temporal retries converge instead of silently clobbering each other.
+- **Impact:** Eliminated a class of conflicting-write failures on every update path; made the Ordering Backend materially more reliable under Temporal retry semantics.
+- **Tech:** Java, MySQL, Temporal, JooQ.
+- **Status:** Delivered in December 2025.
+- **Relevance:** 3/5 — Mechanism-level concurrency design eliminating a class of conflicting-write failures under Temporal retries; solid distributed-systems depth but reliability-flavored with no top-line metric.
 
 ### [Batch Order Cleanup Pipeline]
 - **Context:** A prior incident had irreversibly deleted pricing data for a batch of demoted orders, leaving 300,000 corrupted order records orphaned in production. The cleanup was also the mechanism needed to eventually purge billions of legacy OMS orders ahead of downstream migration work.
@@ -56,6 +69,7 @@ The most impactful work in this role has been the LBP Global Alerts system (reco
 - **Impact:** **300,000 corrupted order records deleted** in production. Pipeline is now the mechanism that will purge the dormant OMS portion of the Order database.
 - **Tech:** Java, Trino, MySQL.
 - **Status:** Shipped (H2 2024).
+- **Relevance:** 4/5 — 300K corrupted records deleted + mechanism unblocking billions-scale dormant OMS cleanup (may re-score to 5 once the billions-scale purge lands).
 
 ### [MySQL Legacy Data Retention & Cleanup (18 Billion Rows)]
 - **Context:** The the Ordering Backend database has run for over a decade and supports both the modern LBP system and the legacy OMS system. It holds ~12 TB across ~20 billion rows in 6 tables, and **more than 95% is unused** — roughly 500,000,000 rows actively serve LBP, while the rest sit dormant from OMS. This dormant mass directly degrades performance via index bloat, makes DDL changes risky, and inflates migration complexity.
@@ -64,6 +78,7 @@ The most impactful work in this role has been the LBP Global Alerts system (reco
 - **Impact:** **33% immediate reduction opportunity** identified; when executed it reduces MySQL migration complexity and directly reduces infrastructure cost. Full shipped impact TBD.
 - **Tech:** Java, MySQL, Trino, Airflow, Kafka, gRPC.
 - **Status:** In-flight — reduction opportunity identified H1 2025; execution ongoing, piggybacking on the Batch Order Cleanup Pipeline.
+- **Relevance:** 3/5 — 33% immediate reduction opportunity identified on a 10+ year Ordering database; rises to 4–5 once the full billions-scale purge lands.
 
 ### [LBP Global Alerts — Payment Failure Alerting]
 - **Context:** The legacy OMS had payment-failure alerts; LBP, as a newer platform, did not. The new system needed functional parity to avoid members losing access and to recover otherwise-lost subscription revenue. The target was a near-real-time invoice state tracking system that could cope with 100,000 QPS from LinkedIn Feed.
@@ -72,6 +87,7 @@ The most impactful work in this role has been the LBP Global Alerts system (reco
 - **Impact:** **$2M+ in annualized revenue** recovered — measured via funnel tracking (click on alert → conversion within 2 hours). Venice lookup layer sustains **100,000 QPS reads** from the Feed surface; Flink pipeline processes **~500 messages/sec writes** for invoice-state updates. Three partner teams subsequently shipped features on the platform without my involvement.
 - **Tech:** Java, Kafka, Flink, Venice, Airflow.
 - **Status:** Delivered in production since Jan 2024; continuously extended through H1 2025.
+- **Relevance:** 5/5 — $2M+ annualized revenue recovered + 100K QPS Venice read path + 3 partner teams extended the platform.
 
 ### [LBP Global Alerts — Venice TTL Automation & Cache Invalidation]
 - **Context:** LBP Global Alerts uses Venice as a high-scale lookup (100,000 QPS) to detect when a customer "potentially has an issue" with their invoices — a cheap hint that avoids hammering the downstream billing system. Without a perfect invalidation mechanism, stale hints lingered after customers reconciled their invoices. Each stale hint drove a redundant search-index lookup every time the customer viewed LinkedIn, putting avoidable pressure on Invoice Search API.
@@ -80,6 +96,7 @@ The most impactful work in this role has been the LBP Global Alerts system (reco
 - **Impact:** **Global Alerts DB (Venice Cache) size reduced 40%** through automated TTL — measured directly against database record count before/after the Airflow purge job ran. **50% reduction in downstream Invoice Search API QPS** — direct infrastructure-cost saving and improved resilience against cascading failure.
 - **Tech:** Venice, Airflow.
 - **Status:** Delivered in H1 2025.
+- **Relevance:** 4/5 — 40% cache size reduction + 50% downstream Invoice Search API QPS cut via automated 35-day TTL.
 
 ### [gRPC Service Modernization — LBP]
 - **Context:** Company-wide initiative to converge LBP services on gRPC — unlocking better wire and serialization performance, stronger contract safety, and a single unified RPC standard across the estate.
@@ -88,6 +105,7 @@ The most impactful work in this role has been the LBP Global Alerts system (reco
 - **Impact:** Modernized the LBP service architecture across 4 production services; unblocked the migration pattern for adjacent teams.
 - **Tech:** gRPC, Java, Protobuf.
 - **Status:** Delivered in H1 2025.
+- **Relevance:** 3/5 — 4 production services migrated + 10+ PRs; credible company-wide modernization but follow-the-leader scope.
 
 ### [LBP Availability Investigator (Kusto)]
 - **Context:** Engineers and technical support teams were debugging customer issues by re-running the same ad-hoc Kusto queries against application and access logs — reusable queries were scattered, syntax had to be re-memorized per session, and the wrong log database was easy to hit. The opportunity was unlocked by LBP's microservice log tables all living in a single Kusto database, which made a unified dashboard possible.
@@ -96,6 +114,7 @@ The most impactful work in this role has been the LBP Global Alerts system (reco
 - **Impact:** Adopted as a daily oncall tool by LBP engineers for live-site debugging — turned "availability dropped" into "here's the specific error chain that caused it" without manual log-trawling. The technical support team issued a formal commendation for the triage speedup — the dashboard accelerated routing of customer-reported bugs to the right LBP team.
 - **Tech:** Kusto, Grafana.
 - **Status:** Continuously delivered across H1 2025.
+- **Relevance:** 3/5 — Daily oncall tool + formal TS commendation; real multiplier, hard to compress into a compelling bullet.
 
 ### [LBP Data Quality Jobs — Ordering & Global Alerts]
 - **Context:** Two silent-failure incidents motivated the work: (1) **Global Alerts stopped sending** due to a server-code bug — no errors thrown, the pipeline simply produced zero data, so it went undetected until downstream impact surfaced. (2) During an infra-team migration of the order-line offline dataset from a legacy system to Iceberg, row counts on the old and new datasets were not verified — the team was migrated onto a dataset with **only 200M rows versus the original ~18B (≈99% data loss)**. The loss was discovered only after financial reporting flows broke. Both failures proved that error-based monitoring is insufficient for offline datasets; volume itself needs to be a first-class signal.
@@ -104,6 +123,7 @@ The most impactful work in this role has been the LBP Global Alerts system (reco
 - **Impact:** Converted two classes of silent failure (zero-data bugs and volume-loss migrations) into auto-detected alerts. Massively improved time-to-detect and reduced exposure time for internal customers of the Ordering and Global Alerts datasets.
 - **Tech:** Airflow, Trino, Kafka, HDFS, OpenHouse.
 - **Status:** Delivered in H1 2025.
+- **Relevance:** 3/5 — Hourly row-count + rate-of-change assertions caught a 99% silent row-loss; memorable narrative, internal reliability without top-line metric.
 
 ### [Context Repos for Claude Code]
 - **Context:** The company adopted agentic coding tools through FY25 and FY26 — Claude Code is the tool I use day-to-day; I was an early adopter and looked for ways to maximize productivity against a sea of literally thousands of internal repositories where a single feature often crosses 30+ microservices.
@@ -112,6 +132,7 @@ The most impactful work in this role has been the LBP Global Alerts system (reco
 - **Impact:** Immediately increased velocity for me and other engineers in my org. For LBP specifically, Context Repos made the ~30+ microservices decomposed from the legacy OMS navigable — developers can launch agents that search across projects, write cross-codebase PRs, and review designs against real implementations. Reduces toil and boosts velocity across the daily loop.
 - **Tech:** Claude Code, Git submodules, Markdown context files (Skills, Hooks, Agents).
 - **Status:** Piloted May 2025 via org-wide engineering email; a variant was adopted by LinkedIn's Developer Productivity org by Feb 2026.
+- **Relevance:** 3/5 — Variant adopted by LinkedIn's Developer Productivity org + 30+ LBP microservices made navigable; differentiating positioning but not quantified business impact.
 
 ## 4. Reliability & Multiplier Work
 
@@ -120,7 +141,6 @@ Pre-prod reliability engineering and team-multiplier contributions that underpin
 - **Pre-prod reliability — shift-left testing & concurrency safety:**
   - **End-to-end test coverage for usage-based products** — authored E2E tests covering **Flagship Online Job** (standalone usage-based product) and **Recruiter Lite Online Jobs** (usage-based, bundled with the Recruiter subscription) purchase and usage flows. Wired them into the pre-deploy pipeline so every change is smoke-tested against the full checkout/ordering path before promotion, catching integration regressions and pre-empting incident classes they would otherwise cause.
   - **Agentic checkout testing** — built two Claude Code integrations that let agents self-validate checkout changes before PRs reach the E2E suite: (1) a **Playwright-driven UI path** that spins up new test users, drives the browser through the checkout page, enters payment details, and places orders; (2) a **shell-script API path** that mimics the exact API calls the UI makes, so agents can exercise every checkout API without a browser. Coverage spans **all subscription flows** (e.g., LinkedIn Premium) and **all usage-based flows** (e.g., Ads, Jobs) — shifting correctness left and materially raising PR quality by giving agents a fast, automated correctness loop.
-  - **Unified optimistic locking for the MySQL Ordering Backend** — designed and shipped a single optimistic-locking mechanism applied to every update-based write path, giving the backend uniform concurrency control and retryability. Critical because writes run inside Temporal workflows whose activity-level retries can re-fire in-flight updates against the same row; the version-based check surfaces conflicts cleanly so Temporal retries converge instead of silently clobbering each other — eliminating a class of conflicting-write pitfalls and making the Ordering Backend materially more reliable.
 
 - **Team leverage & mentorship:**
   - **Eliminated the Global Alerts bus factor** — mentored engineers across 3 teams (Ordering, Payments, Mobile) to independently develop and support features; guided additions of Winback Promotions, Usage Billing, and Mobile Billing alerts without my involvement.

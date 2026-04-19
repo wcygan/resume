@@ -21,9 +21,23 @@ All defined in `.claude/agents/`. Each persona produces structured output: `VERD
 
 ## Spawn Prompt
 
-Send this prompt to every persona. All 12 calls must go in a **single parallel Agent tool message** (one tool call per persona, all in one response):
+Send this prompt to every persona. All 12 calls must go in a **single parallel Agent tool message** (one tool call per persona, all in one response). Do not paraphrase — the source-of-truth framing is load-bearing:
 
-> Review `will_cygan_resume.typ` and produce your standard output: VERDICT, CONFIDENCE, TOP ISSUES (with line refs to specific lines in the resume), and WHAT'S WORKING. Cap at 5 issues.
+> Review `will_cygan_resume.typ` as the artifact under review.
+>
+> **Source-of-truth evidence base.** Also read `work-experience/01-linkedin-swe.md` (Software Engineer, LinkedIn, Feb 2022 – Mar 2024) and `work-experience/02-linkedin-sr-swe.md` (Senior Software Engineer, LinkedIn, Mar 2024 – Present). These contain the full Context / Role / Actions / Impact / Tech / Status logs and a `## Bullet Points` section of resume-ready condensed lines. They are the authoritative source for every LinkedIn claim on the resume. `work-experience/99-personal-projects.md` covers the Projects section. `work-experience/ACRONYMS.md` glosses LinkedIn-internal terms (LBP, OMS, VYMBII, LiX, WSL, SWI, etc.) — use it instead of guessing.
+>
+> **Relevance Score prior.** Each project in `work-experience/*.md` carries a `**Relevance:** N/5 — <rationale>` field (rubric: `work-experience/RELEVANCE.md`). Treat it as a **calibration prior, not gospel** — the author's judgment of how heavily a deliverable should weigh on a resume.
+>
+> **What to do with it.** As you evaluate the resume, explicitly cross-reference:
+> 1. **Inflation / under-support.** Flag any claim on the resume whose number, scope, scale, or ownership is not corroborated by `work-experience/`. Cite the conflicting / missing line. If a number on the resume differs from the work-experience log, report the delta.
+> 2. **Buried lead.** Flag material in `work-experience/` — especially its `## Bullet Points` sections and high-impact projects — that is missing from, weakly represented on, or out-ranked by weaker material on `will_cygan_resume.typ`. Name the specific bullet being under-sold. **Weight by RS**: a missing RS 5/4 project is a high-priority buried lead; a missing RS 3 is medium; RS 2/1 do not belong on the resume by design.
+> 3. **Real-estate check.** If an RS 2/1 project has made it onto the resume while RS 5/4 material is absent or weak, flag the swap.
+> 4. **Score disagreement.** If you believe a score is wrong (an RS 5 that seems inflated to you, or an RS 3 that seems under-rated), say so explicitly and explain why — this is cheap calibration for the author.
+>
+> Produce your standard output: VERDICT, CONFIDENCE, TOP ISSUES (with `will_cygan_resume.typ` line refs; add `work-experience/*.md` citations whenever an issue is inflation, a buried lead, or a score disagreement), and WHAT'S WORKING. Cap at 5 issues.
+>
+> **RS citation requirement.** Any issue framed as inflation, buried lead, real-estate waste, or score disagreement MUST cite the Relevance Score of the affected project inline (e.g., "JVM tuning (RS 2/5)" or "VYMBII Slideshows (RS 4/5, `01-linkedin-swe.md`)"). If none of your top issues touch RS-weighted material, state that explicitly — silence is not a valid default. If you believe an RS is wrong, raise it as its own issue with "SCORE DISAGREEMENT:" prefix.
 
 ## Dashboard Format
 

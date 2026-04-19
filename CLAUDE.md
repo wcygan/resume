@@ -39,6 +39,8 @@ Prefer invoking a skill over hand-driving the review:
 
 When rewriting bullets, pull source material from `work-experience/` and methodology from `advice/` — the skills already know how to route there.
 
+Each project in `work-experience/*.md` carries a **Relevance Score** (1–5 + rationale) — the author's prior for what belongs on the resume. Reviewers use it to flag buried leads (high-RS material missing from the resume) and wasted real estate (low-RS material on it). Rubric: `work-experience/RELEVANCE.md`.
+
 ## ATS-extraction design rules
 
 The resume is stress-tested by `/extraction-check` (pdftotext, pdftotext -layout, Tika/PDFBox) on every change. The following rules exist because they are the source-side fixes for real extraction failures we've observed — do not undo them without re-running the gate.

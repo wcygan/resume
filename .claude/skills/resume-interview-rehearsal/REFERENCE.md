@@ -55,8 +55,14 @@ After ranking, scan the resume again for bullets with any of these high-stakes m
 - Strong ownership verbs (`architected`, `led`, `drove`, `spearheaded`)
 - Large team/adoption claims (`12 teams adopted`, `10M+ users`)
 - Latency/performance deltas (`86% reduction`, `40% improvement`)
+- **High Relevance Score** — cross-reference the bullet to its source project in `work-experience/*.md` and check the `**Relevance:** N/5` field (rubric: `work-experience/RELEVANCE.md`). Any bullet derived from an **RS 5 or RS 4** project is a high-stakes marker by default — these are what interviewers target.
 
 Any such bullet that no persona asked about is a **coverage gap**. Explicitly flag it. Those are the bullets most likely to be probed in a real interview loop, so a gap in the rehearsal is a real risk.
+
+Rank coverage gaps by severity:
+- **Severe** — RS 5 bullet with no question.
+- **Moderate** — RS 4 bullet, or a bullet with large dollar/QPS figures regardless of RS.
+- **Minor** — RS 3 bullet with a strong ownership verb but no explicit number.
 
 ## Prep Sheet Format
 

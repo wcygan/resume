@@ -15,6 +15,7 @@ When activated, analyze the resume systematically across multiple dimensions and
 
 First, understand the context:
 - **Read the resume source file** (`will_cygan_resume.typ` for this project)
+- **Read the evidence base** — `work-experience/01-linkedin-swe.md`, `work-experience/02-linkedin-sr-swe.md`, and `work-experience/99-personal-projects.md` are the source-of-truth logs backing every LinkedIn and personal-project claim on the resume. `work-experience/ACRONYMS.md` glosses internal terms. Each project carries a **Relevance Score** (1–5 + rationale) — see `work-experience/RELEVANCE.md` for the rubric. Treat the score as a calibration prior: RS 5/4 material missing from the resume is a buried lead; RS 2/1 material on the resume is wasted real estate.
 - **Identify the target role** (if user provides job description, analyze it for keywords)
 - **Understand career level** (entry-level, mid-level, senior, staff+)
 - **Note current structure** (sections, ordering, formatting)

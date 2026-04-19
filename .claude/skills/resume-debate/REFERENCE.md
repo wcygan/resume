@@ -33,7 +33,12 @@ Send to all 3 personas in a single parallel Agent tool message:
 >
 > "[BULLET TEXT]"
 >
-> Evaluate it in your voice. Is it strong, borderline, or weak? Give your top 2 concrete reasons and (if applicable) the one question you'd ask to probe it. Do NOT propose rewrites yet — just the critique.
+> **Source-of-truth context.** Before critiquing, locate the project this bullet derives from in `work-experience/01-linkedin-swe.md`, `work-experience/02-linkedin-sr-swe.md`, or `work-experience/99-personal-projects.md`. Note its `**Relevance:** N/5 — <rationale>` field (rubric: `work-experience/RELEVANCE.md`). The score reframes the debate:
+> - RS 5/4 and the bullet is weak → this is a **rewrite** problem (the work deserves stronger phrasing).
+> - RS 2/1 and the bullet is weak → this may be a **cut** candidate (the work may not deserve resume real estate).
+> - If you can't find a matching project, say so — that's a signal the bullet may not be grounded.
+>
+> Evaluate the bullet in your voice. Is it strong, borderline, or weak? Give your top 2 concrete reasons and (if applicable) the one question you'd ask to probe it. Do NOT propose rewrites yet — just the critique. If you disagree with the source project's Relevance Score, say so.
 
 Collect the three responses before proceeding to round 2.
 
