@@ -40,14 +40,14 @@
 )
 
 #resume-item[
-  - Led design and implementation of real-time alerting system processing 100,000+ QPS using Kafka/Flink/Venice, recovering \$2M+ annually in involuntary churn by notifying subscribers of failed payments before subscription cancellations; platform extended by 3 partner teams (Ordering, Payments, Mobile) for Winback, Usage Billing, and Mobile Billing alerts.
-  - Automated Venice TTL purging of 35+ day records on the 100K QPS Global Alerts cache, cutting cache size 40% and downstream Invoice Search API QPS 50%.
-  - Designed Oracle-to-MySQL Delegation Framework adopted by all 10 LBP domain teams as the org-wide migration pattern, with novel Couchbase-TTL entity-routing cutover for strong consistency and GoldenGate-caught-up safety guarantees.
-  - Led full zero-downtime Oracle-to-MySQL migration of LinkedIn's Ordering Backend (12TB / 20B rows / 6 tables), rewriting 30,000+ lines of SQL across \~75 PRs with JooQ/Flyway; zero data loss through 6-week ramp validated at 10,000+ orders.
+  - Led design of churn-recovery alerting platform driving \$2M+ annually by notifying subscribers of failed payments before cancellation; extended by 3 partner teams for Winback Offers, Usage Billing, and Mobile Billing (Venice KV read path sustaining 100K QPS peak from Feed; Kafka+Flink write path at \~500 msg/s on invoice-state changes).
+  - Designed Oracle-to-MySQL Delegation Framework (shadow reads, query perf comparison, phased migration, rollback) onboarded by all 10 LBP domain teams as the org-wide migration pattern; novel Couchbase-TTL entity-routing cutover ensured strong consistency with GoldenGate-caught-up safety guarantees.
+  - Led zero-downtime Oracle-to-MySQL migration of LinkedIn's Ordering Database (12TB / 20B rows / 6 tables) in partnership with DBAs running GoldenGate replication; rewrote 30,000+ lines of SQL/Java across \~75 PRs with JooQ/Flyway; zero data loss through 6-week phased ramp.
+  - Built distributed deletion pipeline (Airflow, Trino, Kafka, gRPC) that purged 300,000 corrupted order records in production with rate-limited writes; pipeline repurposed to target \~33% of the 10+ year-old Ordering database (\~6B dormant OMS rows).
+  - Automated Venice TTL purging of 35+ day records on the Global Alerts cache, cutting cache size 40% and downstream Invoice Search API QPS 50%.
   - Eliminated N+1 query problem in Order Processing system, reducing average query latency by 40% (50ms→30ms) and p95 by 37% (200ms→125ms) across all ordering workflow read paths.
-  - Built rate-limited distributed deletion pipeline (Airflow, Trino, Kafka, gRPC) that purged 300,000 corrupted order records in production; same pipeline now ramping toward an identified 33% reduction across billions of dormant legacy OMS rows in the 10+ year-old Ordering database.
-  - Designed Unified Optimistic Locking mechanism for the MySQL Ordering Backend, eliminating a class of silent conflicting-write failures under Temporal activity retries via version-based concurrency control across every update-based write path.
-  - Designed Context Repos pattern (git submodules + curated context files) for agentic code navigation across LBP's 30+ decomposed microservices; variant adopted by LinkedIn's Developer Productivity org in Feb 2026.
+  - Designed Unified Optimistic Locking mechanism for the MySQL Ordering Database, eliminating a class of silent conflicting-write failures under Temporal activity retries via version-based concurrency control across every update-based write path.
+  - Delivered 5 agentic-development KT sessions reaching 1,000+ engineers using Claude Code; mentored 2 engineers on Global Alerts and MySQL Migration through design reviews and feature guidance, upleveling them and expanding team capability.
 ]
 
 #resume-entry(
@@ -59,7 +59,7 @@
 
 #resume-item[
   - Scaled Videos You Might Be Interested In recommendation to 3,000 QPS on LinkedIn's 50M+ DAU Flagship Feed, driving +2.5% Weekly Skilled Learners (LinkedIn Learning's north-star metric) and +0.57% SWI on Skill Credits across 3 experiments.
-  - Built Learning Alerts V2 member/stage targeting framework from scratch, driving +1.09% WSL (Learning's north-star) via Spark pipelines over 20+ datasets (\~50TB/run) classifying 10M+ job seekers into career-change-funnel cohorts with deterministic bucketing for clean A/B readouts; ramped safely to 22M members.
+  - Built Learning Alerts V2 member/stage targeting framework from scratch, driving +1.09% WSL via Spark pipelines over 20+ datasets (\~50TB/run) classifying 10M+ job seekers into career-change-funnel cohorts with deterministic bucketing for clean A/B readouts; ramped safely to 22M members.
   - Improved LinkedIn Flagship Feed engagement +0.2% by filtering audio-only content from video course recommendations, a statistically significant lift at hundreds of millions of daily impressions.
 ]
 
@@ -78,8 +78,10 @@
 = Skills
 
 #resume-skill-item(
-  "Languages",
+  "Tools",
   (
+    "Claude Code",
+    "Codex",
     "Java",
     "Rust",
     "Python",
@@ -89,12 +91,12 @@
   ),
 )
 #resume-skill-item(
-  "Technologies", 
+  "Infrastructure", 
   (
     "Kafka",
-    "gRPC",
-    "Temporal",
     "Flink",
+    "Temporal",
+    "gRPC",
     "Spark",
     "Airflow",
     "Trino",
