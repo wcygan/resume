@@ -350,7 +350,7 @@
 }
 
 #let resume-skill-item(category, items) = {
-  set block(below: 0.65em)
+  set block(below: 0.35em)
   set pad(top: 2pt)
   pad[
     #grid(

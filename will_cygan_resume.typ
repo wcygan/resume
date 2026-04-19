@@ -78,20 +78,18 @@
 = Skills
 
 #resume-skill-item(
-  "Tools",
+  "Languages",
   (
-    "Claude Code",
-    "Codex",
     "Java",
     "Rust",
     "Python",
     "SQL",
-    "Bash",
     "TypeScript",
+    "Bash",
   ),
 )
 #resume-skill-item(
-  "Infrastructure", 
+  "Infrastructure",
   (
     "Kafka",
     "Flink",
@@ -114,7 +112,17 @@
     "DragonflyDB",
     "Venice",
     "HDFS",
-    "S3"
+    "S3",
+  ),
+)
+#resume-skill-item(
+  "AI Tooling",
+  (
+    "Claude Code",
+    "Codex",
+    "Cursor",
+    "agentic coding",
+    "subagent orchestration",
   ),
 )
 
