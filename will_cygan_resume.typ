@@ -19,7 +19,7 @@
     github: "wcygan",
     linkedin: "wcygan",
     positions: (
-      "Senior Software Engineer, LinkedIn Business Platform",
+      "Senior Software Engineer, Distributed Systems",
     ),
   ),
   profile-picture: none,
@@ -47,6 +47,7 @@
   - Automated Venice TTL purging of 35+ day records on the Global Alerts cache, cutting cache size 40% and downstream Invoice Search API QPS 50%.
   - Eliminated N+1 query problem in Order Processing system, reducing average query latency by 40% (50ms→30ms) and p95 by 37% (200ms→125ms) across all ordering workflow read paths.
   - Designed Unified Optimistic Locking mechanism for the MySQL Ordering Database, eliminating a class of silent conflicting-write failures under Temporal activity retries via version-based concurrency control across every update-based write path.
+  - Designed an early Context Repos pattern (submodule repo-of-repos + Claude Code hooks, subagents, MCP) encoding Spec→Plan→Execution across 30+ LBP microservices; a variant was later adopted by LinkedIn Developer Productivity.
   - Delivered 5 agentic-development KT sessions reaching 1,000+ engineers using Claude Code; mentored 2 engineers on Global Alerts and MySQL Migration through design reviews and feature guidance, upleveling them and expanding team capability.
 ]
 
@@ -59,7 +60,7 @@
 
 #resume-item[
   - Scaled Videos You Might Be Interested In recommendation to 3,000 QPS on LinkedIn's 50M+ DAU Flagship Feed, driving +2.5% Weekly Skilled Learners (LinkedIn Learning's north-star metric) and +0.57% SWI on Skill Credits across 3 experiments.
-  - Built Learning Alerts V2 member/stage targeting framework from scratch, driving +1.09% WSL via Spark pipelines over 20+ datasets (\~50TB/run) classifying 10M+ job seekers into career-change-funnel cohorts with deterministic bucketing for clean A/B readouts; ramped safely to 22M members.
+  - Built Learning Alerts V2 member/stage targeting framework from scratch, driving +1.09% WSL via Spark pipelines over 20+ datasets (\~50TB/run) classifying 10M+ job seekers into cohorts with deterministic bucketing for clean A/B readouts; ramped safely to 22M members.
   - Improved LinkedIn Flagship Feed engagement +0.2% by filtering audio-only content from video course recommendations, a statistically significant lift at hundreds of millions of daily impressions.
 ]
 
@@ -71,9 +72,13 @@
 )
 
 #resume-item[
-  - Built fault-tolerant 3-node bare-metal Kubernetes cluster using Talos Linux with GitOps CI/CD automation, achieving 99.9% uptime over 12+ months.
-  - Deployed distributed data systems (TiDB, RedPanda, DragonflyDB, ScyllaDB, ClickHouse) to evaluate performance characteristics and operational trade-offs of modern database alternatives.
+  - Bare-metal 3-node Kubernetes homelab built from scratch (Talos Linux, Flux CD GitOps) for data infrastructure experiments and hosting personal websites.
 ]
+
+// Force a paragraph break so ATS extractors (especially pdftotext -layout)
+// emit a blank line between Projects and Skills. Keep the gap minimal
+// (no #v) to preserve the one-page budget.
+#parbreak()
 
 = Skills
 
@@ -81,9 +86,9 @@
   "Languages",
   (
     "Java",
-    "Rust",
     "Python",
     "SQL",
+    "Rust",
     "TypeScript",
     "Bash",
   ),
@@ -119,10 +124,9 @@
   "AI Tooling",
   (
     "Claude Code",
-    "Codex",
-    "Cursor",
-    "agentic coding",
-    "subagent orchestration",
+    "Context Repos",
+    "Agentic Coding",
+    "Agent Orchestration",
   ),
 )
 
