@@ -34,13 +34,14 @@ jobs:
       - name: Setup Typst
         uses: typst-community/setup-typst@v4
         with:
-          typst-version: ^0.13.0
+          typst-version: 0.14.2
 
-      - name: Install poppler (pdftotext)
+      - name: Install PDF tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends poppler-utils
+          sudo apt-get install -y --no-install-recommends poppler-utils qpdf
           pdftotext -v 2>&1 | head -1
+          qpdf --version
 
       - name: Setup Java 17 (for Tika)
         uses: actions/setup-java@v4
@@ -85,6 +86,12 @@ jobs:
 
       - name: Run negative-fixture regression suite
         run: just test
+
+      - name: Evaluate Golden Resume
+        run: just golden-check
+
+      - name: Evaluate Golden stress matrix
+        run: just golden-stress
 
       - name: Upload extraction-check report on failure
         if: failure()

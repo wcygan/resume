@@ -1,6 +1,6 @@
 # Relevance Score
 
-Each project and major deliverable in `work-experience/*.md` carries a **Relevance Score** (1–5) plus a one-sentence rationale. The score is the author's judgment of how heavily this deliverable should weigh on a resume — independent of how it's currently phrased on `will_cygan_resume.typ`.
+Each project and major deliverable in `work-experience/*.md` carries a **Relevance Score** (1–5) plus a one-sentence rationale. The score is the author's judgment of how heavily this deliverable should weigh on a resume — independent of how it is currently represented in `will_cygan_resume-data.json`.
 
 ## Why this exists
 
@@ -11,7 +11,7 @@ Without a score, AI agents reviewing or rewriting the resume must *infer* import
 | RS | Label | Heuristic |
 |----|-------|-----------|
 | **5** | **Headline** — belongs on every resume | Quantified $M / QPS / scale *plus* org-wide scope *plus* technically defensible in a 30-minute deep-dive *plus* differentiating from peers at the same level. |
-| **4** | **Strong supporting** — drop first only when space-constrained | Quantified with clear ownership; narrower scope than a headline; a panel can grill it and walk away impressed. |
+| **4** | **Strong supporting** — drop first only when space-constrained | Quantified with clear ownership; narrower scope than a headline; the candidate can defend its mechanism and attribution in depth. |
 | **3** | **Solid filler** — fits tailored resumes | Credible accomplishment; targeted usefulness when JD keywords match; strengthens but is not essential. |
 | **2** | **Interview-story only** — weak as a resume bullet | Real work, useful for conversation; vague or undifferentiated impact; hard to quantify compellingly in one line. |
 | **1** | **Log-only** — do not surface | Raw-material value only; captured here for trajectory; scoped out of external positioning. |
@@ -40,11 +40,11 @@ Examples (drawn from the LinkedIn logs):
 - **Section 4 (Performance, Reliability & Cost) items are unscored by default.** They're typically interview-story material; score only when one rises to project-level impact (e.g., the JVM / GC tuning work in `01-linkedin-swe.md` arguably warrants a score).
 - **In-flight work is scorable.** Score against *expected* impact and tag the uncertainty: `**Relevance:** 4/5 (in-flight — will rise to 5 if the 33% reduction lands as scoped).`
 
-## How agents use it
+## How resume review uses it
 
-Resume reviewers (the 12 personas in `.claude/agents/`, invoked via `resume-panel`, `resume-panel-focus`, `resume-debate`, and `resume-interview-rehearsal`) treat the score as a **calibration prior, not gospel**:
+The project-local `$resume-review` skill treats the score as a **calibration prior, not gospel**:
 
-- **Buried-lead flag.** RS 5/4 project missing from or weakly represented on `will_cygan_resume.typ` is a high-priority issue — cite the `work-experience/*.md` line.
+- **Buried-lead flag.** An RS 5/4 project missing from or weakly represented in `will_cygan_resume-data.json` is a high-priority issue — cite the `work-experience/*.md` line.
 - **Real-estate flag.** RS 2/1 project appearing on the resume is low-priority content that could be cut in favor of higher-RS material.
 - **Interview prep weighting.** Coverage gaps on high-RS bullets are more severe than gaps on low-RS bullets (a question-generation pass should prioritize RS 5/4 material).
 - **Disagreement is signal.** If a reviewer thinks an RS 5 is inflated or an RS 3 is under-rated, it must say so explicitly. That is cheap calibration for the author — the author can re-score or leave it as a documented minority view.
@@ -55,4 +55,4 @@ Resume reviewers (the 12 personas in `.claude/agents/`, invoked via `resume-pane
 
 **What about roles pre-LinkedIn if we ever backfill them?** Same rubric. The score is a property of the deliverable, not the employer.
 
-**Should the resume itself (`will_cygan_resume.typ`) carry scores?** No. The resume is the distilled artifact; scores live on the raw log so agents can compare the two.
+**Should the resume itself (`will_cygan_resume-data.json`) carry scores?** No. The resume is the distilled artifact; scores live on the raw log so reviewers can compare the two.

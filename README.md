@@ -1,38 +1,53 @@
 # Resume
 
-This repository contains the guts of my resume.
+A one-page Typst resume with JSON-backed content, a shared parser-friendly
+renderer, controlled extraction fixtures, and project-local Codex review
+skills.
 
-Make sure to use these tools to generate the best resume:
+## Authoritative artifacts
 
-1. https://github.com/xitanggg/open-resume
-2. https://github.com/srbhr/Resume-Matcher
+- `will_cygan_resume-data.json` contains the resume content.
+- `will_cygan_resume.typ` loads the JSON and invokes the shared renderer.
+- `tests/fixtures/golden-resume/golden-resume-template.typ` is the renderer.
+- `will_cygan_resume.pdf` is the final artifact to inspect.
 
+Supporting work history lives in `work-experience/`. It is raw evidence and
+may contain additional, draft, or in-flight material not present in the final
+resume.
 
-## Typst
+## Build and validate
 
-Install Typst and dependencies:
+Install Typst, Poppler, Tika, qpdf, and uv for the complete local workflow.
+The pinned Source Sans 3 font cuts are already under `fonts/source-sans-3/`.
 
-```bash
-brew install typst
-brew install --cask font-fontawesome
+```sh
+just compile
+just page-budget
+just extraction-check
+just test
 ```
 
-## Development Workflow
+Use `just dev` for a watched local preview.
 
-For live compilation with auto-reload during development:
+## Project-local Codex skills
 
-```bash
-typst watch will_cygan_resume.typ
+- `$resume-review` reviews and tailors content against documented evidence.
+- `$resume-parsability` evaluates PDF extraction, field associations,
+  structure, links, fonts, and controlled layout behavior.
+
+The parsability checks are local evidence. They do not reproduce a commercial
+ATS, certify screen-reader behavior, or predict hiring outcomes.
+
+## Golden Resume
+
+The controlled reference bundle lives under
+`tests/fixtures/golden-resume/`. It includes anonymous data, source, a
+reviewed oracle, a compiled PDF, a stress manifest, and the shared renderer.
+
+```sh
+just golden-check
+just golden-stress
 ```
 
-Install [Tinymist Typst](https://marketplace.visualstudio.com/items?itemName=myriad-dreamin.tinymist) to enable live preview in VSCode.
-
-This can be done through the Command Palette (Ctrl+Shift+P) with `Typst Preview: Preview Opened File`
-
-## Generate Final Resume
-
-To generate with the default name `will_cygan_resume.pdf`:
-
-```bash
-typst compile will_cygan_resume.typ
-```
+Reports and rendered evidence are written beneath `.extraction/`, which is
+gitignored.

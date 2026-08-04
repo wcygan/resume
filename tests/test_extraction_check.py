@@ -71,6 +71,22 @@ def test_glued_contact_fails_name_contact(
     assert any("glued" in d for d in details), details
 
 
+def test_missing_required_header_fact_fails_name_contact() -> None:
+    result = ec.assert_name_and_contact(
+        text="Will Cygan\nwcygan.io@gmail.com\nChicago, IL\n\nEXPERIENCE",
+        name="Will Cygan",
+        email="wcygan.io@gmail.com",
+        head_bytes=200,
+        glue_window=100,
+        required_head_facts=[
+            "U.S. citizen · Authorized to work in the U.S. · No sponsorship required"
+        ],
+    )
+
+    assert not result.ok
+    assert "required header fact" in result.detail
+
+
 def test_smart_quotes_fails_mojibake(
     broken_pdf: Callable[[str], Path],
     run_check: Callable[[Path], ec.EvaluationResult],

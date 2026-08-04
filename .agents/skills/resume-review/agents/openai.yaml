@@ -1,0 +1,4 @@
+interface:
+  display_name: "Resume Review"
+  short_description: "Review and tailor resume content against evidence"
+  default_prompt: "Use $resume-review to evaluate this resume's content against its evidence, target role, and rendered artifact."

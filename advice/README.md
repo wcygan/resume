@@ -1,6 +1,17 @@
-# Engineering Resume Advice
+# Engineering resume source notes
 
-Here is a list of resources that can help you create a strong engineering resume:
+This directory preserves excerpts and summaries from vendor documentation,
+career services, individual hiring practitioners, and online communities. The
+files do not have equal authority and repeated advice is not independent
+evidence.
 
-1. https://www.techinterviewhandbook.org/resume/
-2. https://www.reddit.com/r/EngineeringResumes/
+Before relying on a claim, use
+`.agents/skills/resume-review/references/07-evidence-register.md` to identify:
+
+- the original source and source type;
+- what the source directly supports;
+- whether the claim is current; and
+- material limitations.
+
+Do not rely on unsourced exact statistics, keyword-density targets, recruiter
+scan times, title multipliers, ATS scores, or callback predictions.

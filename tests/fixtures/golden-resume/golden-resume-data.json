@@ -1,0 +1,104 @@
+{
+  "document": {
+    "title": "First Last - Principal Product Engineer",
+    "author": "First Last",
+    "keywords": [
+      "resume",
+      "product engineering",
+      "reliable systems"
+    ]
+  },
+  "contact": {
+    "name": "First Last",
+    "email": {
+      "display": "first.last@example.com",
+      "uri": "mailto:first.last@example.com"
+    },
+    "location": "Evanston, IL",
+    "portfolio": {
+      "display": "example.com/portfolio",
+      "uri": "https://example.com/portfolio"
+    },
+    "github": {
+      "display": "github.com/first-last-example",
+      "uri": "https://github.com/first-last-example"
+    },
+    "linkedin": {
+      "display": "linkedin.com/in/first-last-example",
+      "uri": "https://www.linkedin.com/in/first-last-example"
+    },
+    "work_authorization": "U.S. citizen · Authorized to work in the U.S. · No sponsorship required"
+  },
+  "profile": "Product-minded principal engineer who turns complex operational needs into reliable, accessible products. Leads through clear technical strategy, close partnership with design and domain experts, and practical systems that teams can operate with confidence.",
+  "experience": [
+    {
+      "company": "Northstar Systems, Inc.",
+      "dates": "2022 - Present",
+      "role": "Principal Product Engineer",
+      "location": "Chicago, IL",
+      "accomplishments": [
+        "Led a design-system migration for a 24-person product engineering group, reducing release regressions by 31%.",
+        "Built consent-aware document workflows used by enterprise operations teams across regulated programs.",
+        "Partnered with privacy, legal, and design leaders to translate retention and consent requirements into clear product decisions.",
+        "Introduced release-readiness reviews and contract tests, giving product teams a shared view of changes before launch.",
+        "Developed coaching practices for staff engineers that strengthened technical planning, decision records, and cross functional delivery."
+      ]
+    },
+    {
+      "company": "Harbor Health Technologies, LLC",
+      "dates": "2019 - 2022",
+      "role": "Senior Software Engineer",
+      "location": "Remote",
+      "accomplishments": [
+        "Delivered a scheduling platform that coordinated care teams in 14 states and improved appointment completion.",
+        "Established service-level objectives and incident reviews for a patient communications platform.",
+        "Designed event instrumentation and operational dashboards that helped care teams identify scheduling friction before missed visits.",
+        "Collaborated with clinical, support, and compliance partners to prioritize resilient workflows for time-sensitive patient communication.",
+        "Simplified deployment and rollback practices for core services, shortening incident recovery and improving release confidence."
+      ]
+    },
+    {
+      "company": "Cedar Freight Logistics, Inc.",
+      "dates": "2016 - 2019",
+      "role": "Staff Platform Engineer",
+      "location": "Austin, TX",
+      "accomplishments": [
+        "Modernized event-ingestion and reporting pipelines for a national freight network.",
+        "Mentored engineers on reliable API design, performance investigation, and clear operational documentation.",
+        "Created data contracts and replay tooling that made late-arriving events easier to diagnose without blocking downstream reporting.",
+        "Partnered with dispatch and finance stakeholders to turn operational exceptions into durable platform capabilities.",
+        "Established capacity reviews for high-volume integrations and clarified on-call handoffs across engineering teams."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "Kubernetes Cluster",
+      "descriptor": "Independent Infrastructure Project",
+      "focus": "Talos Linux, Flux, and Cilium",
+      "accomplishments": [
+        "Operates a multi-node Kubernetes cluster on bare metal through declarative, GitOps-based delivery.",
+        "Automates networking, secrets, certificates, DNS, and dependency updates across the platform."
+      ]
+    }
+  ],
+  "education": {
+    "institution": "University of Illinois Urbana-Champaign",
+    "graduation": "May 2016",
+    "degree": "Bachelor of Science, Computer Science"
+  },
+  "skills": [
+    {
+      "label": "Core Languages",
+      "values": "Python, TypeScript, SQL, Rust"
+    },
+    {
+      "label": "Technology Focus",
+      "values": "Distributed services, event pipelines, observability"
+    },
+    {
+      "label": "Product Capabilities",
+      "values": "Accessibility, experiment design, technical writing"
+    }
+  ]
+}

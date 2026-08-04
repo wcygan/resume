@@ -1,8 +1,8 @@
 // Defect: the Skills line drops "Rust" even though the fixtures TOML declares
 // it as required. Simulates the real-world failure mode where a font or
 // ligature regression makes a technical keyword disappear from extracted text
-// (the on-source absence is a faithful proxy — an ATS keyword search for
-// "Rust" finds nothing either way, which is the regression we want to catch).
+// (the on-source absence is a faithful proxy: exact local token recovery for
+// "Rust" must fail regardless of extractor).
 
 #set page(paper: "us-letter", margin: 0.6in)
 #set text(font: "New Computer Modern", size: 10pt)

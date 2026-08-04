@@ -1,0 +1,271 @@
+{
+  "document": "Golden Resume with coexisting Profile and Projects sections",
+  "artifact": {
+    "pages": "1",
+    "page_size": "612 x 792 pts (letter)",
+    "rotation": "0",
+    "tagged": "yes",
+    "maximum_images": 0
+  },
+  "work_authorization": {
+    "statement": "U.S. citizen · Authorized to work in the U.S. · No sponsorship required",
+    "after": "linkedin.com/in/first-last-example",
+    "before": "PROFILE"
+  },
+  "required_once": [
+    "First Last",
+    "first.last@example.com",
+    "Evanston, IL",
+    "example.com/portfolio",
+    "github.com/first-last-example",
+    "linkedin.com/in/first-last-example",
+    "U.S. citizen · Authorized to work in the U.S. · No sponsorship required",
+    "PROFILE",
+    "Product-minded principal engineer",
+    "clear technical strategy",
+    "EXPERIENCE",
+    "Northstar Systems, Inc.",
+    "Principal Product Engineer",
+    "Dates: 2022 - Present",
+    "Location: Chicago, IL",
+    "Led a design-system migration",
+    "Built consent-aware document workflows",
+    "Partnered with privacy, legal, and design leaders",
+    "Introduced release-readiness reviews",
+    "Developed coaching practices for staff engineers",
+    "Harbor Health Technologies, LLC",
+    "Senior Software Engineer",
+    "Dates: 2019 - 2022",
+    "Location: Remote",
+    "Delivered a scheduling platform",
+    "Established service-level objectives",
+    "Designed event instrumentation",
+    "Collaborated with clinical, support, and compliance partners",
+    "Simplified deployment and rollback practices",
+    "Cedar Freight Logistics, Inc.",
+    "Staff Platform Engineer",
+    "Dates: 2016 - 2019",
+    "Location: Austin, TX",
+    "Modernized event-ingestion and reporting pipelines",
+    "Mentored engineers on reliable API design",
+    "Created data contracts and replay tooling",
+    "Partnered with dispatch and finance stakeholders",
+    "Established capacity reviews for high-volume integrations",
+    "PROJECTS",
+    "Kubernetes Cluster",
+    "Independent Infrastructure Project",
+    "Focus: Talos Linux, Flux, and Cilium",
+    "Operates a multi-node Kubernetes cluster",
+    "Automates networking, secrets, certificates, DNS, and dependency updates",
+    "EDUCATION",
+    "University of Illinois Urbana-Champaign",
+    "Graduation: May 2016",
+    "Bachelor of Science, Computer Science",
+    "SKILLS",
+    "Core Languages",
+    "Python, TypeScript, SQL, Rust",
+    "Technology Focus",
+    "Distributed services, event pipelines, observability",
+    "Product Capabilities",
+    "Accessibility, experiment design, technical writing"
+  ],
+  "required_order": [
+    "First Last",
+    "first.last@example.com",
+    "Evanston, IL",
+    "example.com/portfolio",
+    "github.com/first-last-example",
+    "linkedin.com/in/first-last-example",
+    "U.S. citizen · Authorized to work in the U.S. · No sponsorship required",
+    "PROFILE",
+    "Product-minded principal engineer",
+    "clear technical strategy",
+    "EXPERIENCE",
+    "Northstar Systems, Inc.",
+    "Principal Product Engineer",
+    "Dates: 2022 - Present",
+    "Location: Chicago, IL",
+    "Harbor Health Technologies, LLC",
+    "Senior Software Engineer",
+    "Dates: 2019 - 2022",
+    "Location: Remote",
+    "Cedar Freight Logistics, Inc.",
+    "Staff Platform Engineer",
+    "Dates: 2016 - 2019",
+    "Location: Austin, TX",
+    "PROJECTS",
+    "Kubernetes Cluster",
+    "Independent Infrastructure Project",
+    "Focus: Talos Linux, Flux, and Cilium",
+    "EDUCATION",
+    "University of Illinois Urbana-Champaign",
+    "Graduation: May 2016",
+    "Bachelor of Science, Computer Science",
+    "SKILLS",
+    "Core Languages",
+    "Python, TypeScript, SQL, Rust",
+    "Technology Focus",
+    "Distributed services, event pipelines, observability",
+    "Product Capabilities",
+    "Accessibility, experiment design, technical writing"
+  ],
+  "association_windows": [
+    {
+      "label": "profile",
+      "start": "PROFILE",
+      "boundary": "EXPERIENCE",
+      "fields": [
+        "PROFILE",
+        "Product-minded principal engineer",
+        "clear technical strategy"
+      ]
+    },
+    {
+      "label": "northstar experience",
+      "start": "Northstar Systems, Inc.",
+      "boundary": "Harbor Health Technologies, LLC",
+      "fields": [
+        "Northstar Systems, Inc.",
+        "Principal Product Engineer",
+        "Dates: 2022 - Present",
+        "Location: Chicago, IL",
+        "Led a design-system migration",
+        "Built consent-aware document workflows",
+        "Partnered with privacy, legal, and design leaders",
+        "Introduced release-readiness reviews",
+        "Developed coaching practices for staff engineers"
+      ]
+    },
+    {
+      "label": "harbor experience",
+      "start": "Harbor Health Technologies, LLC",
+      "boundary": "Cedar Freight Logistics, Inc.",
+      "fields": [
+        "Harbor Health Technologies, LLC",
+        "Senior Software Engineer",
+        "Dates: 2019 - 2022",
+        "Location: Remote",
+        "Delivered a scheduling platform",
+        "Established service-level objectives",
+        "Designed event instrumentation",
+        "Collaborated with clinical, support, and compliance partners",
+        "Simplified deployment and rollback practices"
+      ]
+    },
+    {
+      "label": "cedar experience",
+      "start": "Cedar Freight Logistics, Inc.",
+      "boundary": "PROJECTS",
+      "fields": [
+        "Cedar Freight Logistics, Inc.",
+        "Staff Platform Engineer",
+        "Dates: 2016 - 2019",
+        "Location: Austin, TX",
+        "Modernized event-ingestion and reporting pipelines",
+        "Mentored engineers on reliable API design",
+        "Created data contracts and replay tooling",
+        "Partnered with dispatch and finance stakeholders",
+        "Established capacity reviews for high-volume integrations"
+      ]
+    },
+    {
+      "label": "kubernetes project",
+      "start": "PROJECTS",
+      "boundary": "EDUCATION",
+      "fields": [
+        "PROJECTS",
+        "Kubernetes Cluster",
+        "Independent Infrastructure Project",
+        "Focus: Talos Linux, Flux, and Cilium",
+        "Operates a multi-node Kubernetes cluster",
+        "Automates networking, secrets, certificates, DNS, and dependency updates"
+      ]
+    },
+    {
+      "label": "education",
+      "start": "EDUCATION",
+      "boundary": "SKILLS",
+      "fields": [
+        "EDUCATION",
+        "University of Illinois Urbana-Champaign",
+        "Graduation: May 2016",
+        "Bachelor of Science, Computer Science"
+      ]
+    },
+    {
+      "label": "skills",
+      "start": "SKILLS",
+      "boundary": null,
+      "fields": [
+        "SKILLS",
+        "Core Languages",
+        "Python, TypeScript, SQL, Rust",
+        "Technology Focus",
+        "Distributed services, event pipelines, observability",
+        "Product Capabilities",
+        "Accessibility, experiment design, technical writing"
+      ]
+    }
+  ],
+  "links": [
+    "mailto:first.last@example.com",
+    "https://example.com/portfolio",
+    "https://github.com/first-last-example",
+    "https://www.linkedin.com/in/first-last-example"
+  ],
+  "font_assets": {
+    "fonts/source-sans-3/SourceSans3-Regular.ttf": "4644c81b86ec9caaa76b634889968ed3c4f4f52f054855933acc7c2b21e53b0f",
+    "fonts/source-sans-3/SourceSans3-Bold.ttf": "9214b9d95e4231c609802815c2646c98174e2102d0d37f88978a7f8e71006e6a",
+    "fonts/source-sans-3/SourceSans3-It.ttf": "192afd78f0f54a3c69eaf02d43f4d9a821e9d6110e41d3d25d61a7385cd580e4",
+    "fonts/source-sans-3/LICENSE.md": "56af9b9c6715597e458284a474dc118a50a4150e9d547c70f7b4a33c3e6a9328"
+  },
+  "minimum_structure_counts": {
+    "H1": 1,
+    "H2": 5,
+    "L": 4,
+    "Lbl": 17,
+    "LBody": 17,
+    "Strong": 8,
+    "Em": 4
+  },
+  "geometry_content_box": {
+    "page_width_points": 612.0,
+    "left_margin_points": 44.64,
+    "right_margin_points": 44.64,
+    "tolerance_px": 1.0
+  },
+  "geometry_rows": [
+    {
+      "label": "northstar experience",
+      "left_fields": [
+        "Northstar Systems, Inc.",
+        "Principal Product Engineer"
+      ],
+      "right_field": "Dates: 2022 - Present · Location: Chicago, IL"
+    },
+    {
+      "label": "harbor experience",
+      "left_fields": [
+        "Harbor Health Technologies, LLC",
+        "Senior Software Engineer"
+      ],
+      "right_field": "Dates: 2019 - 2022 · Location: Remote"
+    },
+    {
+      "label": "cedar experience",
+      "left_fields": [
+        "Cedar Freight Logistics, Inc.",
+        "Staff Platform Engineer"
+      ],
+      "right_field": "Dates: 2016 - 2019 · Location: Austin, TX"
+    },
+    {
+      "label": "kubernetes project",
+      "left_fields": [
+        "Kubernetes Cluster",
+        "Independent Infrastructure Project"
+      ],
+      "right_field": "Focus: Talos Linux, Flux, and Cilium"
+    }
+  ]
+}

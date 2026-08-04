@@ -1,0 +1,117 @@
+{
+  "document": {
+    "title": "Will Cygan - Senior Software Engineer",
+    "author": "Will Cygan",
+    "keywords": ["resume", "distributed systems", "software engineering"]
+  },
+  "contact": {
+    "name": "Will Cygan",
+    "email": {
+      "display": "wcygan.io@gmail.com",
+      "uri": "mailto:wcygan.io@gmail.com"
+    },
+    "location": "Chicago, IL",
+    "portfolio": {
+      "display": "wcygan.net",
+      "uri": "https://wcygan.net"
+    },
+    "github": {
+      "display": "github.com/wcygan",
+      "uri": "https://github.com/wcygan"
+    },
+    "linkedin": {
+      "display": "linkedin.com/in/wcygan",
+      "uri": "https://www.linkedin.com/in/wcygan"
+    },
+    "work_authorization": "U.S. citizen · Authorized to work in the U.S. · No sponsorship required"
+  },
+  "profile": "Senior Software Engineer with 5 years of experience across backend, platform, infrastructure, and product engineering. Builds high-scale, resilient systems spanning APIs, relational databases, streaming, and batch processing. Delivers internal platforms and growth products tied to engagement and revenue.",
+  "experience": [
+    {
+      "company": "LinkedIn",
+      "dates": "Mar 2024 - Present",
+      "role": "Senior Software Engineer",
+      "location": "Chicago, IL",
+      "accomplishments": [
+        "Designed and implemented a churn-recovery alerting platform from inception, generating $2M in annual revenue; scaled serving to 100K QPS and streaming ingestion to ~500 writes/s.",
+        "Over the next two years, led technical onboarding for 3 partner teams across usage billing, winback offers, and cancellation reminders, growing platform-attributed annual revenue from $2M to $8M.",
+        "Led the zero-downtime migration of LinkedIn's 12 TB, 20B-row ordering database from Oracle to MySQL with zero data loss.",
+        "Designed a reusable Oracle-to-MySQL migration framework adopted by 10 domain teams, using shadow reads, phased rollout, rollback, and TTL-based routing to preserve strong consistency.",
+        "Introduced version-based optimistic locking across MySQL write paths, preventing silent conflicts caused by Temporal activity retries.",
+        "Built a cross-system deletion pipeline that purged 300K corrupt orders, then extended it to target ~6B dormant rows, roughly 33% of a 10+ year-old database.",
+        "Eliminated N+1 queries across all order-processing read paths, reducing average latency 40% (50 to 30 ms) and p95 latency 37% (200 to 125 ms)."
+      ]
+    },
+    {
+      "company": "LinkedIn",
+      "dates": "Feb 2022 - Mar 2024",
+      "role": "Software Engineer",
+      "location": "San Francisco, CA",
+      "accomplishments": [
+        "Scaled a feed recommendation service to 3,000 QPS on LinkedIn's 50M+ DAU feed, increasing weekly learners 2.5% across 3 experiments.",
+        "Built Spark targeting pipelines processing ~50 TB across 20+ datasets per run, expanding personalized learning alerts from 10M to 22M members and lifting weekly learners 1.09%.",
+        "Improved feed engagement 0.2% at hundreds of millions of daily impressions by filtering audio-only content from video course recommendations."
+      ]
+    },
+    {
+      "company": "LinkedIn",
+      "dates": "May 2021 - Aug 2021",
+      "role": "Software Engineer Intern",
+      "location": "Chicago, IL",
+      "accomplishments": []
+    },
+    {
+      "company": "Amazon",
+      "dates": "May 2020 - Aug 2020",
+      "role": "Software Engineer Intern",
+      "location": "Chicago, IL",
+      "accomplishments": []
+    },
+    {
+      "company": "LinkedIn",
+      "dates": "Jan 2020 - Apr 2020",
+      "role": "Software Engineer Intern",
+      "location": "San Francisco, CA",
+      "accomplishments": []
+    }
+  ],
+  "projects": [
+    {
+      "name": "Anton",
+      "descriptor": "Kubernetes Homelab",
+      "focus": "Kubernetes, GitOps, Self-Hosting",
+      "repository": {
+        "display": "github.com/wcygan/anton",
+        "uri": "https://github.com/wcygan/anton"
+      },
+      "accomplishments": [
+        "Operates a three-node bare-metal Kubernetes cluster using Talos Linux and Flux CD GitOps.",
+        "Automates delivery of personal projects: CI builds and publishes Docker images and validates Kubernetes manifests, while Flux commits image updates to Git and deploys each release to the cluster.",
+        {
+          "segments": [
+            {"text": "Hosts public applications on the cluster: "},
+            {"text": "nu-sync.net", "uri": "https://nu-sync.net/"},
+            {"text": ", "},
+            {"text": "food.nu-sync.net", "uri": "https://food.nu-sync.net"},
+            {"text": ", "},
+            {"text": "kneadybynaturebakery.com", "uri": "https://kneadybynaturebakery.com/"},
+            {"text": ", and "},
+            {"text": "cs2plant.nu-sync.net", "uri": "https://cs2plant.nu-sync.net/"},
+            {"text": "."}
+          ]
+        }
+      ]
+    }
+  ],
+  "education": {
+    "institution": "University of Illinois at Chicago",
+    "graduation": "2021",
+    "degree": "Bachelor of Science, Computer Science"
+  },
+  "skills": [
+    {"label": "Languages:", "values": "Java, Python, SQL, Rust, TypeScript, Bash"},
+    {"label": "Infrastructure:", "values": "gRPC, Temporal, Kafka, Flink, Spark, Airflow, Trino, Kubernetes, Docker"},
+    {"label": "Storage:", "values": "MySQL, Oracle, SQLite, Redis, DragonflyDB, Couchbase, Venice, OpenSearch, HDFS, S3"},
+    {"label": "AI Tooling:", "values": "Harness Engineering, Evals, Agentic Coding, Agent Orchestration, Pi, Codex, Claude, Copilot"}
+  ]
+}

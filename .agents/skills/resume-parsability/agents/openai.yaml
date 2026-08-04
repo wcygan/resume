@@ -1,0 +1,4 @@
+interface:
+  display_name: "Resume Parsability"
+  short_description: "Test resume PDF extraction and field structure"
+  default_prompt: "Use $resume-parsability to test this resume's PDF extraction, field associations, and structural risks without claiming external ATS success."

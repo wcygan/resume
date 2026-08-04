@@ -3,11 +3,11 @@
 # requires-python = ">=3.11"
 # dependencies = []
 # ///
-"""ATS text-extraction regression check.
+"""Resume PDF text-extraction regression check.
 
 Shells out to `pdftotext`, `pdftotext -layout`, and Apache Tika and runs the
-seven assertions defined in .claude/context/text-extraction-hypothesis.md
-against the extracted text.
+reviewed assertions defined in this module and
+`scripts/extraction-check.fixtures.toml` against the extracted text.
 
 Exit codes:
   0 - all assertions passed for every available extractor
@@ -78,7 +78,6 @@ def detect_tika(pdf: Path) -> Extractor | None:
     if shutil.which("tika"):
         return Extractor("tika", ["tika", "--text", str(pdf)])
     jar_candidates = [
-        RESUME_DIR / "template" / "tika-app.jar",
         Path("/opt/homebrew/opt/tika/libexec/tika-app.jar"),
     ]
     for jar in jar_candidates:
@@ -208,7 +207,12 @@ def assert_section_order(
 
 
 def assert_name_and_contact(
-    text: str, name: str, email: str, head_bytes: int, glue_window: int
+    text: str,
+    name: str,
+    email: str,
+    head_bytes: int,
+    glue_window: int,
+    required_head_facts: list[str] | None = None,
 ) -> AssertionResult:
     head = text[:head_bytes]
     if name not in head:
@@ -217,13 +221,13 @@ def assert_name_and_contact(
             name=Assertion.NAME_CONTACT,
             detail=f"name {name!r} not in first {head_bytes} chars",
         )
-    # Name+email with no whitespace triggers ATS field-mapping glue bugs.
+    # Name+email with no whitespace destroys the intended field boundary.
     glued = re.search(re.escape(name) + re.escape(email), text)
     if glued:
         return AssertionResult(
             ok=False,
             name=Assertion.NAME_CONTACT,
-            detail=f"name+email glued at {glued.start()} — ATS field map hazard",
+            detail=f"name+email glued at {glued.start()} — field boundary hazard",
         )
     name_idx = text.find(name)
     email_idx = text.find(email)
@@ -240,10 +244,25 @@ def assert_name_and_contact(
             name=Assertion.NAME_CONTACT,
             detail=f"name at {name_idx}, email at {email_idx} (gap {gap} > {glue_window})",
         )
+    missing_head_facts = [
+        fact for fact in required_head_facts or [] if fact not in head
+    ]
+    if missing_head_facts:
+        return AssertionResult(
+            ok=False,
+            name=Assertion.NAME_CONTACT,
+            detail=(
+                f"required header fact(s) missing from first {head_bytes} chars: "
+                f"{missing_head_facts}"
+            ),
+        )
     return AssertionResult(
         ok=True,
         name=Assertion.NAME_CONTACT,
-        detail=f"name+email within {gap} chars",
+        detail=(
+            f"name+email within {gap} chars; "
+            f"{len(required_head_facts or [])} required header fact(s) present"
+        ),
     )
 
 
@@ -260,7 +279,12 @@ def assert_job_blocks(
         date_end = j["date_end"]
         ok_for_job = False
         for m in re.finditer(re.escape(title), flat):
-            slice_ = flat[m.start() : m.start() + window]
+            # The Golden Resume format intentionally emits company before role
+            # so the organization anchors each experience record. Inspect a
+            # bounded window on both sides of the role rather than assuming
+            # the title comes first in extraction order.
+            start = max(0, m.start() - window // 2)
+            slice_ = flat[start : m.start() + window]
             if company in slice_ and date_start in slice_ and date_end in slice_:
                 ok_for_job = True
                 break
@@ -340,10 +364,9 @@ def assert_no_mojibake(
 def assert_section_boundary(
     text: str, section_headers: list[str]
 ) -> AssertionResult:
-    # Between every pair of adjacent top-level section headers, there must be
-    # at least one blank line. Section-boundary parsers (common in resume ATS
-    # pipelines) rely on paragraph breaks to split sections; without them,
-    # the tail of one section merges into the header of the next.
+    # Between every pair of adjacent top-level section headers, require at
+    # least one blank line so the local extracted representation preserves an
+    # observable paragraph boundary.
     lines = text.split("\n")
     header_lines: list[tuple[str, int]] = []
     for header in section_headers:
@@ -378,8 +401,7 @@ def assert_section_boundary(
 def assert_keyword_roundtrip(text: str, required: list[str]) -> AssertionResult:
     # Guards against ligature collapse (e.g. "Flink" becoming "Fl nk") and
     # font-substitution regressions that silently drop technical terms. The
-    # token must survive extraction as a plain substring — case-sensitive and
-    # not split by whitespace — because that's what an ATS keyword search sees.
+    # token must survive local extraction as a case-sensitive plain substring.
     if not required:
         return AssertionResult(
             ok=True,
@@ -401,9 +423,9 @@ def assert_keyword_roundtrip(text: str, required: list[str]) -> AssertionResult:
 
 
 def assert_no_soft_hyphen(text: str) -> AssertionResult:
-    # U+00AD (soft hyphen) leaks into extractor output when Typst auto-hyphenates
-    # across line breaks. Tika then splits the word across a paragraph boundary,
-    # turning e.g. "involuntary" into "invol\n\nuntary" — a real ATS failure.
+    # U+00AD (soft hyphen) can leak into extractor output when Typst
+    # auto-hyphenates across line breaks. Tika can then split the word across a
+    # paragraph boundary, breaking exact local token recovery.
     n = text.count("\u00AD")
     if n:
         return AssertionResult(
@@ -517,6 +539,7 @@ def evaluate(extractor: Extractor, fx: dict) -> ExtractorResult:
             cand["email"],
             th["name_head_bytes"],
             th["contact_glue_window"],
+            cand.get("required_head_facts"),
         )
     )
     job_res, matched = assert_job_blocks(text, jobs, th["job_block_window_chars"])
