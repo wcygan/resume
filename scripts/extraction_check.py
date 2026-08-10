@@ -5,9 +5,10 @@
 # ///
 """Resume PDF text-extraction regression check.
 
-Shells out to `pdftotext`, `pdftotext -layout`, and Apache Tika and runs the
-reviewed assertions defined in this module and
-`scripts/extraction-check.fixtures.toml` against the extracted text.
+Shells out to `pdftotext`, `pdftotext -layout`, and Apache Tika and evaluates
+the extracted text against assertions in this module, canonical facts selected
+from `will_cygan_resume-data.json`, and independent parsability rules in
+`scripts/extraction-check.fixtures.toml`.
 
 Exit codes:
   0 - all assertions passed for every available extractor

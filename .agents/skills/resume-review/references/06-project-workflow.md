@@ -31,13 +31,16 @@ fixture as the user's factual resume.
 1. Confirm that the request authorizes edits and identify the factual envelope.
 2. Edit the narrowest authoritative source.
 3. Run `just compile`.
-4. Run `just page-budget`.
-5. Inspect `will_cygan_resume.pdf` visually.
-6. Run `just extraction-check` after resume content changes.
-7. Run `just test` when extraction code, fixtures, shared renderer, or layout
-   behavior changes.
-8. Run `just golden-check` and relevant stress cases when modifying the shared
-   renderer, fonts, PDF structure, metadata geometry, or links.
+4. Inspect `will_cygan_resume.pdf` visually.
+5. Run `just validate-content` for content-only changes.
+6. Run `just validate-renderer` when changing the shared renderer, fonts, PDF
+   structure, metadata geometry, or links.
+7. Run `just validate-full` when changing extraction code, fixtures, validation
+   infrastructure, or multiple repository-wide surfaces.
+
+Use individual validation commands only to diagnose a failed plan step. The
+shared plan owns acceptance membership, order, failure status, and evidence
+locations.
 
 Use the current `resume-parsability` acceptance checklist for mechanical
 claims. Passing local checks does not establish external ATS or hiring

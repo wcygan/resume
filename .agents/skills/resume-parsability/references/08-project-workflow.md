@@ -23,7 +23,9 @@ skill when layout, structure, links, or causal interpretation changes.
 - `tests/fixtures/golden-resume/golden-resume-template.typ` — active shared
   renderer for the personal resume and Golden fixture.
 - `scripts/extraction_check.py` — Poppler/Tika regression gate.
-- `scripts/extraction-check.fixtures.toml` — reviewed expected strings.
+- `scripts/extraction-check.fixtures.toml` — independently reviewed parser
+  rules, thresholds, and patterns; canonical facts come from the selected
+  resume JSON.
 - `.agents/skills/resume-parsability/scripts/evaluate_golden_resume.py` — deep
   Golden Resume evaluator run through uv.
 - `.agents/skills/resume-parsability/scripts/evaluate_golden_stress_matrix.py`
@@ -42,7 +44,15 @@ just test
 just golden
 just golden-check
 just golden-stress
+just validate-content
+just validate-renderer
+just validate-full
 ```
+
+Use the shared validation plans for acceptance: content changes use
+`validate-content`, renderer or PDF-structure changes use `validate-renderer`,
+and extraction, fixture, or repository-wide changes use `validate-full`. Use
+the individual commands for focused diagnosis.
 
 `just golden-check` rebuilds the fixture PDF with the pinned Source Sans 3 cuts
 and PDF/UA-1, then runs the skill-owned uv evaluator. Evidence is written
@@ -66,12 +76,14 @@ For a variant:
 ```sh
 uv run scripts/extraction_check.py \
   --pdf path/to/variant.pdf \
-  --fixtures path/to/reviewed-variant.fixtures.toml \
+  --data path/to/variant-data.json \
+  --fixtures path/to/reviewed-variant-rules.toml \
   --report-dir path/to/new-report-directory \
   --report
 ```
 
-Do not reuse the main resume fixture for a variant with different facts.
+Pass the canonical JSON that produced the variant. Reuse the active rules file
+only when the same independent parsability contract intentionally applies.
 
 ## Current quick-gate coverage
 

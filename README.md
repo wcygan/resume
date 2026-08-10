@@ -39,7 +39,7 @@ diagnosing a specific failed check.
 | --- | --- | --- |
 | Resume content | `just validate-content` | compile, page budget, extraction check |
 | Shared renderer | `just validate-renderer` | content checks, Golden compile/provenance, Golden deep check, Golden stress matrix |
-| Repository-wide / CI | `just validate-full` | renderer checks plus negative-fixture regression tests |
+| Repository-wide / CI | `just validate-full` | content checks, tests, Golden compile/provenance, Golden deep check, Golden stress matrix |
 
 The plan reports where to inspect durable local evidence after a failure:
 artifact provenance is under `.extraction/artifact-provenance/`, extraction

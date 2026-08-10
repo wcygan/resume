@@ -42,7 +42,9 @@ def require_pdftotext() -> None:
 def require_tika() -> None:
     # Probe with a sentinel path; detect_tika doesn't read the PDF to decide.
     if ec.detect_tika(Path("/dev/null")) is None:
-        pytest.skip("tika not available (brew install tika)")
+        pytest.skip(
+            "tika not available (brew install tika, or set TIKA_JAR with Java)"
+        )
 
 
 @pytest.fixture(scope="session")

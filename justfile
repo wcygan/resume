@@ -25,14 +25,15 @@ golden-stress *ARGS:
 ci *ARGS:
     uv run scripts/run-local-ci.py {{ARGS}}
 
-# Ordered validation plans. Individual commands below remain useful for
-# focused diagnosis; use these plans for change acceptance and CI parity.
+# Validate resume-content changes through compile, page-budget, and extraction checks.
 validate-content:
     uv run --no-project -m resume_tools.validation content
 
+# Validate renderer changes through content, Golden, and stress checks.
 validate-renderer:
     uv run --no-project -m resume_tools.validation renderer
 
+# Run the complete CI-parity plan, including the project test suite.
 validate-full:
     uv run --no-project -m resume_tools.validation full
 
@@ -44,7 +45,6 @@ extraction-check:
 page-budget:
     uv run scripts/page_budget.py
 
-# Negative-fixture regression suite for extraction-check.
-# Requires typst, poppler (pdftotext), and tika on PATH.
+# Run the full project test suite; extraction cases need Typst, Poppler, and Tika or TIKA_JAR with Java.
 test:
     uv run --with pytest pytest tests/ -v

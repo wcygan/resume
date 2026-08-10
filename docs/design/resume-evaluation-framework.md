@@ -155,7 +155,9 @@ The repository already contains the first framework layer:
   renderer and controlled Golden fixture implementation.
 - `will_cygan_resume.pdf`: compiled artifact.
 - `scripts/extraction_check.py`: Poppler and Tika/PDFBox extraction diagnostics.
-- `scripts/extraction-check.fixtures.toml`: expected extraction facts.
+- `will_cygan_resume-data.json`: canonical extraction facts.
+- `scripts/extraction-check.fixtures.toml`: independently reviewed parsability
+  rules, thresholds, and patterns.
 - `tests/fixtures/broken/`: controlled negative fixtures.
 - `tests/test_extraction_check.py`: extraction regression suite.
 - `work-experience/`: long-form evidence backing resume claims.

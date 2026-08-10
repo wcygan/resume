@@ -131,15 +131,15 @@ Projects records along with the other sections, and gives the Golden Resume's
 work-authorization statement its own named gate. That gate requires
 `U.S. citizen · Authorized to work in the U.S. · No sponsorship required`
 exactly once after LinkedIn and before Profile in every raw and canonical view.
-The stress command runs the same renderer with reviewed JSON data/oracle
-patches for long company, role, date, location, URL, and project values. It
-accepts either collision-free one-row metadata or the template's source-order
-preserving stacked-right fallback, renders every page, and requires the
-unbreakable company and location controls to fail their exact reviewed gate
-sets. Reports are written beneath `.extraction/golden-resume-stress/`. Passing
-automated reports still
-leave visual inspection and external ATS behavior as separate acceptance
-layers.
+The stress command runs the same renderer with reviewed semantic mutations for
+long company, role, date, location, URL, and project values. The stress module
+materializes paired data and oracle copies, rejects stale reviewed inputs, and
+preserves frozen baseline hashes. It accepts either collision-free one-row
+metadata or the template's source-order preserving stacked-right fallback,
+renders every page, and requires the unbreakable company and location controls
+to fail their exact reviewed gate sets. Reports are written beneath
+`.extraction/golden-resume-stress/`. Passing automated reports still leaves
+visual inspection and external ATS behavior as separate acceptance layers.
 
 ## Non-negotiable rules
 
