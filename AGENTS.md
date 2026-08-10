@@ -54,9 +54,12 @@ inspect the generated PDF rather than reasoning from source alone.
 3. Rebuild with `just compile`.
 4. Inspect the latest `will_cygan_resume.pdf` for page count, wrapping,
    clipping, hierarchy, and reading order.
-5. Run `just page-budget` and the relevant focused checks. Run
-   `just extraction-check` after content changes; run the deeper parsability
-   gates when layout, fonts, links, structure, or renderer behavior changes.
+5. Run the declared shared validation plan: `just validate-content` after
+   content changes, `just validate-renderer` after shared-renderer changes
+   (including Golden compilation and provenance),
+   or `just validate-full` for repository-wide changes and CI parity. Use the
+   individual checks only to diagnose a failed plan step; their evidence paths
+   are reported by the plan.
 6. Report what the evidence proves and what remains untested.
 
 Useful commands:
@@ -68,4 +71,7 @@ just extraction-check
 just test
 just golden-check
 just golden-stress
+just validate-content
+just validate-renderer
+just validate-full
 ```

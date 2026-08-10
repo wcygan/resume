@@ -25,6 +25,17 @@ golden-stress *ARGS:
 ci *ARGS:
     uv run scripts/run-local-ci.py {{ARGS}}
 
+# Ordered validation plans. Individual commands below remain useful for
+# focused diagnosis; use these plans for change acceptance and CI parity.
+validate-content:
+    uv run --no-project -m resume_tools.validation content
+
+validate-renderer:
+    uv run --no-project -m resume_tools.validation renderer
+
+validate-full:
+    uv run --no-project -m resume_tools.validation full
+
 # ATS text-extraction regression check (pdftotext + Tika).
 extraction-check:
     uv run scripts/extraction_check.py

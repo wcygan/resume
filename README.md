@@ -29,6 +29,24 @@ just test
 
 Use `just dev` for a watched local preview.
 
+## Validation plans
+
+Use one ordered validation plan for change acceptance; GitHub Actions runs the
+same `full` plan. The individual `just` commands above remain available when
+diagnosing a specific failed check.
+
+| Change scope | Command | Ordered checks |
+| --- | --- | --- |
+| Resume content | `just validate-content` | compile, page budget, extraction check |
+| Shared renderer | `just validate-renderer` | content checks, Golden compile/provenance, Golden deep check, Golden stress matrix |
+| Repository-wide / CI | `just validate-full` | renderer checks plus negative-fixture regression tests |
+
+The plan reports where to inspect durable local evidence after a failure:
+artifact provenance is under `.extraction/artifact-provenance/`, extraction
+reports are under `.extraction/`, and Golden evidence is under
+`.extraction/golden-resume*/`. These are local mechanical checks; they do not
+establish commercial ATS behavior or hiring outcomes.
+
 ## Project-local Codex skills
 
 - `$resume-review` reviews and tailors content against documented evidence.
