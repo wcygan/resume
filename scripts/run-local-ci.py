@@ -83,7 +83,12 @@ def run_workflow(workflow: str, job: str | None, verbose: bool, dry_run: bool) -
     if dry_run:
         print(c(YELLOW, "Dry run mode"))
 
-    args: list[str] = []
+    workflow_path = WORKFLOWS_DIR / workflow
+    if not workflow_path.is_file():
+        print(c(RED, f"Workflow not found: {workflow_path}"))
+        return 2
+
+    args: list[str] = ["--workflows", str(workflow_path)]
     if job:
         args += ["--job", job]
     if verbose:
@@ -93,6 +98,8 @@ def run_workflow(workflow: str, job: str | None, verbose: bool, dry_run: bool) -
     args += ["--platform", DEFAULT_PLATFORM]
 
     print(c(GRAY, f"Running: act {' '.join(args)}"))
+    if dry_run:
+        return 0
     result = subprocess.run(["act", *args])
     if result.returncode == 0:
         print(c(GREEN, "\nWorkflow completed successfully"))
@@ -128,6 +135,8 @@ def main() -> int:
         cmd_list()
         return 0
 
+    if args.dry_run:
+        return run_workflow(args.workflow, args.job, args.verbose, True)
     check_prereqs()
     return run_workflow(args.workflow, args.job, args.verbose, args.dry_run)
 

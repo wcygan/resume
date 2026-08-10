@@ -24,7 +24,7 @@ jobs:
         uses: astral-sh/setup-uv@v4
       
       - name: Compile resume
-        run: uv run --no-project -m resume_tools.artifact resume
+        run: uv run --no-project -m resume_tools.validation compile
       
       - name: Upload resume artifact
         uses: actions/upload-artifact@v4
