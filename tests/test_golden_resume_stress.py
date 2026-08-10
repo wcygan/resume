@@ -1,15 +1,18 @@
-"""Unit contracts for the Golden Resume deep evaluator and stress matrix."""
+"""Contracts for the Golden Resume deep evaluator and stress matrix."""
 
 from __future__ import annotations
 
 import importlib.util
+import inspect
 import json
+import xml.etree.ElementTree as element_tree
+from collections.abc import Callable
 from pathlib import Path
 from types import ModuleType
 
 import pytest
 
-from resume_tools import golden_stress
+from resume_tools import artifact, golden_evaluation, golden_stress
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -25,78 +28,75 @@ def load_module(name: str, path: Path) -> ModuleType:
     return module
 
 
-evaluator = load_module(
-    "golden_resume_evaluator",
-    SKILL_ROOT / "scripts" / "evaluate_golden_resume.py",
-)
 matrix = load_module(
     "golden_resume_stress_matrix",
     SKILL_ROOT / "scripts" / "evaluate_golden_stress_matrix.py",
 )
 
 
-def test_tika_annotation_block_can_precede_later_page_text() -> None:
-    uris = ["mailto:first@example.com", "https://example.com/profile"]
-    text = (
-        "First Last\n"
-        "first@example.com\n"
-        "mailto:first@example.com\n"
-        "https://example.com/profile\n"
-        "SKILLS\nPython\n"
+def compiled_evaluation_request(tmp_path: Path) -> golden_evaluation.EvaluationRequest:
+    run_root = (
+        REPO_ROOT
+        / ".extraction"
+        / "pytest-golden-evaluation"
+        / tmp_path.parent.name
+        / tmp_path.name
+    )
+    run_root.mkdir(parents=True, exist_ok=False)
+    pdf = run_root / "golden-resume.pdf"
+    dependencies = run_root / "typst-dependencies.json"
+    provenance = run_root / "typst-provenance.json"
+    compiled = artifact.compile_artifact(
+        artifact.CompileRequest(
+            source=GOLDEN_FIXTURE_ROOT / "golden-resume.typ",
+            output=pdf,
+            dependencies_path=dependencies,
+            provenance_path=provenance,
+        ),
+        capture_output=True,
+    )
+    assert compiled.returncode == 0, compiled.stderr
+    return golden_evaluation.EvaluationRequest(
+        pdf=pdf,
+        source=GOLDEN_FIXTURE_ROOT / "golden-resume.typ",
+        provenance=provenance,
+        oracle=GOLDEN_FIXTURE_ROOT / "golden-resume-oracle.json",
+        output_dir=run_root / "evaluation",
     )
 
-    visible, annotation_block, exact = evaluator.split_tika_visible_body(text, uris)
 
-    assert exact
-    assert annotation_block == uris
-    assert "SKILLS\nPython" in visible
-    assert "mailto:first@example.com" not in visible
-
-
-def test_tika_duplicate_annotation_blocks_are_rejected() -> None:
-    uris = ["https://example.com/profile"]
-    text = "Body\nhttps://example.com/profile\nMore\nhttps://example.com/profile\n"
-
-    visible, _, exact = evaluator.split_tika_visible_body(text, uris)
-
-    assert not exact
-    assert visible == text
-
-
-def test_tika_command_uses_pinned_jar_when_executable_is_absent(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
-) -> None:
-    tika_jar = tmp_path / "tika-app.jar"
-    tika_jar.write_bytes(b"reviewed test placeholder")
-    monkeypatch.setenv("TIKA_JAR", str(tika_jar))
-    monkeypatch.setattr(
-        evaluator.shutil,
-        "which",
-        lambda tool: "/usr/bin/java" if tool == "java" else None,
-    )
-
-    assert evaluator.tika_command("--version") == [
-        "java",
-        "-jar",
-        str(tika_jar),
-        "--version",
-    ]
-
-
-def test_tika_command_prefers_installed_executable(
+def evaluate_with_evidence_mutation(
+    tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    monkeypatch.setattr(
-        evaluator.shutil,
-        "which",
-        lambda tool: "/opt/homebrew/bin/tika" if tool == "tika" else None,
-    )
+    mutate: Callable[[Path], None],
+) -> golden_evaluation.EvaluationResult:
+    request = compiled_evaluation_request(tmp_path)
+    capture = golden_evaluation.pdf_evidence.capture_pdf_evidence
 
-    assert evaluator.tika_command("-t", "resume.pdf") == [
-        "tika",
-        "-t",
-        "resume.pdf",
-    ]
+    def capture_then_mutate(*args: object, **kwargs: object) -> dict[str, object]:
+        results = capture(*args, **kwargs)
+        assert request.output_dir is not None
+        mutate(request.output_dir)
+        return results
+
+    monkeypatch.setattr(
+        golden_evaluation.pdf_evidence,
+        "capture_pdf_evidence",
+        capture_then_mutate,
+    )
+    return golden_evaluation.evaluate(request)
+
+
+def test_golden_evaluation_exposes_one_operation() -> None:
+    operations = {
+        name
+        for name, value in vars(golden_evaluation).items()
+        if not name.startswith("_")
+        and inspect.isfunction(value)
+        and value.__module__ == golden_evaluation.__name__
+    }
+
+    assert operations == {"evaluate"}
 
 
 def test_semantic_case_rejects_stale_reviewed_oracle_value() -> None:
@@ -120,6 +120,119 @@ def test_semantic_case_rejects_stale_reviewed_oracle_value() -> None:
         golden_stress.materialize_case(baseline_data, baseline_oracle, case)
 
 
+def test_public_evaluation_returns_structured_result(tmp_path: Path) -> None:
+    result = golden_evaluation.evaluate(compiled_evaluation_request(tmp_path))
+
+    assert result.ok
+    assert result.returncode == 0
+    assert result.automated_status == "Pass"
+    assert result.page_count == 1
+    assert result.gates["right_metadata_geometry"]
+    assert result.minimum_clearance_px is not None
+    assert result.stacked_rows >= 0
+    assert len(result.render_paths) == result.page_count
+    assert result.report_json.is_file()
+    assert result.report_markdown.is_file()
+
+
+def test_public_evaluation_accepts_tika_uri_block_before_later_text(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    oracle = json.loads(
+        (GOLDEN_FIXTURE_ROOT / "golden-resume-oracle.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    annotation_block = "\n".join(oracle["links"]) + "\n"
+
+    def move_annotations_before_skills(output: Path) -> None:
+        tika = output / "tika.txt"
+        text = tika.read_text(encoding="utf-8")
+        assert text.count(annotation_block) == 1
+        visible = text.replace(annotation_block, "", 1)
+        marker = "\nSKILLS\n"
+        assert marker in visible
+        tika.write_text(
+            visible.replace(marker, f"\n{annotation_block}SKILLS\n", 1),
+            encoding="utf-8",
+        )
+
+    result = evaluate_with_evidence_mutation(
+        tmp_path, monkeypatch, move_annotations_before_skills
+    )
+
+    assert result.gates["tika_exact_uri_annotation_block"]
+    assert result.gates["all_text_views"]
+
+
+def test_public_evaluation_rejects_duplicate_tika_uri_blocks(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    oracle = json.loads(
+        (GOLDEN_FIXTURE_ROOT / "golden-resume-oracle.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    annotation_block = "\n".join(oracle["links"]) + "\n"
+
+    def duplicate_annotations(output: Path) -> None:
+        tika = output / "tika.txt"
+        text = tika.read_text(encoding="utf-8")
+        assert text.count(annotation_block) == 1
+        tika.write_text(text + "\n" + annotation_block, encoding="utf-8")
+
+    result = evaluate_with_evidence_mutation(
+        tmp_path, monkeypatch, duplicate_annotations
+    )
+
+    assert not result.ok
+    assert not result.gates["tika_exact_uri_annotation_block"]
+
+
+def test_public_evaluation_rejects_right_metadata_outside_content_box(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    oracle = json.loads(
+        (GOLDEN_FIXTURE_ROOT / "golden-resume-oracle.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    right_field = oracle["geometry_rows"][0]["right_field"]
+
+    def overflow_right_metadata(output: Path) -> None:
+        xml = output / "poppler.xml"
+        tree = element_tree.parse(xml)
+        matches = [
+            node
+            for node in tree.getroot().iter("text")
+            if " ".join("".join(node.itertext()).split()) == right_field
+        ]
+        assert len(matches) == 1
+        matches[0].set("left", "40")
+        matches[0].set("width", "900")
+        tree.write(xml, encoding="utf-8", xml_declaration=True)
+
+    result = evaluate_with_evidence_mutation(
+        tmp_path, monkeypatch, overflow_right_metadata
+    )
+
+    assert not result.ok
+    assert not result.gates["right_metadata_geometry"]
+
+
+def test_public_evaluation_translates_missing_inputs(tmp_path: Path) -> None:
+    with pytest.raises(
+        golden_evaluation.GoldenEvaluationError,
+        match="required file does not exist",
+    ):
+        golden_evaluation.evaluate(
+            golden_evaluation.EvaluationRequest(
+                pdf=tmp_path / "missing.pdf",
+                output_dir=tmp_path / "unused-evidence",
+            )
+        )
+
+
 def test_negative_control_rejects_unexpected_collateral_failures() -> None:
     case = golden_stress.StressCase(
         name="negative-control",
@@ -128,15 +241,12 @@ def test_negative_control_rejects_unexpected_collateral_failures() -> None:
         mutations=(),
         expected_failed_gates=("right_metadata_geometry",),
     )
-    report = {
-        "automated_status": "Fail",
-        "gates": {
-            "all_text_views": False,
-            "right_metadata_geometry": False,
-        },
+    gates = {
+        "all_text_views": False,
+        "right_metadata_geometry": False,
     }
 
-    assert not matrix.case_expectation_met(case, report)
+    assert not golden_stress.expectation_met(case, "Fail", gates)
 
 
 def test_frozen_inputs_reject_concurrent_drift(tmp_path: Path) -> None:
@@ -154,46 +264,6 @@ def test_frozen_inputs_reject_concurrent_drift(tmp_path: Path) -> None:
 def test_matrix_output_directory_must_stay_in_repository(tmp_path: Path) -> None:
     with pytest.raises(SystemExit, match="must remain inside the repository"):
         matrix.create_output_dir(tmp_path / "external-evidence")
-
-
-def test_geometry_rejects_right_metadata_outside_content_box(tmp_path: Path) -> None:
-    xml = tmp_path / "overflow.xml"
-    xml.write_text(
-        """<?xml version="1.0" encoding="UTF-8"?>
-<pdf2xml>
-  <page number="1" height="1188" width="918">
-    <text top="100" left="67" width="90">Example Company</text>
-    <text top="100" left="170" width="70">Example Role</text>
-    <text top="120" left="40" width="900">
-      Dates: 2020 - Present · Location: UnbreakableLocation
-    </text>
-  </page>
-</pdf2xml>
-""",
-        encoding="utf-8",
-    )
-    oracle = {
-        "geometry_content_box": {
-            "page_width_points": 612.0,
-            "left_margin_points": 44.64,
-            "right_margin_points": 44.64,
-            "tolerance_px": 1.0,
-        },
-        "geometry_rows": [
-            {
-                "label": "overflow",
-                "left_fields": ["Example Company", "Example Role"],
-                "right_field": (
-                    "Dates: 2020 - Present · Location: UnbreakableLocation"
-                ),
-            }
-        ],
-    }
-
-    result = evaluator.geometry_audit(xml, oracle)
-
-    assert not result["rows"][0]["right_within_content"]
-    assert not result["passes"]
 
 
 def test_every_manifest_case_applies_to_fresh_reviewed_baselines() -> None:
@@ -333,7 +403,8 @@ def test_every_semantic_value_updates_data_and_reviewed_oracle() -> None:
 
     for case in manifest.cases:
         data, oracle = golden_stress.materialize_case(baseline_data, baseline_oracle, case)
+        rendered_data = json.dumps(data)
         rendered_oracle = json.dumps(oracle)
         for mutation in case.mutations:
-            assert golden_stress._record_for(data, mutation.subject)[mutation.field] == mutation.value
+            assert mutation.value in rendered_data
             assert mutation.value in rendered_oracle

@@ -26,8 +26,10 @@ skill when layout, structure, links, or causal interpretation changes.
 - `scripts/extraction-check.fixtures.toml` — independently reviewed parser
   rules, thresholds, and patterns; canonical facts come from the selected
   resume JSON.
-- `.agents/skills/resume-parsability/scripts/evaluate_golden_resume.py` — deep
-  Golden Resume evaluator run through uv.
+- `resume_tools/golden_evaluation.py` — deep Golden Resume evaluation module
+  and structured result.
+- `.agents/skills/resume-parsability/scripts/evaluate_golden_resume.py` — uv CLI
+  adapter for that module.
 - `.agents/skills/resume-parsability/scripts/evaluate_golden_stress_matrix.py`
   — isolated case compiler and matrix evaluator.
 - `tests/fixtures/broken/` — controlled negative fixtures.
@@ -55,15 +57,16 @@ and extraction, fixture, or repository-wide changes use `validate-full`. Use
 the individual commands for focused diagnosis.
 
 `just golden-check` rebuilds the fixture PDF with the pinned Source Sans 3 cuts
-and PDF/UA-1, then runs the skill-owned uv evaluator. Evidence is written
-to a new timestamped directory beneath `.extraction/golden-resume/`; prior runs
-are not silently selected as current evidence.
+and PDF/UA-1, then runs the repository-owned evaluator through the skill's uv
+adapter. Evidence is written to a new timestamped directory beneath
+`.extraction/golden-resume/`; prior runs are not silently selected as current
+evidence.
 
 `just golden-stress` materializes each reviewed case from a fresh copy of the
 canonical data and oracle, compiles it through the same fixture adapter and
-renderer, and invokes the deep Golden evaluator. Use `--case <name>` for one
-case. Evidence is written to a new timestamped directory beneath
-`.extraction/golden-resume-stress/`.
+renderer, and invokes the repository-owned evaluator in-process. Use
+`--case <name>` for one case. Evidence is written to a new timestamped
+directory beneath `.extraction/golden-resume-stress/`.
 
 To retain a report even on success:
 
@@ -127,7 +130,8 @@ links, export flags, or section structure changes.
 
 ## Golden deep-gate coverage
 
-The skill-owned Golden evaluator supplements the general quick gate. It checks:
+The repository-owned Golden evaluator supplements the general quick gate. It
+checks:
 
 1. the current fixture source and PDF relationship;
 2. raw and NFC-plus-whitespace Poppler plain/layout, Tika visible-body, and

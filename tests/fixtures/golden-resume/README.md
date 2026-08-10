@@ -27,6 +27,7 @@ just golden-check
 just golden-stress
 ```
 
-The first command rebuilds the checked-in PDF. The other commands use the
-skill-owned evaluators and write disposable evidence beneath `.extraction/`.
-External ATS behavior remains untested by this fixture.
+The first command rebuilds the checked-in PDF. The other commands use thin
+skill-owned CLI adapters over the repository-owned evaluator and write
+disposable evidence beneath `.extraction/`. External ATS behavior remains
+untested by this fixture.

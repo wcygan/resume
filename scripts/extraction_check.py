@@ -67,25 +67,6 @@ class Assertion(StrEnum):
     SECTION_BOUNDARY = "11-section-boundary"
 
 
-# -- Extractors ---------------------------------------------------------------
-
-Extractor = pdf_evidence.Extractor
-
-
-def detect_tika(pdf: Path) -> Extractor | None:
-    command = pdf_evidence.tika_command("--text", str(pdf))
-    return Extractor("tika", tuple(command)) if command is not None else None
-
-
-def build_extractors(pdf: Path) -> tuple[list[Extractor], list[str]]:
-    discovery = pdf_evidence.discover_text_extractors(pdf)
-    return list(discovery.extractors), list(discovery.skipped)
-
-
-def run_extractor(e: Extractor) -> str:
-    return pdf_evidence.run_process(e.argv).stdout
-
-
 # -- Assertions ---------------------------------------------------------------
 
 @dataclass
@@ -486,9 +467,10 @@ def load_fixtures(
 
 
 def evaluate(
-    extractor: Extractor, fx: expectations.ExtractionExpectations
+    extractor: pdf_evidence.Extractor,
+    fx: expectations.ExtractionExpectations,
 ) -> ExtractorResult:
-    text = run_extractor(extractor)
+    text = pdf_evidence.run_process(extractor.argv).stdout
     er = ExtractorResult(extractor=extractor.name, text=text)
 
     rules = fx.rules
@@ -539,14 +521,19 @@ def evaluate(
 def evaluate_pdf(
     pdf: Path, fx: expectations.ExtractionExpectations
 ) -> EvaluationResult:
-    extractors, skipped = build_extractors(pdf)
+    discovery = pdf_evidence.discover_text_extractors(pdf)
+    extractors = list(discovery.extractors)
     results: list[ExtractorResult] = []
     if extractors:
         with ThreadPoolExecutor(max_workers=len(extractors)) as pool:
             futures = [pool.submit(evaluate, e, fx) for e in extractors]
             results = [f.result() for f in futures]
     cross = assert_cross_extractor(results)
-    return EvaluationResult(results=results, cross=cross, skipped=skipped)
+    return EvaluationResult(
+        results=results,
+        cross=cross,
+        skipped=list(discovery.skipped),
+    )
 
 
 def fmt_result(r: AssertionResult) -> str:
@@ -624,15 +611,15 @@ def main(argv: list[str] | None = None) -> int:
     except expectations.ExpectationError as ex:
         print(c(RED, f"Invalid extraction expectations: {ex}"))
         return 2
-    extractors, skipped = build_extractors(pdf)
-    for s in skipped:
+    discovery = pdf_evidence.discover_text_extractors(pdf)
+    for s in discovery.skipped:
         print(c(YELLOW, f"  skip: {s}"))
-    if not extractors:
+    if not discovery.extractors:
         print(c(RED, "No extractors available. Install poppler and/or tika."))
         return 2
 
-    print(c(BLUE, f"Running {len(extractors)} extractor(s) on {pdf}..."))
-    for e in extractors:
+    print(c(BLUE, f"Running {len(discovery.extractors)} extractor(s) on {pdf}..."))
+    for e in discovery.extractors:
         print(c(GRAY, f"[{e.name}] {' '.join(e.argv)}"))
 
     try:

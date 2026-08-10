@@ -12,7 +12,6 @@ import datetime as dt
 import hashlib
 import json
 import pathlib
-import subprocess
 import sys
 from typing import Any
 
@@ -21,10 +20,9 @@ SKILL_ROOT = pathlib.Path(__file__).resolve().parent.parent
 REPO_ROOT = SKILL_ROOT.parents[2]
 GOLDEN_FIXTURE_ROOT = REPO_ROOT / "tests" / "fixtures" / "golden-resume"
 DEFAULT_MANIFEST = GOLDEN_FIXTURE_ROOT / "golden-resume-stress-matrix.json"
-EVALUATOR = SKILL_ROOT / "scripts" / "evaluate_golden_resume.py"
 sys.path.insert(0, str(REPO_ROOT))
 
-from resume_tools import artifact, golden_stress  # noqa: E402
+from resume_tools import artifact, golden_evaluation, golden_stress  # noqa: E402
 
 
 def parse_args() -> argparse.Namespace:
@@ -49,17 +47,6 @@ def parse_args() -> argparse.Namespace:
 
 def sha256(path: pathlib.Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
-
-
-def run(command: list[str]) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
-        command,
-        cwd=REPO_ROOT,
-        check=False,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
 
 
 def create_output_dir(requested: pathlib.Path | None) -> pathlib.Path:
@@ -88,17 +75,6 @@ def relative_to_repo(path: pathlib.Path) -> str:
 
 def write_json(path: pathlib.Path, value: Any) -> None:
     path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
-
-
-def case_expectation_met(case: golden_stress.StressCase, report: dict[str, Any]) -> bool:
-    expectation = case.expectation
-    if expectation == "pass":
-        return report["automated_status"] == "Pass"
-    if expectation == "fail":
-        expected_failed = set(case.expected_failed_gates)
-        observed_failed = {name for name, passed in report["gates"].items() if not passed}
-        return report["automated_status"] == "Fail" and expected_failed == observed_failed
-    raise ValueError(f"unsupported expectation {expectation!r} in {case.name}")
 
 
 def markdown_report(report: dict[str, Any]) -> str:
@@ -243,26 +219,21 @@ def main() -> int:
             raise RuntimeError(f"{case.name} dependency evidence missing {missing}")
 
         evaluation_dir = case_dir / "evaluation"
-        evaluated = run(
-            [
-                sys.executable,
-                str(EVALUATOR),
-                "--pdf",
-                str(pdf),
-                "--source",
-                str(source_path),
-                "--provenance",
-                str(provenance),
-                "--oracle",
-                str(effective_oracle),
-                "--output-dir",
-                str(evaluation_dir),
-            ]
-        )
-        (case_dir / "evaluate.stdout").write_text(evaluated.stdout, encoding="utf-8")
-        (case_dir / "evaluate.stderr").write_text(evaluated.stderr, encoding="utf-8")
-        report_path = evaluation_dir / "report.json"
-        if not report_path.is_file():
+        try:
+            evaluation = golden_evaluation.evaluate(
+                golden_evaluation.EvaluationRequest(
+                    pdf=pdf,
+                    source=source_path,
+                    provenance=provenance,
+                    oracle=effective_oracle,
+                    output_dir=evaluation_dir,
+                )
+            )
+        except golden_evaluation.GoldenEvaluationError as error:
+            (case_dir / "evaluate.stdout").write_text("", encoding="utf-8")
+            (case_dir / "evaluate.stderr").write_text(
+                f"{type(error).__name__}: {error}\n", encoding="utf-8"
+            )
             results.append(
                 {
                     "name": case.name,
@@ -270,43 +241,44 @@ def main() -> int:
                     "expectation": case.expectation,
                     "observed_status": "EvaluationError",
                     "expectation_met": False,
-                    "evaluation_returncode": evaluated.returncode,
+                    "evaluation_returncode": 2,
                 }
             )
             continue
-        case_report = json.loads(report_path.read_text(encoding="utf-8"))
+        (case_dir / "evaluate.stdout").write_text(
+            f"Golden Resume automated local status: {evaluation.automated_status}\n"
+            f"Evidence: {evaluation.evidence_directory}\n"
+            f"Report: {evaluation.report_markdown}\n",
+            encoding="utf-8",
+        )
+        (case_dir / "evaluate.stderr").write_text("", encoding="utf-8")
         verify_frozen_inputs(paths, baseline["sha256"], f"{case.name} post-evaluation")
-        geometry_rows = case_report["pdf"]["geometry"]["rows"]
-        clearances = [
-            row["clearance_px"]
-            for row in geometry_rows
-            if row["clearance_px"] is not None
-        ]
         results.append(
             {
                 "name": case.name,
                 "description": case.description,
                 "expectation": case.expectation,
-                "observed_status": case_report["automated_status"],
-                "expectation_met": case_expectation_met(case, case_report),
-                "minimum_clearance_px": min(clearances) if clearances else None,
-                "page_count": int(case_report["artifact"]["pdfinfo"]["Pages"]),
-                "stacked_rows": sum(row["layout"] == "stacked-right" for row in geometry_rows),
+                "observed_status": evaluation.automated_status,
+                "expectation_met": golden_stress.expectation_met(
+                    case, evaluation.automated_status, evaluation.gates
+                ),
+                "minimum_clearance_px": evaluation.minimum_clearance_px,
+                "page_count": evaluation.page_count,
+                "stacked_rows": evaluation.stacked_rows,
                 "failed_gates": [
-                    name for name, passed in case_report["gates"].items() if not passed
+                    name for name, passed in evaluation.gates.items() if not passed
                 ],
                 "compile_returncode": compiled.returncode,
-                "evaluation_returncode": evaluated.returncode,
+                "evaluation_returncode": evaluation.returncode,
                 "compile_command": compile_command,
                 "typst_dependencies": dependency_inputs,
                 "artifact_sha256": sha256(pdf),
                 "data_sha256": sha256(effective_data),
                 "oracle_sha256": sha256(effective_oracle),
                 "renderer_sha256": sha256(renderer_path),
-                "report": relative_to_repo(report_path),
+                "report": relative_to_repo(evaluation.report_json),
                 "renders": [
-                    relative_to_repo(pathlib.Path(path))
-                    for path in case_report["pdf"]["renders"]
+                    relative_to_repo(path) for path in evaluation.render_paths
                 ],
             }
         )
@@ -326,7 +298,7 @@ def main() -> int:
         "manifest": str(manifest_path),
         "baseline_hashes": baseline["sha256"],
         "source_sha256": sha256(source_path),
-        "evaluator_sha256": sha256(EVALUATOR),
+        "evaluator_sha256": sha256(pathlib.Path(golden_evaluation.__file__)),
         "cases": results,
         "external_ats_uat": "Untested",
     }

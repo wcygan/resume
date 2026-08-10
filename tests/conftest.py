@@ -23,7 +23,7 @@ BROKEN_DIR = REPO_ROOT / "tests" / "fixtures" / "broken"
 sys.path.insert(0, str(SCRIPTS_DIR))
 sys.path.insert(0, str(REPO_ROOT))
 import extraction_check as ec  # noqa: E402
-from resume_tools import artifact
+from resume_tools import artifact, pdf_evidence
 
 
 @pytest.fixture(scope="session")
@@ -40,8 +40,7 @@ def require_pdftotext() -> None:
 
 @pytest.fixture(scope="session")
 def require_tika() -> None:
-    # Probe with a sentinel path; detect_tika doesn't read the PDF to decide.
-    if ec.detect_tika(Path("/dev/null")) is None:
+    if pdf_evidence.tika_command("--text", "/dev/null") is None:
         pytest.skip(
             "tika not available (brew install tika, or set TIKA_JAR with Java)"
         )

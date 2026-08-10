@@ -108,9 +108,10 @@ would change facts, page count, target system, or acceptance criteria.
 This repository packages the complete controlled fixture under
 `tests/fixtures/golden-resume/`: source, compiled PDF, anonymous data,
 responsive renderer, reviewed oracle, and stress manifest. This skill owns the
-evaluators and knows that fixture path. Treat the fixture directory as
-authoritative; do not recreate Golden source or PDF copies at the repository
-root.
+executable adapters and knows that fixture path; `resume_tools.golden_evaluation`
+owns the deep evaluation implementation and structured result. Treat the
+fixture directory as authoritative; do not recreate Golden source or PDF
+copies at the repository root.
 
 ```sh
 just golden-check
@@ -124,9 +125,9 @@ uv run --no-project \
   .agents/skills/resume-parsability/scripts/evaluate_golden_resume.py
 ```
 
-The deep evaluator preserves raw Poppler and Tika output, separates Tika's one
-exact link-annotation block from visible-body field counts, creates a
-separate NFC-plus-whitespace diagnostic view, checks bounded Profile and
+The repository-owned evaluator preserves raw Poppler and Tika output, separates
+Tika's one exact link-annotation block from visible-body field counts, creates
+a separate NFC-plus-whitespace diagnostic view, checks bounded Profile and
 Projects records along with the other sections, and gives the Golden Resume's
 work-authorization statement its own named gate. That gate requires
 `U.S. citizen · Authorized to work in the U.S. · No sponsorship required`

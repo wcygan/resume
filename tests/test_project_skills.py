@@ -92,3 +92,14 @@ def test_review_skill_omits_unsupported_exact_statistics() -> None:
 
     for token in ("10.2x", "99.7%", "98.4%"):
         assert token not in text
+
+
+def test_golden_skill_adapters_delegate_to_repository_evaluation() -> None:
+    scripts = SKILLS_ROOT / "resume-parsability" / "scripts"
+    direct = (scripts / "evaluate_golden_resume.py").read_text()
+    stress = (scripts / "evaluate_golden_stress_matrix.py").read_text()
+
+    assert "golden_evaluation.evaluate(" in direct
+    assert "golden_evaluation.evaluate(" in stress
+    assert "pdf_evidence" not in direct
+    assert "subprocess" not in stress

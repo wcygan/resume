@@ -44,6 +44,22 @@ class StressManifest:
     cases: tuple[StressCase, ...]
 
 
+def expectation_met(
+    case: StressCase, automated_status: str, gates: Mapping[str, bool]
+) -> bool:
+    """Return whether one observed Golden result matches its reviewed outcome."""
+
+    if case.expectation == "pass":
+        return automated_status == "Pass"
+    if case.expectation == "fail":
+        expected_failed = set(case.expected_failed_gates)
+        observed_failed = {name for name, passed in gates.items() if not passed}
+        return automated_status == "Fail" and expected_failed == observed_failed
+    raise ValueError(
+        f"unsupported expectation {case.expectation!r} in {case.name}"
+    )
+
+
 _REQUIRED_BASELINE_PATHS = ("source", "data", "renderer", "oracle")
 _EXPERIENCE_RECORDS = {
     "northstar-experience": 0,
