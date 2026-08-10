@@ -1,4 +1,5 @@
 {
+  "schema_version": 1,
   "document": "Golden Resume content-length stress matrix",
   "baseline": {
     "source": "tests/fixtures/golden-resume/golden-resume.typ",
@@ -17,220 +18,79 @@
       "name": "baseline",
       "description": "Canonical Golden content through the reusable renderer.",
       "expectation": "pass",
-      "data_patches": [],
-      "oracle_patches": []
+      "mutations": []
     },
     {
       "name": "long-company",
       "description": "A realistic long legal employer name increases left-side row pressure.",
       "expectation": "pass",
-      "data_patches": [
-        {
-          "pointer": "/experience/0/company",
-          "old": "Northstar Systems, Inc.",
-          "new": "International Commerce Infrastructure Group, Inc."
-        }
-      ],
-      "oracle_patches": [
-        {"pointer": "/required_once/11", "old": "Northstar Systems, Inc.", "new": "International Commerce Infrastructure Group, Inc."},
-        {"pointer": "/required_order/11", "old": "Northstar Systems, Inc.", "new": "International Commerce Infrastructure Group, Inc."},
-        {"pointer": "/association_windows/1/start", "old": "Northstar Systems, Inc.", "new": "International Commerce Infrastructure Group, Inc."},
-        {"pointer": "/association_windows/1/fields/0", "old": "Northstar Systems, Inc.", "new": "International Commerce Infrastructure Group, Inc."},
-        {"pointer": "/geometry_rows/0/left_fields/0", "old": "Northstar Systems, Inc.", "new": "International Commerce Infrastructure Group, Inc."}
-      ]
+      "mutations": [{"subject": "northstar-experience", "field": "company", "value": "International Commerce Infrastructure Group, Inc."}]
     },
     {
       "name": "long-title",
       "description": "A long senior title increases left-side row pressure without changing other facts.",
       "expectation": "pass",
-      "data_patches": [
-        {
-          "pointer": "/experience/0/role",
-          "old": "Principal Product Engineer",
-          "new": "Senior Principal Site Reliability Engineer"
-        }
-      ],
-      "oracle_patches": [
-        {"pointer": "/required_once/12", "old": "Principal Product Engineer", "new": "Senior Principal Site Reliability Engineer"},
-        {"pointer": "/required_order/12", "old": "Principal Product Engineer", "new": "Senior Principal Site Reliability Engineer"},
-        {"pointer": "/association_windows/1/fields/1", "old": "Principal Product Engineer", "new": "Senior Principal Site Reliability Engineer"},
-        {"pointer": "/geometry_rows/0/left_fields/1", "old": "Principal Product Engineer", "new": "Senior Principal Site Reliability Engineer"}
-      ]
+      "mutations": [{"subject": "northstar-experience", "field": "role", "value": "Senior Principal Site Reliability Engineer"}]
     },
     {
       "name": "long-location",
       "description": "A long but plausible location increases right-side metadata pressure.",
       "expectation": "pass",
-      "data_patches": [
-        {
-          "pointer": "/experience/2/location",
-          "old": "Austin, TX",
-          "new": "Washington, District of Columbia"
-        }
-      ],
-      "oracle_patches": [
-        {"pointer": "/required_once/32", "old": "Location: Austin, TX", "new": "Location: Washington, District of Columbia"},
-        {"pointer": "/required_order/22", "old": "Location: Austin, TX", "new": "Location: Washington, District of Columbia"},
-        {"pointer": "/association_windows/3/fields/3", "old": "Location: Austin, TX", "new": "Location: Washington, District of Columbia"},
-        {"pointer": "/geometry_rows/2/right_field", "old": "Dates: 2016 - 2019 · Location: Austin, TX", "new": "Dates: 2016 - 2019 · Location: Washington, District of Columbia"}
-      ]
+      "mutations": [{"subject": "cedar-experience", "field": "location", "value": "Washington, District of Columbia"}]
     },
     {
       "name": "long-dates",
       "description": "Verbose month-level dates increase right-side metadata pressure.",
       "expectation": "pass",
-      "data_patches": [
-        {
-          "pointer": "/experience/2/dates",
-          "old": "2016 - 2019",
-          "new": "September 2016 - November 2019"
-        }
-      ],
-      "oracle_patches": [
-        {"pointer": "/required_once/31", "old": "Dates: 2016 - 2019", "new": "Dates: September 2016 - November 2019"},
-        {"pointer": "/required_order/21", "old": "Dates: 2016 - 2019", "new": "Dates: September 2016 - November 2019"},
-        {"pointer": "/association_windows/3/fields/2", "old": "Dates: 2016 - 2019", "new": "Dates: September 2016 - November 2019"},
-        {"pointer": "/geometry_rows/2/right_field", "old": "Dates: 2016 - 2019 · Location: Austin, TX", "new": "Dates: September 2016 - November 2019 · Location: Austin, TX"}
-      ]
+      "mutations": [{"subject": "cedar-experience", "field": "dates", "value": "September 2016 - November 2019"}]
     },
     {
       "name": "long-urls",
       "description": "Long canonical portfolio, GitHub, and LinkedIn values stress the centered contact row.",
       "expectation": "pass",
-      "data_patches": [
-        {"pointer": "/contact/portfolio/display", "old": "example.com/portfolio", "new": "alexandra-morgan.engineering/portfolio"},
-        {"pointer": "/contact/portfolio/uri", "old": "https://example.com/portfolio", "new": "https://alexandra-morgan.engineering/portfolio"},
-        {"pointer": "/contact/github/display", "old": "github.com/first-last-example", "new": "github.com/alexandra-morgan-engineering"},
-        {"pointer": "/contact/github/uri", "old": "https://github.com/first-last-example", "new": "https://github.com/alexandra-morgan-engineering"},
-        {"pointer": "/contact/linkedin/display", "old": "linkedin.com/in/first-last-example", "new": "linkedin.com/in/alexandra-morgan-engineering"},
-        {"pointer": "/contact/linkedin/uri", "old": "https://www.linkedin.com/in/first-last-example", "new": "https://www.linkedin.com/in/alexandra-morgan-engineering"}
-      ],
-      "oracle_patches": [
-        {"pointer": "/required_once/3", "old": "example.com/portfolio", "new": "alexandra-morgan.engineering/portfolio"},
-        {"pointer": "/required_order/3", "old": "example.com/portfolio", "new": "alexandra-morgan.engineering/portfolio"},
-        {"pointer": "/links/1", "old": "https://example.com/portfolio", "new": "https://alexandra-morgan.engineering/portfolio"},
-        {"pointer": "/required_once/4", "old": "github.com/first-last-example", "new": "github.com/alexandra-morgan-engineering"},
-        {"pointer": "/required_order/4", "old": "github.com/first-last-example", "new": "github.com/alexandra-morgan-engineering"},
-        {"pointer": "/links/2", "old": "https://github.com/first-last-example", "new": "https://github.com/alexandra-morgan-engineering"},
-        {"pointer": "/work_authorization/after", "old": "linkedin.com/in/first-last-example", "new": "linkedin.com/in/alexandra-morgan-engineering"},
-        {"pointer": "/required_once/5", "old": "linkedin.com/in/first-last-example", "new": "linkedin.com/in/alexandra-morgan-engineering"},
-        {"pointer": "/required_order/5", "old": "linkedin.com/in/first-last-example", "new": "linkedin.com/in/alexandra-morgan-engineering"},
-        {"pointer": "/links/3", "old": "https://www.linkedin.com/in/first-last-example", "new": "https://www.linkedin.com/in/alexandra-morgan-engineering"}
+      "mutations": [
+        {"subject": "contact-portfolio", "field": "display", "value": "alexandra-morgan.engineering/portfolio"},
+        {"subject": "contact-portfolio", "field": "uri", "value": "https://alexandra-morgan.engineering/portfolio"},
+        {"subject": "contact-github", "field": "display", "value": "github.com/alexandra-morgan-engineering"},
+        {"subject": "contact-github", "field": "uri", "value": "https://github.com/alexandra-morgan-engineering"},
+        {"subject": "contact-linkedin", "field": "display", "value": "linkedin.com/in/alexandra-morgan-engineering"},
+        {"subject": "contact-linkedin", "field": "uri", "value": "https://www.linkedin.com/in/alexandra-morgan-engineering"}
       ]
     },
     {
       "name": "long-project-metadata",
       "description": "Long project name, descriptor, and focus stress both sides of the project row.",
       "expectation": "pass",
-      "data_patches": [
-        {"pointer": "/projects/0/name", "old": "Kubernetes Cluster", "new": "Distributed Kubernetes Operations Platform"},
-        {"pointer": "/projects/0/descriptor", "old": "Independent Infrastructure Project", "new": "Independent Infrastructure Engineering Project"},
-        {"pointer": "/projects/0/focus", "old": "Talos Linux, Flux, and Cilium", "new": "Talos Linux, Flux, Cilium, Prometheus, and Longhorn"}
-      ],
-      "oracle_patches": [
-        {"pointer": "/required_once/39", "old": "Kubernetes Cluster", "new": "Distributed Kubernetes Operations Platform"},
-        {"pointer": "/required_order/24", "old": "Kubernetes Cluster", "new": "Distributed Kubernetes Operations Platform"},
-        {"pointer": "/association_windows/4/fields/1", "old": "Kubernetes Cluster", "new": "Distributed Kubernetes Operations Platform"},
-        {"pointer": "/geometry_rows/3/left_fields/0", "old": "Kubernetes Cluster", "new": "Distributed Kubernetes Operations Platform"},
-        {"pointer": "/required_once/40", "old": "Independent Infrastructure Project", "new": "Independent Infrastructure Engineering Project"},
-        {"pointer": "/required_order/25", "old": "Independent Infrastructure Project", "new": "Independent Infrastructure Engineering Project"},
-        {"pointer": "/association_windows/4/fields/2", "old": "Independent Infrastructure Project", "new": "Independent Infrastructure Engineering Project"},
-        {"pointer": "/geometry_rows/3/left_fields/1", "old": "Independent Infrastructure Project", "new": "Independent Infrastructure Engineering Project"},
-        {"pointer": "/required_once/41", "old": "Focus: Talos Linux, Flux, and Cilium", "new": "Focus: Talos Linux, Flux, Cilium, Prometheus, and Longhorn"},
-        {"pointer": "/required_order/26", "old": "Focus: Talos Linux, Flux, and Cilium", "new": "Focus: Talos Linux, Flux, Cilium, Prometheus, and Longhorn"},
-        {"pointer": "/association_windows/4/fields/3", "old": "Focus: Talos Linux, Flux, and Cilium", "new": "Focus: Talos Linux, Flux, Cilium, Prometheus, and Longhorn"},
-        {"pointer": "/geometry_rows/3/right_field", "old": "Focus: Talos Linux, Flux, and Cilium", "new": "Focus: Talos Linux, Flux, Cilium, Prometheus, and Longhorn"}
+      "mutations": [
+        {"subject": "kubernetes-project", "field": "name", "value": "Distributed Kubernetes Operations Platform"},
+        {"subject": "kubernetes-project", "field": "descriptor", "value": "Independent Infrastructure Engineering Project"},
+        {"subject": "kubernetes-project", "field": "focus", "value": "Talos Linux, Flux, Cilium, Prometheus, and Longhorn"}
       ]
     },
     {
       "name": "combined-metadata-pressure",
       "description": "Long left and right experience values expose interaction failures after isolated cases.",
       "expectation": "pass",
-      "data_patches": [
-        {"pointer": "/experience/0/company", "old": "Northstar Systems, Inc.", "new": "International Commerce Infrastructure Group, Inc."},
-        {"pointer": "/experience/0/role", "old": "Principal Product Engineer", "new": "Senior Principal Site Reliability Engineer"},
-        {"pointer": "/experience/0/dates", "old": "2022 - Present", "new": "September 2017 - Present"},
-        {"pointer": "/experience/0/location", "old": "Chicago, IL", "new": "Washington, District of Columbia"}
-      ],
-      "oracle_patches": [
-        {"pointer": "/required_once/11", "old": "Northstar Systems, Inc.", "new": "International Commerce Infrastructure Group, Inc."},
-        {"pointer": "/required_order/11", "old": "Northstar Systems, Inc.", "new": "International Commerce Infrastructure Group, Inc."},
-        {"pointer": "/association_windows/1/start", "old": "Northstar Systems, Inc.", "new": "International Commerce Infrastructure Group, Inc."},
-        {"pointer": "/association_windows/1/fields/0", "old": "Northstar Systems, Inc.", "new": "International Commerce Infrastructure Group, Inc."},
-        {"pointer": "/geometry_rows/0/left_fields/0", "old": "Northstar Systems, Inc.", "new": "International Commerce Infrastructure Group, Inc."},
-        {"pointer": "/required_once/12", "old": "Principal Product Engineer", "new": "Senior Principal Site Reliability Engineer"},
-        {"pointer": "/required_order/12", "old": "Principal Product Engineer", "new": "Senior Principal Site Reliability Engineer"},
-        {"pointer": "/association_windows/1/fields/1", "old": "Principal Product Engineer", "new": "Senior Principal Site Reliability Engineer"},
-        {"pointer": "/geometry_rows/0/left_fields/1", "old": "Principal Product Engineer", "new": "Senior Principal Site Reliability Engineer"},
-        {"pointer": "/required_once/13", "old": "Dates: 2022 - Present", "new": "Dates: September 2017 - Present"},
-        {"pointer": "/required_order/13", "old": "Dates: 2022 - Present", "new": "Dates: September 2017 - Present"},
-        {"pointer": "/association_windows/1/fields/2", "old": "Dates: 2022 - Present", "new": "Dates: September 2017 - Present"},
-        {"pointer": "/required_once/14", "old": "Location: Chicago, IL", "new": "Location: Washington, District of Columbia"},
-        {"pointer": "/required_order/14", "old": "Location: Chicago, IL", "new": "Location: Washington, District of Columbia"},
-        {"pointer": "/association_windows/1/fields/3", "old": "Location: Chicago, IL", "new": "Location: Washington, District of Columbia"},
-        {"pointer": "/geometry_rows/0/right_field", "old": "Dates: 2022 - Present · Location: Chicago, IL", "new": "Dates: September 2017 - Present · Location: Washington, District of Columbia"}
+      "mutations": [
+        {"subject": "northstar-experience", "field": "company", "value": "International Commerce Infrastructure Group, Inc."},
+        {"subject": "northstar-experience", "field": "role", "value": "Senior Principal Site Reliability Engineer"},
+        {"subject": "northstar-experience", "field": "dates", "value": "September 2017 - Present"},
+        {"subject": "northstar-experience", "field": "location", "value": "Washington, District of Columbia"}
       ]
     },
     {
       "name": "unbreakable-location-boundary",
       "description": "An intentionally unsupported unbroken location token proves right-side overflow is detected.",
       "expectation": "fail",
-      "expected_failed_gates": [
-        "all_text_views",
-        "right_metadata_geometry"
-      ],
-      "data_patches": [
-        {
-          "pointer": "/experience/2/location",
-          "old": "Austin, TX",
-          "new": "WashingtonDistrictOfColumbiaBaltimoreNorthernVirginiaMetropolitanRegionAndRemoteAcrossTheUnitedStates"
-        }
-      ],
-      "oracle_patches": [
-        {
-          "pointer": "/required_once/32",
-          "old": "Location: Austin, TX",
-          "new": "Location: WashingtonDistrictOfColumbiaBaltimoreNorthernVirginiaMetropolitanRegionAndRemoteAcrossTheUnitedStates"
-        },
-        {
-          "pointer": "/required_order/22",
-          "old": "Location: Austin, TX",
-          "new": "Location: WashingtonDistrictOfColumbiaBaltimoreNorthernVirginiaMetropolitanRegionAndRemoteAcrossTheUnitedStates"
-        },
-        {
-          "pointer": "/association_windows/3/fields/3",
-          "old": "Location: Austin, TX",
-          "new": "Location: WashingtonDistrictOfColumbiaBaltimoreNorthernVirginiaMetropolitanRegionAndRemoteAcrossTheUnitedStates"
-        },
-        {
-          "pointer": "/geometry_rows/2/right_field",
-          "old": "Dates: 2016 - 2019 · Location: Austin, TX",
-          "new": "Dates: 2016 - 2019 · Location: WashingtonDistrictOfColumbiaBaltimoreNorthernVirginiaMetropolitanRegionAndRemoteAcrossTheUnitedStates"
-        }
-      ]
+      "expected_failed_gates": ["all_text_views", "right_metadata_geometry"],
+      "mutations": [{"subject": "cedar-experience", "field": "location", "value": "WashingtonDistrictOfColumbiaBaltimoreNorthernVirginiaMetropolitanRegionAndRemoteAcrossTheUnitedStates"}]
     },
     {
       "name": "unbreakable-company-boundary",
       "description": "An intentionally unsupported unbroken employer token proves horizontal overflow is detected.",
       "expectation": "fail",
-      "expected_failed_gates": [
-        "all_text_views",
-        "right_metadata_geometry"
-      ],
-      "data_patches": [
-        {
-          "pointer": "/experience/0/company",
-          "old": "Northstar Systems, Inc.",
-          "new": "InternationalCommerceInfrastructureOperationsAndReliabilityEngineeringConsortiumHoldingsCorporationIncorporated"
-        }
-      ],
-      "oracle_patches": [
-        {"pointer": "/required_once/11", "old": "Northstar Systems, Inc.", "new": "InternationalCommerceInfrastructureOperationsAndReliabilityEngineeringConsortiumHoldingsCorporationIncorporated"},
-        {"pointer": "/required_order/11", "old": "Northstar Systems, Inc.", "new": "InternationalCommerceInfrastructureOperationsAndReliabilityEngineeringConsortiumHoldingsCorporationIncorporated"},
-        {"pointer": "/association_windows/1/start", "old": "Northstar Systems, Inc.", "new": "InternationalCommerceInfrastructureOperationsAndReliabilityEngineeringConsortiumHoldingsCorporationIncorporated"},
-        {"pointer": "/association_windows/1/fields/0", "old": "Northstar Systems, Inc.", "new": "InternationalCommerceInfrastructureOperationsAndReliabilityEngineeringConsortiumHoldingsCorporationIncorporated"},
-        {"pointer": "/geometry_rows/0/left_fields/0", "old": "Northstar Systems, Inc.", "new": "InternationalCommerceInfrastructureOperationsAndReliabilityEngineeringConsortiumHoldingsCorporationIncorporated"}
-      ]
+      "expected_failed_gates": ["all_text_views", "right_metadata_geometry"],
+      "mutations": [{"subject": "northstar-experience", "field": "company", "value": "InternationalCommerceInfrastructureOperationsAndReliabilityEngineeringConsortiumHoldingsCorporationIncorporated"}]
     }
   ]
 }
