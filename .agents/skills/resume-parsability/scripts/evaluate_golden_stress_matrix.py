@@ -8,7 +8,6 @@
 from __future__ import annotations
 
 import argparse
-import copy
 import datetime as dt
 import hashlib
 import json
@@ -25,7 +24,7 @@ DEFAULT_MANIFEST = GOLDEN_FIXTURE_ROOT / "golden-resume-stress-matrix.json"
 EVALUATOR = SKILL_ROOT / "scripts" / "evaluate_golden_resume.py"
 sys.path.insert(0, str(REPO_ROOT))
 
-from resume_tools import artifact  # noqa: E402
+from resume_tools import artifact, golden_stress  # noqa: E402
 
 
 def parse_args() -> argparse.Namespace:
@@ -63,48 +62,6 @@ def run(command: list[str]) -> subprocess.CompletedProcess[str]:
     )
 
 
-def pointer_parts(pointer: str) -> list[str]:
-    if not pointer.startswith("/"):
-        raise ValueError(f"JSON pointer must start with '/': {pointer}")
-    return [part.replace("~1", "/").replace("~0", "~") for part in pointer[1:].split("/")]
-
-
-def pointer_get(document: Any, pointer: str) -> Any:
-    value = document
-    for part in pointer_parts(pointer):
-        value = value[int(part)] if isinstance(value, list) else value[part]
-    return value
-
-
-def pointer_set(document: Any, pointer: str, new_value: Any) -> None:
-    parts = pointer_parts(pointer)
-    if not parts:
-        raise ValueError("root replacement is not supported")
-    parent = document
-    for part in parts[:-1]:
-        parent = parent[int(part)] if isinstance(parent, list) else parent[part]
-    final = parts[-1]
-    if isinstance(parent, list):
-        parent[int(final)] = new_value
-    else:
-        parent[final] = new_value
-
-
-def apply_reviewed_patches(document: Any, patches: list[dict[str, Any]], label: str) -> None:
-    seen: set[str] = set()
-    for patch in patches:
-        pointer = str(patch["pointer"])
-        if pointer in seen:
-            raise ValueError(f"{label} patches repeat pointer {pointer}")
-        seen.add(pointer)
-        actual = pointer_get(document, pointer)
-        if actual != patch["old"]:
-            raise ValueError(
-                f"{label} patch {pointer} expected {patch['old']!r}, found {actual!r}"
-            )
-        pointer_set(document, pointer, patch["new"])
-
-
 def create_output_dir(requested: pathlib.Path | None) -> pathlib.Path:
     if requested is None:
         stamp = dt.datetime.now(dt.UTC).strftime("%Y%m%dT%H%M%S.%fZ")
@@ -133,15 +90,15 @@ def write_json(path: pathlib.Path, value: Any) -> None:
     path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
 
 
-def case_expectation_met(case: dict[str, Any], report: dict[str, Any]) -> bool:
-    expectation = case["expectation"]
+def case_expectation_met(case: golden_stress.StressCase, report: dict[str, Any]) -> bool:
+    expectation = case.expectation
     if expectation == "pass":
         return report["automated_status"] == "Pass"
     if expectation == "fail":
-        expected_failed = set(case.get("expected_failed_gates", []))
+        expected_failed = set(case.expected_failed_gates)
         observed_failed = {name for name, passed in report["gates"].items() if not passed}
         return report["automated_status"] == "Fail" and expected_failed == observed_failed
-    raise ValueError(f"unsupported expectation {expectation!r} in {case['name']}")
+    raise ValueError(f"unsupported expectation {expectation!r} in {case.name}")
 
 
 def markdown_report(report: dict[str, Any]) -> str:
@@ -195,21 +152,23 @@ def verify_frozen_inputs(
 def main() -> int:
     args = parse_args()
     manifest_path = args.manifest.expanduser().resolve()
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    all_cases = manifest["cases"]
+    manifest = golden_stress.parse_manifest(
+        json.loads(manifest_path.read_text(encoding="utf-8"))
+    )
+    all_cases = manifest.cases
     if args.list:
         for case in all_cases:
-            print(case["name"])
+            print(case.name)
         return 0
 
     selected_names = set(args.cases or [])
-    known_names = {case["name"] for case in all_cases}
+    known_names = {case.name for case in all_cases}
     unknown = selected_names - known_names
     if unknown:
         raise SystemExit(f"unknown cases: {', '.join(sorted(unknown))}")
-    cases = [case for case in all_cases if not selected_names or case["name"] in selected_names]
+    cases = [case for case in all_cases if not selected_names or case.name in selected_names]
 
-    baseline = manifest["baseline"]
+    baseline = manifest.baseline
     source_path = REPO_ROOT / baseline["source"]
     data_path = REPO_ROOT / baseline["data"]
     renderer_path = REPO_ROOT / baseline["renderer"]
@@ -228,13 +187,12 @@ def main() -> int:
     results: list[dict[str, Any]] = []
 
     for case in cases:
-        verify_frozen_inputs(paths, baseline["sha256"], f"{case['name']} preflight")
-        case_dir = output / case["name"]
+        verify_frozen_inputs(paths, baseline["sha256"], f"{case.name} preflight")
+        case_dir = output / case.name
         case_dir.mkdir()
-        case_data = copy.deepcopy(baseline_data)
-        case_oracle = copy.deepcopy(baseline_oracle)
-        apply_reviewed_patches(case_data, case["data_patches"], f"{case['name']} data")
-        apply_reviewed_patches(case_oracle, case["oracle_patches"], f"{case['name']} oracle")
+        case_data, case_oracle = golden_stress.materialize_case(
+            baseline_data, baseline_oracle, case
+        )
         if baseline_data != json.loads(data_path.read_text(encoding="utf-8")):
             raise RuntimeError("baseline data mutated while building cases")
         if baseline_oracle != json.loads(oracle_path.read_text(encoding="utf-8")):
@@ -262,9 +220,9 @@ def main() -> int:
         if compiled.returncode != 0:
             results.append(
                 {
-                    "name": case["name"],
-                    "description": case["description"],
-                    "expectation": case["expectation"],
+                    "name": case.name,
+                    "description": case.description,
+                    "expectation": case.expectation,
                     "observed_status": "CompileError",
                     "expectation_met": False,
                     "compile_returncode": compiled.returncode,
@@ -272,7 +230,7 @@ def main() -> int:
             )
             continue
 
-        verify_frozen_inputs(paths, baseline["sha256"], f"{case['name']} post-compile")
+        verify_frozen_inputs(paths, baseline["sha256"], f"{case.name} post-compile")
 
         dependency_inputs = json.loads(dependencies.read_text(encoding="utf-8"))["inputs"]
         required_dependencies = {
@@ -282,7 +240,7 @@ def main() -> int:
         }
         if not required_dependencies <= set(dependency_inputs):
             missing = sorted(required_dependencies - set(dependency_inputs))
-            raise RuntimeError(f"{case['name']} dependency evidence missing {missing}")
+            raise RuntimeError(f"{case.name} dependency evidence missing {missing}")
 
         evaluation_dir = case_dir / "evaluation"
         evaluated = run(
@@ -307,9 +265,9 @@ def main() -> int:
         if not report_path.is_file():
             results.append(
                 {
-                    "name": case["name"],
-                    "description": case["description"],
-                    "expectation": case["expectation"],
+                    "name": case.name,
+                    "description": case.description,
+                    "expectation": case.expectation,
                     "observed_status": "EvaluationError",
                     "expectation_met": False,
                     "evaluation_returncode": evaluated.returncode,
@@ -317,7 +275,7 @@ def main() -> int:
             )
             continue
         case_report = json.loads(report_path.read_text(encoding="utf-8"))
-        verify_frozen_inputs(paths, baseline["sha256"], f"{case['name']} post-evaluation")
+        verify_frozen_inputs(paths, baseline["sha256"], f"{case.name} post-evaluation")
         geometry_rows = case_report["pdf"]["geometry"]["rows"]
         clearances = [
             row["clearance_px"]
@@ -326,9 +284,9 @@ def main() -> int:
         ]
         results.append(
             {
-                "name": case["name"],
-                "description": case["description"],
-                "expectation": case["expectation"],
+                "name": case.name,
+                "description": case.description,
+                "expectation": case.expectation,
                 "observed_status": case_report["automated_status"],
                 "expectation_met": case_expectation_met(case, case_report),
                 "minimum_clearance_px": min(clearances) if clearances else None,

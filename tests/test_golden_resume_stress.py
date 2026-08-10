@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-import copy
 import importlib.util
 import json
 from pathlib import Path
 from types import ModuleType
 
 import pytest
+
+from resume_tools import golden_stress
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -98,26 +99,35 @@ def test_tika_command_prefers_installed_executable(
     ]
 
 
-def test_reviewed_patch_rejects_a_stale_old_value() -> None:
-    document = {"experience": [{"company": "Original, Inc."}]}
-    patches = [
-        {
-            "pointer": "/experience/0/company",
-            "old": "Stale, Inc.",
-            "new": "Replacement, Inc.",
-        }
-    ]
+def test_semantic_case_rejects_stale_reviewed_oracle_value() -> None:
+    manifest = golden_stress.parse_manifest(
+        json.loads(
+            (GOLDEN_FIXTURE_ROOT / "golden-resume-stress-matrix.json").read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    case = next(case for case in manifest.cases if case.name == "long-company")
+    baseline_data = json.loads(
+        (GOLDEN_FIXTURE_ROOT / "golden-resume-data.json").read_text(encoding="utf-8")
+    )
+    baseline_oracle = json.loads(
+        (GOLDEN_FIXTURE_ROOT / "golden-resume-oracle.json").read_text(encoding="utf-8")
+    )
+    baseline_data["experience"][0]["company"] = "Stale Employer, Inc."
 
-    with pytest.raises(ValueError, match="expected 'Stale, Inc.'"):
-        matrix.apply_reviewed_patches(document, patches, "case data")
+    with pytest.raises(golden_stress.StressSpecificationError, match="exactly once, found 0"):
+        golden_stress.materialize_case(baseline_data, baseline_oracle, case)
 
 
 def test_negative_control_rejects_unexpected_collateral_failures() -> None:
-    case = {
-        "name": "negative-control",
-        "expectation": "fail",
-        "expected_failed_gates": ["right_metadata_geometry"],
-    }
+    case = golden_stress.StressCase(
+        name="negative-control",
+        description="A fail case that does not permit unrelated gate failures.",
+        expectation="fail",
+        mutations=(),
+        expected_failed_gates=("right_metadata_geometry",),
+    )
     report = {
         "automated_status": "Fail",
         "gates": {
@@ -188,29 +198,142 @@ def test_geometry_rejects_right_metadata_outside_content_box(tmp_path: Path) -> 
 
 def test_every_manifest_case_applies_to_fresh_reviewed_baselines() -> None:
     manifest_path = GOLDEN_FIXTURE_ROOT / "golden-resume-stress-matrix.json"
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    baseline = manifest["baseline"]
+    manifest = golden_stress.parse_manifest(
+        json.loads(manifest_path.read_text(encoding="utf-8"))
+    )
+    baseline = manifest.baseline
     data_path = REPO_ROOT / baseline["data"]
     oracle_path = REPO_ROOT / baseline["oracle"]
     baseline_data = json.loads(data_path.read_text(encoding="utf-8"))
     baseline_oracle = json.loads(oracle_path.read_text(encoding="utf-8"))
 
-    for case in manifest["cases"]:
-        case_data = copy.deepcopy(baseline_data)
-        case_oracle = copy.deepcopy(baseline_oracle)
-        matrix.apply_reviewed_patches(case_data, case["data_patches"], "data")
-        matrix.apply_reviewed_patches(case_oracle, case["oracle_patches"], "oracle")
+    for case in manifest.cases:
+        case_data, case_oracle = golden_stress.materialize_case(
+            baseline_data, baseline_oracle, case
+        )
+        assert case_data is not baseline_data
+        assert case_oracle is not baseline_oracle
         assert baseline_data == json.loads(data_path.read_text(encoding="utf-8"))
         assert baseline_oracle == json.loads(oracle_path.read_text(encoding="utf-8"))
 
 
 def test_manifest_hashes_match_reviewed_inputs() -> None:
-    manifest = json.loads(
+    manifest = golden_stress.parse_manifest(
+        json.loads(
+        (GOLDEN_FIXTURE_ROOT / "golden-resume-stress-matrix.json").read_text(
+            encoding="utf-8"
+        )
+        )
+    )
+    baseline = manifest.baseline
+
+    for label in ("source", "data", "renderer", "oracle"):
+        assert matrix.sha256(REPO_ROOT / baseline[label]) == baseline["sha256"][label]
+
+
+def test_manifest_uses_only_semantic_mutations() -> None:
+    manifest_path = GOLDEN_FIXTURE_ROOT / "golden-resume-stress-matrix.json"
+    raw = json.loads(manifest_path.read_text(encoding="utf-8"))
+    encoded = manifest_path.read_text(encoding="utf-8")
+
+    assert raw["schema_version"] == 1
+    assert '"pointer"' not in encoded
+    assert '"old"' not in encoded
+    assert '"data_patches"' not in encoded
+    assert '"oracle_patches"' not in encoded
+    assert "/experience/" not in encoded
+    assert "/required_" not in encoded
+    assert "/geometry_rows/" not in encoded
+    assert "Dates: " not in encoded
+    assert "Location: " not in encoded
+    assert "Focus: " not in encoded
+    for case in raw["cases"]:
+        assert set(case) <= {
+            "name",
+            "description",
+            "expectation",
+            "expected_failed_gates",
+            "mutations",
+        }
+        for mutation in case["mutations"]:
+            assert set(mutation) == {"subject", "field", "value"}
+            assert not mutation["subject"].isdigit()
+            assert not mutation["field"].isdigit()
+
+
+def test_manifest_schema_rejects_pointer_patch_surface() -> None:
+    raw = json.loads(
         (GOLDEN_FIXTURE_ROOT / "golden-resume-stress-matrix.json").read_text(
             encoding="utf-8"
         )
     )
-    baseline = manifest["baseline"]
+    raw["cases"][1]["mutations"][0]["pointer"] = "/experience/0/company"
 
-    for label in ("source", "data", "renderer", "oracle"):
-        assert matrix.sha256(REPO_ROOT / baseline[label]) == baseline["sha256"][label]
+    with pytest.raises(golden_stress.StressSpecificationError, match="keys must be"):
+        golden_stress.parse_manifest(raw)
+
+
+def test_semantic_mutations_update_reviewed_data_and_independent_oracle() -> None:
+    manifest = golden_stress.parse_manifest(
+        json.loads(
+            (GOLDEN_FIXTURE_ROOT / "golden-resume-stress-matrix.json").read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    case = next(case for case in manifest.cases if case.name == "combined-metadata-pressure")
+    baseline_data = json.loads(
+        (GOLDEN_FIXTURE_ROOT / "golden-resume-data.json").read_text(encoding="utf-8")
+    )
+    baseline_oracle = json.loads(
+        (GOLDEN_FIXTURE_ROOT / "golden-resume-oracle.json").read_text(encoding="utf-8")
+    )
+
+    data, oracle = golden_stress.materialize_case(baseline_data, baseline_oracle, case)
+
+    experience = data["experience"][0]
+    assert experience == {
+        **baseline_data["experience"][0],
+        "company": "International Commerce Infrastructure Group, Inc.",
+        "role": "Senior Principal Site Reliability Engineer",
+        "dates": "September 2017 - Present",
+        "location": "Washington, District of Columbia",
+    }
+    assert "International Commerce Infrastructure Group, Inc." in oracle["required_once"]
+    assert "Senior Principal Site Reliability Engineer" in oracle["required_order"]
+    northstar = next(
+        window for window in oracle["association_windows"] if window["label"] == "northstar experience"
+    )
+    assert northstar["start"] == "International Commerce Infrastructure Group, Inc."
+    assert northstar["fields"][2:] == [
+        "Dates: September 2017 - Present",
+        "Location: Washington, District of Columbia",
+        *baseline_oracle["association_windows"][1]["fields"][4:],
+    ]
+    row = next(row for row in oracle["geometry_rows"] if row["label"] == "northstar experience")
+    assert row["right_field"] == "Dates: September 2017 - Present · Location: Washington, District of Columbia"
+    assert baseline_data["experience"][0]["company"] == "Northstar Systems, Inc."
+    assert baseline_oracle["geometry_rows"][0]["right_field"] == "Dates: 2022 - Present · Location: Chicago, IL"
+
+
+def test_every_semantic_value_updates_data_and_reviewed_oracle() -> None:
+    manifest = golden_stress.parse_manifest(
+        json.loads(
+            (GOLDEN_FIXTURE_ROOT / "golden-resume-stress-matrix.json").read_text(
+                encoding="utf-8"
+            )
+        )
+    )
+    baseline_data = json.loads(
+        (GOLDEN_FIXTURE_ROOT / "golden-resume-data.json").read_text(encoding="utf-8")
+    )
+    baseline_oracle = json.loads(
+        (GOLDEN_FIXTURE_ROOT / "golden-resume-oracle.json").read_text(encoding="utf-8")
+    )
+
+    for case in manifest.cases:
+        data, oracle = golden_stress.materialize_case(baseline_data, baseline_oracle, case)
+        rendered_oracle = json.dumps(oracle)
+        for mutation in case.mutations:
+            assert golden_stress._record_for(data, mutation.subject)[mutation.field] == mutation.value
+            assert mutation.value in rendered_oracle
