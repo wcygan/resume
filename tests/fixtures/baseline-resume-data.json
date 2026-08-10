@@ -1,0 +1,23 @@
+{
+  "contact": {
+    "name": "Jane Doe",
+    "email": {"display": "jane@example.com"}
+  },
+  "experience": [
+    {
+      "company": "Acme Corp",
+      "dates": "Jan 2022 - Present",
+      "role": "Staff Engineer"
+    },
+    {
+      "company": "Globex",
+      "dates": "Jun 2019 - Dec 2021",
+      "role": "Senior Engineer"
+    }
+  ],
+  "projects": [{"name": "open-source-thing"}],
+  "education": {"institution": "State University", "graduation": "2018"},
+  "skills": [
+    {"values": "Python, Go, Rust, Java, involuntary"}
+  ]
+}

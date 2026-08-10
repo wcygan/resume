@@ -1,13 +1,8 @@
-# Expected strings for the local extraction check against the compiled resume.
-# Update when JSON content gains a job, renames a section, or changes contact.
-
-[candidate]
-name = "Will Cygan"
-email = "wcygan.io@gmail.com"
-required_head_facts = [
-    "Chicago, IL",
-    "Work Authorization: U.S. Citizen",
-]
+# Reviewed local PDF-extraction rules for the active resume.
+#
+# Candidate facts are selected from will_cygan_resume-data.json by
+# resume_tools.expectations. Keep this file limited to independent parser
+# thresholds, patterns, and rules; it must not copy resume content.
 
 [sections]
 expected_order = [
@@ -17,43 +12,6 @@ expected_order = [
     "SKILLS",
 ]
 
-[[jobs]]
-title = "Senior Software Engineer"
-company = "LinkedIn"
-date_start = "Mar 2024"
-date_end = "Present"
-
-[[jobs]]
-title = "Software Engineer"
-company = "LinkedIn"
-date_start = "Feb 2022"
-date_end = "Mar 2024"
-
-[[jobs]]
-title = "Software Engineer Intern"
-company = "LinkedIn"
-date_start = "May 2021"
-date_end = "Aug 2021"
-
-[[jobs]]
-title = "Software Engineer Intern"
-company = "Amazon"
-date_start = "May 2020"
-date_end = "Aug 2020"
-
-[[jobs]]
-title = "Software Engineer Intern"
-company = "LinkedIn"
-date_start = "Jan 2020"
-date_end = "Apr 2020"
-
-[[projects]]
-title = "Anton"
-
-[[education]]
-title = "University of Illinois at Chicago"
-date = "2021"
-
 [dates]
 allowed_range_regex = '(Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?)\s+\d{4}\s*[–\-]\s*(Present|(Jan(uary)?|Feb(ruary)?|Mar(ch)?|Apr(il)?|May|Jun(e)?|Jul(y)?|Aug(ust)?|Sep(tember)?|Oct(ober)?|Nov(ember)?|Dec(ember)?)\s+\d{4})'
 
@@ -62,26 +20,6 @@ min_bytes = 500
 job_block_window_chars = 300
 name_head_bytes = 400
 contact_glue_window = 200
-
-[keywords]
-# Technical terms that must survive every local extractor as exact substrings.
-# Guards against ligature collapse and font-substitution regressions. Derived
-# from the JSON Skills section; keep in sync when skills change.
-required = [
-    "Java",
-    "Rust",
-    "Python",
-    "TypeScript",
-    "Kafka",
-    "gRPC",
-    "Temporal",
-    "Flink",
-    "Spark",
-    "Kubernetes",
-    "MySQL",
-    "Redis",
-    "Couchbase",
-]
 
 [mojibake]
 forbidden_chars = ["\uFFFD"]
