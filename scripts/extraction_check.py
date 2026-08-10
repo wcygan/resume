@@ -23,7 +23,6 @@ from __future__ import annotations
 import argparse
 import re
 import sys
-import tomllib
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from enum import StrEnum
@@ -33,11 +32,12 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from resume_tools import pdf_evidence
+from resume_tools import expectations, pdf_evidence
 
 RESUME_DIR = REPO_ROOT
 DEFAULT_PDF = RESUME_DIR / "will_cygan_resume.pdf"
 DEFAULT_FIXTURES = Path(__file__).resolve().parent / "extraction-check.fixtures.toml"
+DEFAULT_DATA = RESUME_DIR / "will_cygan_resume-data.json"
 DEFAULT_REPORT_DIR = RESUME_DIR / ".extraction"
 
 BLUE = "\033[34m"
@@ -476,57 +476,68 @@ def assert_cross_extractor(
 # -- Orchestration ------------------------------------------------------------
 
 
-def load_fixtures(fixtures_path: Path) -> dict:
-    if not fixtures_path.exists():
-        print(c(RED, f"Fixtures file missing: {fixtures_path}"))
-        sys.exit(2)
-    return tomllib.loads(fixtures_path.read_text())
+def load_fixtures(
+    fixtures_path: Path,
+    data_path: Path = DEFAULT_DATA,
+) -> expectations.ExtractionExpectations:
+    """Load canonical resume facts and independent local parser rules."""
+    return expectations.load_active_expectations(fixtures_path, data_path)
 
 
-def evaluate(extractor: Extractor, fx: dict) -> ExtractorResult:
+def evaluate(
+    extractor: Extractor, fx: expectations.ExtractionExpectations
+) -> ExtractorResult:
     text = run_extractor(extractor)
     er = ExtractorResult(extractor=extractor.name, text=text)
 
-    th = fx["thresholds"]
-    cand = fx["candidate"]
-    sect = fx["sections"]["expected_order"]
-    jobs = fx["jobs"]
-    dates = fx["dates"]
-    mj = fx["mojibake"]
+    rules = fx.rules
+    facts = fx.facts
 
-    er.results.append(assert_non_empty(text, th["min_bytes"]))
-    order_res, found_order = assert_section_order(text, sect)
+    er.results.append(assert_non_empty(text, rules.min_bytes))
+    order_res, found_order = assert_section_order(text, list(rules.section_order))
     er.results.append(order_res)
     er.section_order = found_order
     er.results.append(
         assert_name_and_contact(
             text,
-            cand["name"],
-            cand["email"],
-            th["name_head_bytes"],
-            th["contact_glue_window"],
-            cand.get("required_head_facts"),
+            facts.candidate.name,
+            facts.candidate.email,
+            rules.name_head_bytes,
+            rules.contact_glue_window,
+            list(facts.candidate.required_head_facts),
         )
     )
-    job_res, matched = assert_job_blocks(text, jobs, th["job_block_window_chars"])
+    jobs = [
+        {
+            "title": job.title,
+            "company": job.company,
+            "date_start": job.date_start,
+            "date_end": job.date_end,
+        }
+        for job in facts.jobs
+    ]
+    job_res, matched = assert_job_blocks(text, jobs, rules.job_block_window_chars)
     er.results.append(job_res)
     er.job_count = matched
-    er.results.append(assert_date_format(text, dates["allowed_range_regex"]))
+    er.results.append(assert_date_format(text, rules.allowed_date_range_regex))
     er.results.append(
         assert_no_mojibake(
-            text, mj["forbidden_chars"], mj["flagged_chars"], mj["allowed_chars"]
+            text,
+            list(rules.forbidden_chars),
+            list(rules.flagged_chars),
+            list(rules.allowed_chars),
         )
     )
     er.results.append(assert_no_soft_hyphen(text))
-    er.results.append(
-        assert_keyword_roundtrip(text, fx.get("keywords", {}).get("required", []))
-    )
+    er.results.append(assert_keyword_roundtrip(text, list(facts.keywords)))
     er.results.append(assert_url_dedup(text))
-    er.results.append(assert_section_boundary(text, sect))
+    er.results.append(assert_section_boundary(text, list(rules.section_order)))
     return er
 
 
-def evaluate_pdf(pdf: Path, fx: dict) -> EvaluationResult:
+def evaluate_pdf(
+    pdf: Path, fx: expectations.ExtractionExpectations
+) -> EvaluationResult:
     extractors, skipped = build_extractors(pdf)
     results: list[ExtractorResult] = []
     if extractors:
@@ -589,6 +600,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
                    help=f"Path to PDF to check (default: {DEFAULT_PDF}).")
     p.add_argument("--fixtures", type=Path, default=DEFAULT_FIXTURES,
                    help=f"Path to fixtures TOML (default: {DEFAULT_FIXTURES}).")
+    p.add_argument("--data", type=Path, default=DEFAULT_DATA,
+                   help=f"Canonical resume JSON (default: {DEFAULT_DATA}).")
     p.add_argument("--report-dir", type=Path, default=DEFAULT_REPORT_DIR,
                    help=f"Directory for report.md on failure (default: {DEFAULT_REPORT_DIR}).")
     p.add_argument("--report", action="store_true",
@@ -605,7 +618,11 @@ def main(argv: list[str] | None = None) -> int:
         print(c(RED, f"PDF not found: {pdf}"))
         print(c(YELLOW, "Run `just compile` first."))
         return 2
-    fx = load_fixtures(args.fixtures)
+    try:
+        fx = load_fixtures(args.fixtures, args.data)
+    except expectations.ExpectationError as ex:
+        print(c(RED, f"Invalid extraction expectations: {ex}"))
+        return 2
     extractors, skipped = build_extractors(pdf)
     for s in skipped:
         print(c(YELLOW, f"  skip: {s}"))

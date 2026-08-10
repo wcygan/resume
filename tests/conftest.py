@@ -17,6 +17,7 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS_DIR = REPO_ROOT / "scripts"
 BASELINE_FIXTURES = REPO_ROOT / "tests" / "fixtures" / "baseline.fixtures.toml"
+BASELINE_DATA = REPO_ROOT / "tests" / "fixtures" / "baseline-resume-data.json"
 BROKEN_DIR = REPO_ROOT / "tests" / "fixtures" / "broken"
 
 sys.path.insert(0, str(SCRIPTS_DIR))
@@ -72,11 +73,16 @@ def broken_pdf(require_typst: None) -> Callable[[str], Path]:
 
 @pytest.fixture(scope="session")
 def run_check() -> Callable[[Path], ec.EvaluationResult]:
-    fx_cache: dict[Path, dict] = {}
+    fx_cache: dict[tuple[Path, Path], ec.expectations.ExtractionExpectations] = {}
 
-    def _run(pdf: Path, fixtures: Path = BASELINE_FIXTURES) -> ec.EvaluationResult:
-        if fixtures not in fx_cache:
-            fx_cache[fixtures] = ec.load_fixtures(fixtures)
-        return ec.evaluate_pdf(pdf, fx_cache[fixtures])
+    def _run(
+        pdf: Path,
+        fixtures: Path = BASELINE_FIXTURES,
+        data: Path = BASELINE_DATA,
+    ) -> ec.EvaluationResult:
+        key = (fixtures, data)
+        if key not in fx_cache:
+            fx_cache[key] = ec.load_fixtures(fixtures, data)
+        return ec.evaluate_pdf(pdf, fx_cache[key])
 
     return _run
