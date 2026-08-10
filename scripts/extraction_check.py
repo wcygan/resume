@@ -21,10 +21,7 @@ On failure, a per-extractor breakdown is written to `.extraction/report.md`
 from __future__ import annotations
 
 import argparse
-import os
 import re
-import shutil
-import subprocess
 import sys
 import tomllib
 from concurrent.futures import ThreadPoolExecutor
@@ -32,7 +29,13 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from pathlib import Path
 
-RESUME_DIR = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from resume_tools import pdf_evidence
+
+RESUME_DIR = REPO_ROOT
 DEFAULT_PDF = RESUME_DIR / "will_cygan_resume.pdf"
 DEFAULT_FIXTURES = Path(__file__).resolve().parent / "extraction-check.fixtures.toml"
 DEFAULT_REPORT_DIR = RESUME_DIR / ".extraction"
@@ -65,58 +68,21 @@ class Assertion(StrEnum):
 
 # -- Extractors ---------------------------------------------------------------
 
-@dataclass
-class Extractor:
-    name: str
-    argv: list[str]
+Extractor = pdf_evidence.Extractor
 
 
 def detect_tika(pdf: Path) -> Extractor | None:
-    tika_jar_env = os.environ.get("TIKA_JAR")
-    if tika_jar_env and Path(tika_jar_env).exists() and shutil.which("java"):
-        return Extractor("tika", ["java", "-jar", tika_jar_env, "--text", str(pdf)])
-    if shutil.which("tika"):
-        return Extractor("tika", ["tika", "--text", str(pdf)])
-    jar_candidates = [
-        Path("/opt/homebrew/opt/tika/libexec/tika-app.jar"),
-    ]
-    for jar in jar_candidates:
-        if jar.exists() and shutil.which("java"):
-            return Extractor("tika", ["java", "-jar", str(jar), "--text", str(pdf)])
-    return None
+    command = pdf_evidence.tika_command("--text", str(pdf))
+    return Extractor("tika", tuple(command)) if command is not None else None
 
 
 def build_extractors(pdf: Path) -> tuple[list[Extractor], list[str]]:
-    avail: list[Extractor] = []
-    skipped: list[str] = []
-
-    if shutil.which("pdftotext"):
-        avail.append(Extractor("pdftotext", ["pdftotext", str(pdf), "-"]))
-        avail.append(Extractor(
-            "pdftotext -layout", ["pdftotext", "-layout", str(pdf), "-"]
-        ))
-    else:
-        skipped.append("pdftotext: missing. Install with `brew install poppler`.")
-
-    tika = detect_tika(pdf)
-    if tika is not None:
-        avail.append(tika)
-    else:
-        skipped.append(
-            "tika: missing. Install with `brew install tika` "
-            "(provides the `tika` wrapper script)."
-        )
-
-    return avail, skipped
+    discovery = pdf_evidence.discover_text_extractors(pdf)
+    return list(discovery.extractors), list(discovery.skipped)
 
 
 def run_extractor(e: Extractor) -> str:
-    r = subprocess.run(e.argv, capture_output=True, text=True, timeout=60)
-    if r.returncode != 0:
-        raise RuntimeError(
-            f"{e.name} failed (rc={r.returncode}): {r.stderr.strip()[:400]}"
-        )
-    return r.stdout
+    return pdf_evidence.run_process(e.argv).stdout
 
 
 # -- Assertions ---------------------------------------------------------------

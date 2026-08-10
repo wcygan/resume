@@ -18,12 +18,16 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
-import shutil
-import subprocess
 import sys
 from pathlib import Path
 
-RESUME_DIR = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from resume_tools import pdf_evidence
+
+RESUME_DIR = REPO_ROOT
 DEFAULT_PDF = RESUME_DIR / "will_cygan_resume.pdf"
 MAX_PAGES = 1
 
@@ -34,11 +38,7 @@ RESET = "\033[0m"
 
 
 def page_count(pdf: Path) -> int:
-    out = subprocess.check_output(["pdfinfo", str(pdf)], text=True)
-    for line in out.splitlines():
-        if line.startswith("Pages:"):
-            return int(line.split()[1])
-    raise RuntimeError("pdfinfo did not emit a 'Pages:' line")
+    return pdf_evidence.page_count(pdf)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -47,7 +47,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--max-pages", type=int, default=MAX_PAGES)
     args = ap.parse_args(argv)
 
-    if not shutil.which("pdfinfo"):
+    try:
+        pdf_evidence.require_tools(("pdfinfo",))
+    except pdf_evidence.ToolUnavailableError:
         print(f"{RED}pdfinfo not found — install poppler "
               f"(brew install poppler / apt-get install poppler-utils){RESET}",
               file=sys.stderr)

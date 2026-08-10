@@ -11,12 +11,10 @@ import argparse
 import datetime as dt
 import hashlib
 import json
-import os
 import pathlib
 import platform
 import re
 import shutil
-import subprocess
 import sys
 import unicodedata
 import xml.etree.ElementTree as element_tree
@@ -24,6 +22,11 @@ import xml.etree.ElementTree as element_tree
 
 SKILL_ROOT = pathlib.Path(__file__).resolve().parent.parent
 REPO_ROOT = SKILL_ROOT.parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from resume_tools import pdf_evidence
+
 GOLDEN_FIXTURE_ROOT = REPO_ROOT / "tests" / "fixtures" / "golden-resume"
 DEFAULT_PDF = GOLDEN_FIXTURE_ROOT / "golden-resume.pdf"
 DEFAULT_SOURCE = GOLDEN_FIXTURE_ROOT / "golden-resume.typ"
@@ -34,6 +37,11 @@ from resume_tools import artifact as artifact_tools  # noqa: E402
 
 REQUIRED_TOOLS = (
     "typst",
+    "uv",
+    "locale",
+)
+
+REQUIRED_PDF_TOOLS = (
     "pdfinfo",
     "pdffonts",
     "pdfimages",
@@ -41,8 +49,6 @@ REQUIRED_TOOLS = (
     "pdftohtml",
     "pdftoppm",
     "qpdf",
-    "uv",
-    "locale",
 )
 
 
@@ -74,43 +80,27 @@ def canonical(text: str) -> str:
     return re.sub(r"\s+", " ", unicodedata.normalize("NFC", text)).strip()
 
 
-def run(command: list[str], cwd: pathlib.Path) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(
-        command,
-        cwd=cwd,
-        check=False,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
+def run(command: list[str], cwd: pathlib.Path) -> pdf_evidence.ProcessResult:
+    return pdf_evidence.run_process(command, cwd=cwd, check=False)
 
 
 def require_tools() -> None:
     missing = [tool for tool in REQUIRED_TOOLS if shutil.which(tool) is None]
-    if shutil.which("tika") is None:
-        tika_jar = os.environ.get("TIKA_JAR")
-        jar_is_usable = bool(
-            tika_jar
-            and pathlib.Path(tika_jar).is_file()
-            and shutil.which("java") is not None
+    try:
+        pdf_evidence.require_tools(
+            REQUIRED_PDF_TOOLS, require_tika=True, which=shutil.which
         )
-        if not jar_is_usable:
-            missing.append("tika or TIKA_JAR with java")
+    except pdf_evidence.ToolUnavailableError as error:
+        missing.extend(str(error).removeprefix("required tools are unavailable: ").split(", "))
     if missing:
         raise SystemExit(f"required tools are unavailable: {', '.join(missing)}")
 
 
 def tika_command(*arguments: str) -> list[str]:
     """Use a local Tika executable or CI's explicitly pinned application JAR."""
-    if shutil.which("tika") is not None:
-        return ["tika", *arguments]
-    tika_jar = os.environ.get("TIKA_JAR")
-    if (
-        tika_jar
-        and pathlib.Path(tika_jar).is_file()
-        and shutil.which("java") is not None
-    ):
-        return ["java", "-jar", tika_jar, *arguments]
+    command = pdf_evidence.tika_command(*arguments, which=shutil.which)
+    if command is not None:
+        return command
     raise RuntimeError("Tika requires either the tika executable or TIKA_JAR with java")
 
 
@@ -123,21 +113,8 @@ def create_output_dir(requested: pathlib.Path | None) -> pathlib.Path:
     return output
 
 
-def write_command_evidence(
-    command: list[str],
-    cwd: pathlib.Path,
-    stdout_path: pathlib.Path,
-    stderr_path: pathlib.Path,
-) -> subprocess.CompletedProcess[str]:
-    result = run(command, cwd)
-    stdout_path.write_text(result.stdout, encoding="utf-8")
-    stderr_path.write_text(result.stderr, encoding="utf-8")
-    return result
-
-
 def command_version(command: list[str]) -> str:
-    result = run(command, REPO_ROOT)
-    return (result.stdout + result.stderr).strip().splitlines()[0]
+    return pdf_evidence.command_version(command, cwd=REPO_ROOT)
 
 
 def decoded_xml_text(path: pathlib.Path) -> str:
@@ -305,59 +282,43 @@ def evaluate_text_view(text: str, oracle: dict[str, object]) -> dict[str, object
 
 
 def parse_pdfinfo(path: pathlib.Path) -> dict[str, str | None]:
-    text = path.read_text(encoding="utf-8")
-    values: dict[str, str | None] = {}
-    for key in ("Pages", "Page size", "Page rot", "Tagged"):
-        match = re.search(rf"^{re.escape(key)}:\s*(.+)$", text, flags=re.MULTILINE)
-        values[key] = match.group(1).strip() if match else None
-    return values
+    return pdf_evidence.parse_pdfinfo(path.read_text(encoding="utf-8"))
 
 
 def parse_fonts(path: pathlib.Path) -> list[dict[str, str]]:
-    fonts: list[dict[str, str]] = []
-    for line in path.read_text(encoding="utf-8").splitlines():
-        match = re.search(r"\s+(yes|no)\s+(yes|no)\s+(yes|no)\s+\d+\s+\d+\s*$", line)
-        if match:
-            fonts.append(
-                {
-                    "raw": line,
-                    "embedded": match.group(1),
-                    "subset": match.group(2),
-                    "unicode": match.group(3),
-                }
-            )
-    return fonts
+    return [
+        {
+            "raw": font.raw,
+            "embedded": font.embedded,
+            "subset": font.subset,
+            "unicode": font.unicode,
+        }
+        for font in pdf_evidence.parse_fonts(path.read_text(encoding="utf-8"))
+    ]
 
 
 def count_images(path: pathlib.Path) -> int:
-    return sum(
-        bool(re.match(r"\s*\d+\s+\d+\s+", line))
-        for line in path.read_text(encoding="utf-8").splitlines()
-    )
+    return pdf_evidence.count_images(path.read_text(encoding="utf-8"))
 
 
 def qdf_audit(path: pathlib.Path, oracle: dict[str, object]) -> dict[str, object]:
     text = path.read_bytes().decode("latin-1", errors="replace")
-    structure_counts = {
-        tag: len(re.findall(rf"/S /{re.escape(tag)}\b", text))
-        for tag in oracle["minimum_structure_counts"]
-    }
+    evidence = pdf_evidence.parse_qdf(text, oracle["minimum_structure_counts"])
     expected_minimums = {
         str(tag): int(count)
         for tag, count in oracle["minimum_structure_counts"].items()
     }
-    uris = re.findall(r"/URI \((.*?)\)", text)
     expected_uris = [str(uri) for uri in oracle["links"]]
     return {
-        "has_struct_tree_root": "/StructTreeRoot" in text,
-        "has_mark_info": "/MarkInfo" in text,
-        "structure_counts": structure_counts,
+        "has_struct_tree_root": evidence.has_struct_tree_root,
+        "has_mark_info": evidence.has_mark_info,
+        "structure_counts": evidence.structure_counts,
         "structure_minimums_pass": all(
-            structure_counts[tag] >= minimum
+            evidence.structure_counts[tag] >= minimum
             for tag, minimum in expected_minimums.items()
         ),
-        "uris": uris,
-        "exact_uri_multiset": sorted(uris) == sorted(expected_uris),
+        "uris": list(evidence.uris),
+        "exact_uri_multiset": sorted(evidence.uris) == sorted(expected_uris),
     }
 
 
@@ -584,70 +545,20 @@ def main() -> int:
         json.dumps(versions, indent=2) + "\n", encoding="utf-8"
     )
 
-    commands = [
-        (["pdfinfo", str(artifact)], "pdfinfo.txt"),
-        (["pdffonts", str(artifact)], "pdffonts.txt"),
-        (["pdfimages", "-list", str(artifact)], "pdfimages.txt"),
-        (["pdftotext", str(artifact), str(output / "poppler-plain.txt")], "pdftotext-plain.log"),
-        (
-            ["pdftotext", "-layout", str(artifact), str(output / "poppler-layout.txt")],
-            "pdftotext-layout.log",
-        ),
-    ]
-    command_results: dict[str, int] = {}
-    for command, log_name in commands:
-        result = write_command_evidence(
-            command,
-            REPO_ROOT,
-            output / log_name,
-            output / f"{log_name}.stderr",
-        )
-        command_results[command[0] + " " + log_name] = result.returncode
-
-    xml_result = write_command_evidence(
-        ["pdftohtml", "-xml", "-hidden", "-i", "-stdout", str(artifact)],
-        REPO_ROOT,
-        output / "poppler.xml",
-        output / "pdftohtml.stderr",
+    evidence_results = pdf_evidence.capture_pdf_evidence(
+        artifact,
+        output,
+        cwd=REPO_ROOT,
+        include_xml=True,
+        include_qdf=True,
+        render_dpi=144,
     )
-    command_results["pdftohtml"] = xml_result.returncode
-
-    tika_result = write_command_evidence(
-        tika_command("-t", str(artifact)),
-        REPO_ROOT,
-        output / "tika.txt",
-        output / "tika.stderr",
-    )
-    command_results["tika"] = tika_result.returncode
-
-    qpdf_check = run(["qpdf", "--check", str(artifact)], REPO_ROOT)
-    (output / "qpdf-check.txt").write_text(
-        qpdf_check.stdout + qpdf_check.stderr, encoding="utf-8"
-    )
-    command_results["qpdf check"] = qpdf_check.returncode
-
-    qdf_result = run(
-        [
-            "qpdf",
-            "--qdf",
-            "--object-streams=disable",
-            str(artifact),
-            str(output / "qdf.pdf"),
-        ],
-        REPO_ROOT,
-    )
-    (output / "qdf.stderr").write_text(qdf_result.stderr, encoding="utf-8")
-    command_results["qpdf qdf"] = qdf_result.returncode
-
+    command_results = {
+        name: result.returncode for name, result in evidence_results.items()
+    }
+    qpdf_check = evidence_results["qpdf_check"]
     early_pdfinfo = parse_pdfinfo(output / "pdfinfo.txt")
     page_count = int(early_pdfinfo["Pages"] or 0)
-    render_command = ["pdftoppm", "-png", "-r", "144"]
-    if page_count == 1:
-        render_command.extend(["-singlefile"])
-    render_command.extend([str(artifact), str(output / "render-144dpi")])
-    render_result = run(render_command, REPO_ROOT)
-    (output / "render.stderr").write_text(render_result.stderr, encoding="utf-8")
-    command_results["pdftoppm"] = render_result.returncode
 
     if any(returncode != 0 for returncode in command_results.values()):
         failures = [name for name, code in command_results.items() if code != 0]
