@@ -7,16 +7,11 @@ dev:
 
 # One-shot typst compile.
 compile:
-    typst compile --font-path fonts/source-sans-3 --pdf-standard ua-1 will_cygan_resume.typ
+    uv run --no-project -m resume_tools.artifact resume
 
 # Build the parser-friendly reference resume with the pinned Source Sans 3 cuts.
 golden:
-    typst compile \
-      --root . \
-      --font-path fonts/source-sans-3 \
-      --pdf-standard ua-1 \
-      tests/fixtures/golden-resume/golden-resume.typ \
-      tests/fixtures/golden-resume/golden-resume.pdf
+    uv run --no-project -m resume_tools.artifact golden
 
 # Rebuild and evaluate the Golden Resume with the skill-owned deep gate.
 golden-check: golden

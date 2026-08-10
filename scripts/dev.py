@@ -13,8 +13,11 @@ import sys
 from pathlib import Path
 
 RESUME_DIR = Path(__file__).resolve().parent.parent
-PDF = "will_cygan_resume.pdf"
-SRC = "will_cygan_resume.typ"
+sys.path.insert(0, str(RESUME_DIR))
+
+from resume_tools import artifact  # noqa: E402
+REQUEST = artifact.request_for_resume()
+PDF = REQUEST.output.name
 
 
 def open_pdf() -> None:
@@ -37,7 +40,7 @@ def main() -> int:
     os.chdir(RESUME_DIR)
     open_pdf()
     print("Starting typst watch...")
-    return subprocess.run(["typst", "watch", SRC]).returncode
+    return artifact.watch_artifact(REQUEST)
 
 
 if __name__ == "__main__":

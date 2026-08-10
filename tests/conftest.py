@@ -8,7 +8,6 @@ no uv-run overhead, no stdout scraping). Tests assert on structured results.
 from __future__ import annotations
 
 import shutil
-import subprocess
 import sys
 from collections.abc import Callable
 from pathlib import Path
@@ -21,7 +20,9 @@ BASELINE_FIXTURES = REPO_ROOT / "tests" / "fixtures" / "baseline.fixtures.toml"
 BROKEN_DIR = REPO_ROOT / "tests" / "fixtures" / "broken"
 
 sys.path.insert(0, str(SCRIPTS_DIR))
+sys.path.insert(0, str(REPO_ROOT))
 import extraction_check as ec  # noqa: E402
+from resume_tools import artifact
 
 
 @pytest.fixture(scope="session")
@@ -44,10 +45,9 @@ def require_tika() -> None:
 
 
 @pytest.fixture(scope="session")
-def broken_pdf(
-    tmp_path_factory: pytest.TempPathFactory, require_typst: None
-) -> Callable[[str], Path]:
-    cache_dir = tmp_path_factory.mktemp("broken-pdfs")
+def broken_pdf(require_typst: None) -> Callable[[str], Path]:
+    cache_dir = REPO_ROOT / ".extraction" / "pytest-broken-pdfs"
+    cache_dir.mkdir(parents=True, exist_ok=True)
     cache: dict[str, Path] = {}
 
     def _compile(name: str) -> Path:
@@ -55,12 +55,15 @@ def broken_pdf(
             return cache[name]
         src = BROKEN_DIR / f"{name}.typ"
         pdf = cache_dir / f"{name}.pdf"
-        r = subprocess.run(
-            ["typst", "compile", str(src), str(pdf)],
-            capture_output=True, text=True,
+        request = artifact.CompileRequest(
+            source=src,
+            output=pdf,
+            purpose=artifact.ArtifactPurpose.NEGATIVE_FIXTURE,
+            dependencies_path=cache_dir / f"{name}.deps.json",
         )
+        r = artifact.compile_artifact(request)
         if r.returncode != 0:
-            raise RuntimeError(f"typst compile failed for {name}: {r.stderr}")
+            raise RuntimeError(f"typst compile failed for {name}")
         cache[name] = pdf
         return pdf
 

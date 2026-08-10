@@ -28,6 +28,9 @@ GOLDEN_FIXTURE_ROOT = REPO_ROOT / "tests" / "fixtures" / "golden-resume"
 DEFAULT_PDF = GOLDEN_FIXTURE_ROOT / "golden-resume.pdf"
 DEFAULT_SOURCE = GOLDEN_FIXTURE_ROOT / "golden-resume.typ"
 DEFAULT_ORACLE = GOLDEN_FIXTURE_ROOT / "golden-resume-oracle.json"
+sys.path.insert(0, str(REPO_ROOT))
+
+from resume_tools import artifact as artifact_tools  # noqa: E402
 
 REQUIRED_TOOLS = (
     "typst",
@@ -52,6 +55,11 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--pdf", type=pathlib.Path, default=DEFAULT_PDF)
     parser.add_argument("--source", type=pathlib.Path, default=DEFAULT_SOURCE)
+    parser.add_argument(
+        "--provenance",
+        type=pathlib.Path,
+        help="Artifact provenance sidecar; defaults to the repository build location.",
+    )
     parser.add_argument("--oracle", type=pathlib.Path, default=DEFAULT_ORACLE)
     parser.add_argument(
         "--output-dir",
@@ -548,7 +556,12 @@ def main() -> int:
     pdf = args.pdf.expanduser().resolve()
     source = args.source.expanduser().resolve()
     oracle_path = args.oracle.expanduser().resolve()
-    for required in (pdf, source, oracle_path):
+    provenance_path = (
+        args.provenance.expanduser().resolve()
+        if args.provenance is not None
+        else artifact_tools.provenance_path_for(pdf)
+    )
+    for required in (pdf, source, oracle_path, provenance_path):
         if not required.is_file():
             raise SystemExit(f"required file does not exist: {required}")
 
@@ -691,7 +704,8 @@ def main() -> int:
         qpdf_check.returncode == 0
         and "No syntax or stream encoding errors found" in (output / "qpdf-check.txt").read_text()
     )
-    source_current = artifact.stat().st_mtime_ns >= source.stat().st_mtime_ns
+    provenance = artifact_tools.load_provenance(provenance_path)
+    freshness = artifact_tools.evaluate_freshness(pdf, provenance, source=source)
     font_asset_hashes = {
         relative_path: hashlib.sha256((REPO_ROOT / relative_path).read_bytes()).hexdigest()
         for relative_path in oracle["font_assets"]
@@ -701,7 +715,7 @@ def main() -> int:
 
     render_paths = sorted(output.glob("render-144dpi*.png"))
     gates = {
-        "source_pdf_current": source_current,
+        "source_pdf_current": freshness.is_fresh,
         "pinned_font_assets": font_assets_pass,
         "all_text_views": all(result["passes"] for result in text_views.values()),
         "work_authorization_statement": work_authorization_pass,
@@ -728,7 +742,13 @@ def main() -> int:
             "path": str(pdf),
             "source": str(source),
             "sha256": hashlib.sha256(artifact.read_bytes()).hexdigest(),
-            "source_current": source_current,
+            "source_current": freshness.is_fresh,
+            "provenance": str(provenance_path),
+            "freshness": {
+                "stale": list(freshness.stale),
+                "missing": list(freshness.missing),
+                "changed": list(freshness.changed),
+            },
             "pdfinfo": pdfinfo,
         },
         "oracle": str(oracle_path),
