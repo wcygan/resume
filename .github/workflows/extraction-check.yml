@@ -76,7 +76,7 @@ jobs:
           java -jar "$TIKA_JAR" --version
 
       - name: Compile resume
-        run: just compile
+        run: uv run --no-project -m resume_tools.artifact resume
 
       - name: Run extraction-check on compiled resume
         run: just extraction-check

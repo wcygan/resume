@@ -23,6 +23,9 @@ REPO_ROOT = SKILL_ROOT.parents[2]
 GOLDEN_FIXTURE_ROOT = REPO_ROOT / "tests" / "fixtures" / "golden-resume"
 DEFAULT_MANIFEST = GOLDEN_FIXTURE_ROOT / "golden-resume-stress-matrix.json"
 EVALUATOR = SKILL_ROOT / "scripts" / "evaluate_golden_resume.py"
+sys.path.insert(0, str(REPO_ROOT))
+
+from resume_tools import artifact  # noqa: E402
 
 
 def parse_args() -> argparse.Namespace:
@@ -241,26 +244,19 @@ def main() -> int:
         effective_oracle = case_dir / "oracle.json"
         pdf = case_dir / "resume.pdf"
         dependencies = case_dir / "typst-dependencies.json"
+        provenance = case_dir / "typst-provenance.json"
         write_json(effective_data, case_data)
         write_json(effective_oracle, case_oracle)
 
-        compile_command = [
-            "typst",
-            "compile",
-            "--root",
-            ".",
-            "--font-path",
-            "fonts/source-sans-3",
-            "--pdf-standard",
-            "ua-1",
-            "--input",
-            f"data=/{relative_to_repo(effective_data)}",
-            "--deps",
-            str(dependencies),
-            str(source_path),
-            str(pdf),
-        ]
-        compiled = run(compile_command)
+        compile_request = artifact.CompileRequest(
+            source=source_path,
+            output=pdf,
+            file_inputs={"data": effective_data},
+            dependencies_path=dependencies,
+            provenance_path=provenance,
+        )
+        compile_command = artifact.compile_command(compile_request)
+        compiled = artifact.compile_artifact(compile_request, capture_output=True)
         (case_dir / "compile.stdout").write_text(compiled.stdout, encoding="utf-8")
         (case_dir / "compile.stderr").write_text(compiled.stderr, encoding="utf-8")
         if compiled.returncode != 0:
@@ -297,6 +293,8 @@ def main() -> int:
                 str(pdf),
                 "--source",
                 str(source_path),
+                "--provenance",
+                str(provenance),
                 "--oracle",
                 str(effective_oracle),
                 "--output-dir",

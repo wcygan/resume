@@ -18,10 +18,13 @@ jobs:
       - name: Setup Typst
         uses: typst-community/setup-typst@v4
         with:
-          typst-version: ^0.13.0
+          typst-version: 0.14.2
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
       
       - name: Compile resume
-        run: typst compile will_cygan_resume.typ will_cygan_resume.pdf
+        run: uv run --no-project -m resume_tools.artifact resume
       
       - name: Upload resume artifact
         uses: actions/upload-artifact@v4
@@ -38,4 +41,4 @@ jobs:
           else
             echo "❌ Resume compilation failed!"
             exit 1
-          fi 
+          fi
