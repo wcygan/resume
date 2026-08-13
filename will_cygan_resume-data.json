@@ -25,7 +25,7 @@
     },
     "work_authorization": "Work Authorization: U.S. Citizen"
   },
-  "profile": "Senior Software Engineer with 5 years of experience across backend, platform, infrastructure, and product engineering. Builds high-scale, resilient systems spanning APIs, relational databases, streaming, and batch processing. Delivers internal platforms and growth products tied to engagement and revenue.",
+  "profile": "Senior Software Engineer with 5 years building high-scale commerce and growth systems at LinkedIn — with expertise spanning APIs, relational databases, stream processing, and batch processing.",
   "experience": [
     {
       "company": "LinkedIn",
@@ -33,13 +33,13 @@
       "role": "Senior Software Engineer",
       "location": "Chicago, IL",
       "accomplishments": [
-        "Designed and implemented a churn-recovery alerting platform from inception, generating $2M in annual revenue; scaled serving to 100K QPS and streaming ingestion to ~500 writes/s.",
-        "Over the next two years, led technical onboarding for 3 partner teams across usage billing, winback offers, and cancellation reminders, growing platform-attributed annual revenue from $2M to $8M.",
-        "Led the zero-downtime migration of LinkedIn's 12 TB, 20B-row ordering database from Oracle to MySQL with zero data loss.",
-        "Designed a reusable Oracle-to-MySQL migration framework adopted by 10 domain teams, using shadow reads, phased rollout, rollback, and TTL-based routing to preserve strong consistency.",
-        "Introduced version-based optimistic locking across MySQL write paths, preventing silent conflicts caused by Temporal activity retries.",
-        "Built a cross-system deletion pipeline that purged 300K corrupt orders, then extended it to target ~6B dormant rows, roughly 33% of a 10+ year-old database.",
-        "Eliminated N+1 queries across all order-processing read paths, reducing average latency 40% (50 to 30 ms) and p95 latency 37% (200 to 125 ms)."
+        "Led the design and implementation of a payment-failure alerting platform with near-real-time invoice tracking that recovered $2M+ annually while operating at 100K read QPS from LinkedIn Feed.",
+        "Extended the payment-failure alerting platform with usage-billing and win-back cancellation-reminder functionality as platform-attributed annual revenue grew from $2M to $8M.",
+        "Built a reusable Database cutover library adopted by 10 domain teams for MySQL Migration, using shadow reads, rollback hooks, and TTL-based entity routing to preserve read-after-write consistency.",
+        "Led the 12 TB, 20B-row Ordering migration from Oracle to MySQL, rewriting 30K+ lines of Java & SQL across ~75 PRs while achieving zero downtime and data loss.",
+        "Designed and shipped shared optimistic locking across every MySQL update path, surfacing conflicts before Temporal retries could silently overwrite concurrent writes.",
+        "Built a batch deletion pipeline that safely purged 300K corrupt production orders, then scaled it to purge ~6B dormant orders from a 10+ year-old database.",
+        "Replaced N+1 read patterns with batched MySQL queries across Ordering workflows, reducing average latency from 50 to 30 ms and p95 from 200 to 125 ms."
       ]
     },
     {
@@ -48,9 +48,9 @@
       "role": "Software Engineer",
       "location": "San Francisco, CA",
       "accomplishments": [
-        "Scaled a feed recommendation service to 3,000 QPS on LinkedIn's 50M+ DAU feed, increasing weekly learners 2.5% across 3 experiments.",
-        "Built Spark targeting pipelines processing ~50 TB across 20+ datasets per run, expanding personalized learning alerts from 10M to 22M members and lifting weekly learners 1.09%.",
-        "Improved feed engagement 0.2% at hundreds of millions of daily impressions by filtering audio-only content from video course recommendations."
+        "Built the video-resolution and Feed integration for a course recommendation service, then scaled it to 3,000 QPS and increased weekly learners 2.5%.",
+        "Designed Spark pipelines that classified 10M+ job seekers across ~50 TB and 20+ datasets per run, expanding personalized alerts to 22M members.",
+        "Scoped and ran an experiment filtering audio-only course recommendations from LinkedIn Feed, increasing engagement 0.2% across hundreds of millions of daily impressions."
       ]
     },
     {
@@ -85,19 +85,11 @@
         "uri": "https://github.com/wcygan/anton"
       },
       "accomplishments": [
-        "Operates a three-node bare-metal Kubernetes cluster using Talos Linux and Flux CD GitOps.",
-        "Automates delivery of personal projects: CI builds and publishes Docker images and validates Kubernetes manifests, while Flux commits image updates to Git and deploys each release to the cluster.",
+        "Built and operates a three-node bare-metal Kubernetes cluster using Talos Linux and Flux CD.",
+        "Built a GitOps delivery pipeline that validates manifests, publishes container images, records image updates in Git, and deploys releases through Flux.",
         {
           "segments": [
-            {"text": "Hosts public applications on the cluster: "},
-            {"text": "nu-sync.net", "uri": "https://nu-sync.net/"},
-            {"text": ", "},
-            {"text": "food.nu-sync.net", "uri": "https://food.nu-sync.net"},
-            {"text": ", "},
-            {"text": "kneadybynaturebakery.com", "uri": "https://kneadybynaturebakery.com/"},
-            {"text": ", and "},
-            {"text": "cs2plant.nu-sync.net", "uri": "https://cs2plant.nu-sync.net/"},
-            {"text": "."}
+            {"text": "Hosts four public applications through Cloudflare Tunnel with HTTPS and no open inbound ports."}
           ]
         }
       ]
