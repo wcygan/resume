@@ -205,7 +205,7 @@
     #section("EDUCATION")
     #organization(data.education.institution)
     #h(0.75em)
-    #text(fill: muted)[Graduation: #data.education.graduation] \
+    #text(fill: muted)[#data.education.start - #data.education.end] \
     #data.education.degree
 
     #section("SKILLS")
